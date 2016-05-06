@@ -1,0 +1,65 @@
+{
+  "kind": "ReplicationController",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "$idx_and_short_serviceid",
+    "labels": {
+      "org": "$org",
+      "space": "$space",
+      "catalog_service_id": "$catalog_service_id",
+      "catalog_plan_id": "$catalog_plan_id",
+      "service_id": "$service_id",
+      "idx_and_short_serviceid": "$idx_and_short_serviceid",
+      "managed_by": "TAP"
+    }
+  },
+  "spec": {
+    "replicas": 1,
+    "selector": {
+      "service_id": "$service_id",
+      "idx_and_short_serviceid": "$idx_and_short_serviceid"
+    },
+    "template": {
+      "metadata": {
+        "labels": {
+          "service_id": "$service_id",
+          "idx_and_short_serviceid": "$idx_and_short_serviceid",
+          "managed_by": "TAP",
+          "secretsRequired": "elastic",
+          "name": "$name"
+        }
+      },
+      "spec": {
+        "volumes": null,
+        "containers": [
+	  {
+            "name": "k-kibana",
+            "image": "kibana:4.1.4",
+        "resources": {
+          "limits": {
+            "cpu": "10m"
+          }
+        },
+            "ports": [
+              {
+                "containerPort": 5601,
+                "protocol": "TCP"
+              }           
+            ],
+            "env": [
+	      { "name": "MANAGED_BY", "value":"TAP" },
+              { "name": "SECRET_NAME", "value":"elastic.$secret_idx_and_short_serviceid" },
+	      { "name": "ELASTICSEARCH_URL",   "valueFrom": {"secretKeyRef":{"name":"elastic.$secret_idx_and_short_serviceid","key":"elasticuri"}}},
+              { "name": "USERNAME", "valueFrom": {"secretKeyRef":{"name":"elastic.$secret_idx_and_short_serviceid","key":"elasticuser"}}},
+              { "name": "PASSWORD", "valueFrom": {"secretKeyRef":{"name":"elastic.$secret_idx_and_short_serviceid","key":"elasticpassword"}}},
+              { "name": "DBNAME", "valueFrom": {"secretKeyRef":{"name":"elastic.$secret_idx_and_short_serviceid","key":"elasticdbname"}}}
+	    ],
+            "imagePullPolicy": "IfNotPresent"
+          }          
+        ],
+        "restartPolicy": "Always",
+        "dnsPolicy": "ClusterFirst"
+      }
+    }
+  }
+}

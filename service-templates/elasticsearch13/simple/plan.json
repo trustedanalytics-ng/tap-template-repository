@@ -1,0 +1,9 @@
+{
+  "id": "82d1de1a-d172-11e5-a134-00155d3d8807",
+  "name": "free",
+  "description": "free",
+  "free": true,
+  "createsSecrets":[
+    "elastic"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "kind": "Secret",
+  "apiVersion": "v1",
+  "metadata":{
+    "name":"elastic.$secret_idx_and_short_serviceid",
+    "labels": {
+      "secretClass":"elastic",
+      "managed_by": "TAP",
+      "name":"$name-secret"
+    }
+  },
+  "type":"Opaque",
+  "data":{
+    "elasticuser": "$base64-$random1",
+    "elasticpassword":"$base64-$random2",
+    "elasticdbname":"$base64-$random3",
+    "elasticuri":"$base64-http://$clusterip:9200"
+  }
+}

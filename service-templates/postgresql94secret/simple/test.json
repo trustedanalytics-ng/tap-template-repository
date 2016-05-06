@@ -1,0 +1,106 @@
+[
+  {
+    "metadata": {
+      "name": "kubernetes",
+      "namespace": "default",
+      "selfLink": "/api/v1/namespaces/default/services/kubernetes",
+      "uid": "dd1f750c-fd5b-11e5-80f2-00155d3d8807",
+      "resourceVersion": "7",
+      "creationTimestamp": "2016-04-08T07:31:09Z",
+      "labels": {
+        "component": "apiserver",
+        "provider": "kubernetes"
+      }
+    },
+    "spec": {
+      "type": "ClusterIP",
+      "ports": [
+        {
+          "name": "https",
+          "protocol": "TCP",
+          "port": 443,
+          "targetPort": 443,
+          "nodePort": 0
+        }
+      ],
+      "selector": null,
+      "clusterIP": "10.0.0.1",
+      "sessionAffinity": "None"
+    },
+    "status": {
+      "loadBalancer": {}
+    }
+  },
+  {
+    "metadata": {
+      "name": "nginx",
+      "namespace": "default",
+      "selfLink": "/api/v1/namespaces/default/services/nginx",
+      "uid": "d0dbe79e-ffc7-11e5-80f2-00155d3d8807",
+      "resourceVersion": "25900",
+      "creationTimestamp": "2016-04-11T09:28:57Z",
+      "labels": {
+        "run": "nginx"
+      }
+    },
+    "spec": {
+      "type": "ClusterIP",
+      "ports": [
+        {
+          "name": "",
+          "protocol": "TCP",
+          "port": 80,
+          "targetPort": 80,
+          "nodePort": 0
+        }
+      ],
+      "selector": {
+        "run": "nginx"
+      },
+      "clusterIP": "10.0.0.180",
+      "sessionAffinity": "None"
+    },
+    "status": {
+      "loadBalancer": {}
+    }
+  },
+  {
+    "metadata": {
+      "name": "x59cd8f80c0244",
+      "namespace": "default",
+      "selfLink": "/api/v1/namespaces/default/services/x59cd8f80c0244",
+      "uid": "ca7ae588-02fa-11e6-80f2-00155d3d8807",
+      "resourceVersion": "88457",
+      "creationTimestamp": "2016-04-15T11:11:24Z",
+      "labels": {
+        "catalog_plan_id": "7cf6c4fa-fcb6-11e5-8ec3-00155d3d8807",
+        "catalog_service_id": "6f63667c-fcb6-11e5-852b-00155d3d8807",
+        "idx_and_short_serviceid": "x59cd8f80c0244",
+        "managed_by": "TAP",
+        "org": "default",
+        "service_id": "cf_service_id",
+        "space": "default"
+      }
+    },
+    "spec": {
+      "type": "NodePort",
+      "ports": [
+        {
+          "name": "",
+          "protocol": "TCP",
+          "port": 5432,
+          "targetPort": 5432,
+          "nodePort": 30429
+        }
+      ],
+      "selector": {
+        "service_id": "cf_service_id"
+      },
+      "clusterIP": "10.0.0.187",
+      "sessionAffinity": "None"
+    },
+    "status": {
+      "loadBalancer": {}
+    }
+  }
+]

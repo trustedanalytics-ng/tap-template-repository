@@ -1,0 +1,58 @@
+{
+  "kind": "ReplicationController",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "$idx_and_short_serviceid",
+    "labels": {
+      "org": "$org",
+      "space": "$space",
+      "catalog_service_id": "$catalog_service_id",
+      "catalog_plan_id": "$catalog_plan_id",
+      "service_id": "$service_id",
+      "idx_and_short_serviceid": "$idx_and_short_serviceid",
+      "managed_by": "TAP"
+    }
+  },
+  "spec": {
+    "replicas": 1,
+    "selector": {
+      "service_id": "$service_id",
+      "idx_and_short_serviceid": "$idx_and_short_serviceid"
+    },
+    "template": {
+      "metadata": {
+        "labels": {
+          "service_id": "$service_id",
+          "idx_and_short_serviceid": "$idx_and_short_serviceid",
+          "managed_by": "TAP",
+          "secretsRequired": "elastic",
+          "name": "$name"
+        }
+      },
+      "spec": {
+        "volumes": null,
+        "containers": [
+	  {
+            "name": "elk-writer",
+            "image": "5edf9636-8df5-4609-b93b-4af5e0b1d81f.tmp.us.enableiot.com:5000/elk-writer",
+            "ports": [
+              {
+                "containerPort": 80,
+                "protocol": "TCP"
+              }           
+            ],
+            "env": [
+	      { "name": "MANAGED_BY", "value":"TAP" },
+              { "name": "SECRET_NAME", "value":"elastic.$secret_idx_and_short_serviceid" },
+	      { "name": "ELASTICSEARCH_URL",   "valueFrom": {"secretKeyRef":{"name":"elastic.$secret_idx_and_short_serviceid","key":"elasticuri"}}}
+	    ],
+            "imagePullPolicy": "Always"
+          }          
+        ],
+        "imagePullSecrets":[{"name":"repo-secret"}],
+        "restartPolicy": "Always",
+        "dnsPolicy": "ClusterFirst"
+      }
+    }
+  }
+}

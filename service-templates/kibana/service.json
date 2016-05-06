@@ -1,0 +1,10 @@
+{
+    "id": "655e484a-054e-11e6-b79c-00155d3d8807",
+    "name": "k-kibana",
+    "description": "Kibana",
+    "bindable": true,
+    "tags": [
+      "k8s",
+      "test"
+    ]
+}

@@ -1,0 +1,17 @@
+{
+    "id": "d6ec2002-d625-11e5-bc27-00155d3d8807",
+    "name": "k-iotdashboard",
+    "description": "EnableIoT Dashboard",
+    "metadata":{
+      "displayName": "1.6",
+      "imageUrl": "",
+      "longDescription": "IoT Analytics Dashboard",
+      "providerDisplayName": "Intel",
+      "documentationUrl": "https://github.com/enableiot",
+      "supportUrl": "https://github.com/enableiot"
+    },
+    "bindable": true,
+    "tags": [
+      "iot"
+    ]
+}

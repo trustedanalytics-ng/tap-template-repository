@@ -1,0 +1,10 @@
+{
+    "id": "d9620016-0d13-11e6-b5f7-00155d3d8807",
+    "name": "elk-writer",
+    "description": "elk-writer",
+    "bindable": true,
+    "tags": [
+      "k8s",
+      "test"
+    ]
+}

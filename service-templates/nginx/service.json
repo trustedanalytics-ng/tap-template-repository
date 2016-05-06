@@ -1,0 +1,10 @@
+{
+    "id": "c28e1be6-d0b8-11e5-934f-00155d3d8807",
+    "name": "k-nginx",
+    "description": "simplest possible k8s service",
+    "bindable": true,
+    "tags": [
+      "k8s",
+      "test"
+    ]
+}
