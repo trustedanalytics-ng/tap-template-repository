@@ -21,7 +21,7 @@ import (
 	"errors"
 	"io/ioutil"
 
-	"github.com/trustedanalytics/kubernetes-broker/logger"
+	"github.com/trustedanalytics/tap-go-common/logger"
 )
 
 type ServicesMetadata struct {

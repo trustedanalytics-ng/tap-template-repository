@@ -23,8 +23,8 @@ import (
 	"net/http"
 	"strconv"
 
-	brokerHttp "github.com/trustedanalytics/kubernetes-broker/http"
-	"github.com/trustedanalytics/kubernetes-broker/logger"
+	brokerHttp "github.com/trustedanalytics/tap-go-common/http"
+	"github.com/trustedanalytics/tap-go-common/logger"
 	"github.com/trustedanalytics/tap-template-repository/catalog"
 )
 

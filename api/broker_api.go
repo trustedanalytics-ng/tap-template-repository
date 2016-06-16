@@ -23,8 +23,8 @@ import (
 
 	"github.com/gocraft/web"
 
-	"github.com/trustedanalytics/kubernetes-broker/state"
-	"github.com/trustedanalytics/kubernetes-broker/util"
+	"github.com/trustedanalytics/tap-go-common/state"
+	"github.com/trustedanalytics/tap-go-common/util"
 	"github.com/trustedanalytics/tap-template-repository/catalog"
 )
 

@@ -19,11 +19,14 @@ import (
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
-
-	tst "github.com/trustedanalytics/kubernetes-broker/test"
 )
 
-var testCatalogPath = tst.GetTestCatalogPath("/catalog")
+var testCatalogPath = "test_catalog/"
+
+const TestServiceId string = "testServiceId"
+const TestPlanId string = "testPlanId"
+const TestInternalServiceId = "consul"
+const TestInternalPlanId = "simple"
 
 func TestGetOrgIdAndSpaceIdFromCfByServiceInstanceIdJson(t *testing.T) {
 	Convey("Test GetOrgIdAndSpaceIdFromCfByServiceInstanceIdJson", t, func() {
@@ -32,10 +35,10 @@ func TestGetOrgIdAndSpaceIdFromCfByServiceInstanceIdJson(t *testing.T) {
 			var result = GetAvailableServicesMetadata()
 
 			So(len(result.Services), ShouldEqual, 1)
-			So(result.Services[0].Id, ShouldEqual, tst.TestServiceId)
+			So(result.Services[0].Id, ShouldEqual, TestServiceId)
 			So(len(result.Services[0].Tags), ShouldEqual, 3)
 			So(len(result.Services[0].Plans), ShouldEqual, 1)
-			So(result.Services[0].Plans[0].Id, ShouldEqual, tst.TestPlanId)
+			So(result.Services[0].Plans[0].Id, ShouldEqual, TestPlanId)
 		})
 
 		Convey("Should returns error when parsing catalog directory", func() {
@@ -65,23 +68,23 @@ func TestWhatToCreateByServiceAndPlanId(t *testing.T) {
 		CatalogPath = testCatalogPath
 
 		Convey("Should returns proper response", func() {
-			service, plan, err := WhatToCreateByServiceAndPlanId(tst.TestServiceId, tst.TestPlanId)
+			service, plan, err := WhatToCreateByServiceAndPlanId(TestServiceId, TestPlanId)
 			So(err, ShouldBeNil)
-			So(service.Id, ShouldEqual, tst.TestServiceId)
-			So(plan.Id, ShouldEqual, tst.TestPlanId)
+			So(service.Id, ShouldEqual, TestServiceId)
+			So(plan.Id, ShouldEqual, TestPlanId)
 		})
 
 		Convey("Should returns error when service not found", func() {
-			_, _, err := WhatToCreateByServiceAndPlanId("fakeServiceName", tst.TestPlanId)
+			_, _, err := WhatToCreateByServiceAndPlanId("fakeServiceName", TestPlanId)
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldContainSubstring, "No such service by ID")
 		})
 
 		Convey("Should returns error when plan not found", func() {
-			service, _, err := WhatToCreateByServiceAndPlanId(tst.TestServiceId, "fakePlanId")
+			service, _, err := WhatToCreateByServiceAndPlanId(TestServiceId, "fakePlanId")
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldContainSubstring, "No such plan by ID")
-			So(service.Id, ShouldEqual, tst.TestServiceId)
+			So(service.Id, ShouldEqual, TestServiceId)
 		})
 	})
 }
@@ -91,7 +94,7 @@ func TestGetKubernetesBlueprintForServiceAndPlan(t *testing.T) {
 
 	Convey("Test GetKubernetesBlueprintForServiceAndPlan", t, func() {
 		Convey("Should returns proper response", func() {
-			result, err := GetKubernetesBlueprint(testCatalogPath, tst.TestInternalServiceId, tst.TestInternalPlanId, "")
+			result, err := GetKubernetesBlueprint(testCatalogPath, TestInternalServiceId, TestInternalPlanId, "")
 			So(err, ShouldBeNil)
 			So(len(result.ServiceJson), ShouldEqual, 1)
 			So(result.Id, ShouldEqual, 0)

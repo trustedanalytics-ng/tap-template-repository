@@ -24,3 +24,13 @@ deps_fetch_newest:
 	$(GOBIN)/govendor remove +all
 	@echo "Update deps used in project to their newest versions"
 	$(GOBIN)/govendor fetch -v +external, +missing
+
+deps_update: verify_gopath
+	$(GOBIN)/govendor update +external
+	@echo "Done"
+
+bin/govendor: verify_gopath
+	go get -v -u github.com/kardianos/govendor
+
+tests: verify_gopath
+	go test --cover $(APP_DIR_LIST)
