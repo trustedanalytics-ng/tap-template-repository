@@ -1,9 +1,0 @@
-{
-  "id": "f10d0e54-0d13-11e6-9dbb-00155d3d8807",
-  "name": "simple",
-  "description": "Elk writer",
-  "free": true,
-  "secretsDependencies":[
-    "elastic"
-  ]
-}

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 Intel Corporation
+ * Copyright (c) 2016 Intel Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,221 +20,176 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
-	"log"
-	"strings"
-	//"k8s.io/kubernetes/pkg/api"
-	"os"
+
+	"github.com/trustedanalytics/kubernetes-broker/logger"
 )
 
-type TapServices struct {
-	Services []ServiceTemplate `json:"services"`
+type ServicesMetadata struct {
+	Services []ServiceMetadata `json:"services"`
 }
 
-type ServiceTemplate struct {
+type ServiceMetadata struct {
 	Id          string         `json:"id"`
 	Name        string         `json:"name"`
 	Description string         `json:"description"`
 	Bindable    bool           `json:"bindable"`
 	Tags        []string       `json:"tags"`
 	Plans       []PlanMetadata `json:"plans"`
-	Metadata    ServiceTemplateMetadata`json:"metadata"`
+	InternalId  string         `json:"-"`
 }
-
-type ServiceTemplateMetadata struct {
-	DisplayName		string `json:"displayName"`
-	ImageUrl		string `json:"imageUrl"`
-	LongDescription		string `json:"longDescription"`
-	ProviderDisplayName	string `json:"providerDisplayName"`
-	DocumentationUrl	string `json:"documentationUrl"`
-	SupportUrl		string `json:"supportUrl"`
-}
-
-
 
 type PlanMetadata struct {
-	Id                              string `json:"id"`
-	Name                            string `json:"name"`
-	Description                     string `json:"description"`
-	Free                            bool   `json:"free"`
-	SecretsDependencies             []string `json:"secretsDependencies"`
-	CreatesSecrets                  []string `json:"createsSecrets"`
-	ReplicationControllersTemplates []string `json:"-"`
-	K8SServicesTemplates            []string `json:"-"`
+	Id          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Free        bool   `json:"free"`
+	InternalId  string `json:"-"`
 }
 
-func FindServiceByIdInServices(serviceId string, services []ServiceTemplate) (ServiceTemplate, error) {
-	for _, service := range services {
-		if service.Id == serviceId {
-			return service, nil
-		}
+var CatalogPath string = "./catalogData/"
+var logger = logger_wrapper.InitLogger("catalog")
+
+func WhatToCreateByServiceAndPlanId(service_id, plan_id string) (ServiceMetadata, PlanMetadata, error) {
+	//todo we need to check in postgres for dynamic services - we need to only add result to GetAvailableServicesMetadata()
+	svcMeta, err := GetServiceMetadataByServiceId(service_id)
+	if err != nil {
+		logger.Error(err)
+		return ServiceMetadata{}, PlanMetadata{}, err
 	}
-	return ServiceTemplate{}, errors.New("No such service by ID: " + serviceId)
+	logger.Info("Found service:", svcMeta)
+	planMeta, err := GetPlanMetadataByPlanIdInServiceMetadata(svcMeta, plan_id)
+	if err != nil {
+		logger.Error(err)
+		return svcMeta, PlanMetadata{}, err
+	}
+	logger.Info("Found plan:", planMeta)
+
+	return svcMeta, planMeta, nil
 }
-func FindPlanByIdInService(planId string, service ServiceTemplate) (PlanMetadata, error){
-	for _, plan := range service.Plans {
-		if plan.Id == planId {
+
+func GetPlanMetadataByPlanIdInServiceMetadata(svc_metadata ServiceMetadata, plan_id string) (PlanMetadata, error) {
+	for _, plan := range svc_metadata.Plans {
+		if plan.Id == plan_id {
 			return plan, nil
 		}
 	}
-	return PlanMetadata{}, errors.New("No such plan by ID: " + planId)
+	return PlanMetadata{}, errors.New("No such plan by ID: " + plan_id)
 }
 
-func GetTapServices() (TapServices, error){
-	tapServices, _ := getServicesFromDir("./service-templates")
-
-	return tapServices, nil
-}
-
-func GetTapSecrets() ([]string, error){
-	tapSecrets, _ := getSecretsFromDir("./secrets-templates")
-	return tapSecrets, nil
-}
-
-func getSecretsFromDir(catalogPath string) ([]string, error) {
-	tapSecrests := []string{}
-	catalog_file_info := readDirOrFail(catalogPath)
-	for _, f := range catalog_file_info {
-		if ! isFileAJsonAndType(f, "") { //any json
-			continue
+func GetServiceMetadataByServiceId(service_id string) (ServiceMetadata, error) {
+	for _, svc := range GetAvailableServicesMetadata().Services {
+		if svc.Id == service_id {
+			return svc, nil
 		}
-		secret := readFileOrFail(catalogPath+"/"+f.Name())//unmarsahelJsonOrFail(f.Name(), &api.Secret{})
-		tapSecrests = append(tapSecrests, secret)
 	}
-	return tapSecrests, nil
+	return ServiceMetadata{}, errors.New("No such service by ID: " + service_id)
 }
 
-func getServicesFromDir(catalogPath string) (TapServices, error) {
-	tapServices := TapServices{}
-	tapServices.Services = []ServiceTemplate{}
-
-	catalog_file_info := readDirOrFail(catalogPath)
-
-	for _, serviceDir := range catalog_file_info {
-		serviceMetadata, _ := getServiceMetadataNoPlansFromDir(catalogPath+"/"+serviceDir.Name())
-
-		serviceMetadata.Plans, _ = getServicePlansFromDir(catalogPath+"/"+serviceDir.Name())
-
-		tapServices.AppendServices(serviceMetadata)
-
-
-	}
-	return tapServices, nil
-}
-
-func (s *TapServices) AppendServices(service ServiceTemplate) []ServiceTemplate {
-	s.Services = append(s.Services, service)
-	return s.Services
-}
-
-func (s *PlanMetadata) AppendReplicationControllers(replicationControllers []string) []string {
-	for _, r := range replicationControllers {
-		s.ReplicationControllersTemplates = append(s.ReplicationControllersTemplates, r)
-	}
-	return s.ReplicationControllersTemplates
-}
-
-func (s *PlanMetadata) AppendK8SServices(services []string) []string {
-	for _, svc := range services {
-		s.K8SServicesTemplates = append(s.K8SServicesTemplates, svc)
-	}
-	return s.K8SServicesTemplates
-}
-
-
-func getServiceMetadataNoPlansFromDir(catalogPath string) (ServiceTemplate, error){
-	serviceMetadata := ServiceTemplate{}
-	fcontent := readFileOrFail(catalogPath + "/service.json")
-	err := json.Unmarshal([]byte(fcontent), &serviceMetadata)
-	serviceMetadata.Plans = []PlanMetadata{}
-	return serviceMetadata, err
-}
-
-func getServicePlansFromDir(catalogPath string) ([]PlanMetadata, error){
-	servicePlans := []PlanMetadata{}
-	catalog_file_info := readDirOrFail(catalogPath)
-
-	for _, planDir := range catalog_file_info {
-		if ! planDir.IsDir() {
-			continue
+func CheckIfServiceAlreadyExist(serviceName string) bool {
+	for _, svc := range GetAvailableServicesMetadata().Services {
+		if svc.Name == serviceName {
+			return true
 		}
-		servicePlan, _ := getServicePlanFromFile(catalogPath+"/"+planDir.Name() + "/plan.json")
-		replicationControllers, _ := getReplicationControllersFromDir(catalogPath+"/"+planDir.Name())
-		k8sServices, _ := getK8SServicesFromDir(catalogPath+"/"+planDir.Name())
-
-		servicePlan.AppendReplicationControllers(replicationControllers)
-		servicePlan.AppendK8SServices(k8sServices)
-
-		servicePlans = append(servicePlans, servicePlan)
 	}
-
-	return servicePlans, nil
+	return false
 }
 
-func getServicePlanFromFile(planFile string) (PlanMetadata, error) {
-	servicePlan := PlanMetadata{}
-	fcontent := readFileOrFail(planFile)
-	err := json.Unmarshal([]byte(fcontent), &servicePlan)
-	return servicePlan, err
-}
-
-func getReplicationControllersFromDir(catalogPath string) ([]string, error){//api.ReplicationController, error) {
-	replicationControllers := []string{} //api.ReplicationController{}
-	catalogPath = catalogPath + "/k8s"
-	files_in_path := readDirOrFail(catalogPath)
-	for _, f := range files_in_path {
-		if ! isFileAJsonAndType(f, "replicationcontroller") {
-			continue
+func GetServiceByName(serviceName string) (ServiceMetadata, error) {
+	for _, svc := range GetAvailableServicesMetadata().Services {
+		if svc.Name == serviceName {
+			return svc, nil
 		}
-
-		replicationController := readFileOrFail(catalogPath+"/"+f.Name())//unmarsahelJsonOrFail(f.Name(), &api.ReplicationController{})
-		replicationControllers = append(replicationControllers, replicationController)
 	}
-	return replicationControllers, nil
+	return ServiceMetadata{}, errors.New("service not exist!")
 }
 
-func getK8SServicesFromDir(catalogPath string) ([]string, error){ //([]api.Service, error){
-	services := []string{} //[]api.Service{}
-	catalogPath = catalogPath + "/k8s"
-	files_in_path := readDirOrFail(catalogPath)
-	for _, f := range files_in_path {
-		if ! isFileAJsonAndType(f, "service") {
-			continue
+// add mutex... or return a deep copy (prefered).
+var GLOBAL_SERVICES_METADATA *ServicesMetadata
+
+func GetAvailableServicesMetadata() ServicesMetadata {
+	if GLOBAL_SERVICES_METADATA != nil {
+		logger.Debug("GetAvailableServicesMetadata - already exists.")
+		return *GLOBAL_SERVICES_METADATA
+	} else {
+		logger.Debug("GetAvailableServicesMetadata - need to parse catalog/ directory.")
+		services_metadata := ServicesMetadata{}
+		catalog_file_info, err := ioutil.ReadDir(CatalogPath)
+		if err != nil {
+			logger.Panic(err)
+		}
+		for _, svcdir := range catalog_file_info {
+			if svcdir.IsDir() {
+				svcdirname := CatalogPath + svcdir.Name()
+				logger.Debug(" => ", svcdir.Name(), svcdirname)
+
+				plans_file_info, err := ioutil.ReadDir(svcdirname)
+				if err != nil {
+					logger.Panic(err)
+				}
+				var svc_meta ServiceMetadata
+				var plan_metas []PlanMetadata
+				for _, plandir := range plans_file_info {
+					plan_dir_full_name := svcdirname + "/" + plandir.Name()
+					var plan_meta PlanMetadata
+					if plandir.IsDir() {
+						logger.Debug(" ====> ", plandir.Name(), plan_dir_full_name)
+						plans_content_file_info, err := ioutil.ReadDir(plan_dir_full_name)
+						if err != nil {
+							logger.Panic(err)
+						}
+
+						for _, plan_details := range plans_content_file_info {
+							plan_details_dir_full_name := plan_dir_full_name + "/" + plan_details.Name()
+							if plan_details.IsDir() {
+								logger.Debug("Skipping directory:", plan_details_dir_full_name)
+							} else if plan_details.Name() == "plan.json" {
+								logger.Debug(" -----------> PLAN.JSON: ", plan_details.Name(), plan_details_dir_full_name)
+								plan_metadata_file_content, err := ioutil.ReadFile(plan_details_dir_full_name)
+								if err != nil {
+									logger.Fatal("Error reading file: ", plan_details_dir_full_name, err)
+								}
+								b := []byte(plan_metadata_file_content)
+								err = json.Unmarshal(b, &plan_meta)
+								if err != nil {
+									logger.Fatal("Error parsing json from file: ", plan_details_dir_full_name, err)
+								}
+								logger.Debug("PLAN.JSON parsed as: ", plan_meta)
+								plan_meta.InternalId = plandir.Name()
+								plan_metas = append(plan_metas, plan_meta)
+							} else {
+								logger.Debug(" -----------> ", plan_details.Name(), plan_details_dir_full_name)
+							}
+
+						}
+
+					} else if plandir.Name() == "service.json" {
+						logger.Debug(" ----> SERVICE.JSON: ", plandir.Name())
+						// LOAD SERVICE METADATA
+
+						svc_metadata_file_content, err := ioutil.ReadFile(plan_dir_full_name)
+						if err != nil {
+							logger.Fatal("Error reading file: ", plan_dir_full_name, err)
+						}
+						b := []byte(svc_metadata_file_content)
+						err = json.Unmarshal(b, &svc_meta)
+						if err != nil {
+							logger.Fatal("Error parsing json from file: ", plan_dir_full_name, err)
+						}
+						logger.Debug("SERVICE.JSON parsed as: ", svc_meta)
+
+					} else {
+						logger.Debug("Skipping file: ", plan_dir_full_name)
+					}
+				}
+				svc_meta.InternalId = svcdir.Name()
+				svc_meta.Plans = plan_metas
+				services_metadata.Services = append(services_metadata.Services, svc_meta)
+
+			}
 		}
 
-		service := readFileOrFail(catalogPath+"/"+f.Name())//unmarsahelJsonOrFail(f.Name(),&api.Service{})
-		services = append(services, service)
+		logger.Debug("PARSED: services_metadata: ", services_metadata)
+		GLOBAL_SERVICES_METADATA = &services_metadata
+		return *GLOBAL_SERVICES_METADATA
 	}
-	return services, nil
-}
-
-func isFileAJsonAndType(f os.FileInfo, fileType string) bool {
-	return strings.HasPrefix(f.Name(), fileType) && strings.HasSuffix(f.Name(), ".json")
-}
-
-func unmarsahelJsonOrFail(file string, structType interface{}) interface{}{
-	fcontent := readFileOrFail(file)
-
-	err := json.Unmarshal([]byte(fcontent), structType)
-	if err != nil {
-		log.Panicln(err)
-	}
-	return structType
-}
-
-func readDirOrFail(catalogPath string) []os.FileInfo {
-	log.Println("Read catalog:", catalogPath)
-	catalog_file_info, err := ioutil.ReadDir(catalogPath)
-	if err != nil {
-		log.Panicln(err)
-	}
-	return catalog_file_info
-}
-
-func readFileOrFail(file string) string {
-	log.Println("Read file:", file)
-	fcontent, err := ioutil.ReadFile(file)
-	if err != nil {
-		log.Panic("Error reading file: ", fcontent, err)
-	}
-	return string(fcontent)
 }

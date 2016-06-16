@@ -1,25 +1,26 @@
-export APDIR=$(go list ./... | grep -v /vendor/)
+GOBIN=$(GOPATH)/bin
+APP_DIR_LIST=$(shell go list ./... | grep -v /vendor/)
 
-build:
-	CGO_ENABLED=0 go install -tags netgo ${APDIR}
+bin/app: verify_gopath
+	CGO_ENABLED=0 go install -tags netgo $(APP_DIR_LIST)
+	go fmt $(APP_DIR_LIST)
 
-run: build
-	${GOPATH}/bin/broker
+verify_gopath:
+	@if [ -z "$(GOPATH)" ] || [ "$(GOPATH)" = "" ]; then\
+		echo "GOPATH not set. You need to set GOPATH before run this command";\
+		exit 1 ;\
+	fi
 
-run-local: build
-	PORT=8181 KUBERNETES_URL=127.0.0.1:8080 ${GOPATH}/bin/broker
+build: bin/app
+	rm -Rf application && mkdir application
+	cp -Rf $(GOBIN)/tap-template-repository application/
+	docker build -t tap/tap-template-repository .
 
+push_docker: build
+	docker tag tap-broker  $(REPOSITORY_URL)/tap-template-repository:latest
+	docker push $(REPOSITORY_URL)/tap-template-repository:latest
 
-build-docker: build
-	cp ${GOPATH}/bin/broker ./broker.elf
-	docker build -t tap-broker .
-
-push-latest: build-docker
-	docker tag tap-broker  5edf9636-8df5-4609-b93b-4af5e0b1d81f.tmp.us.enableiot.com:5000/tap-broker:latest
-	docker push 5edf9636-8df5-4609-b93b-4af5e0b1d81f.tmp.us.enableiot.com:5000/tap-broker:latest
-
-push-stable: build-docker
-	@echo "is it stable?"
-	exit 1
-	docker tag tap-broker  5edf9636-8df5-4609-b93b-4af5e0b1d81f.tmp.us.enableiot.com:5000/tap-broker:0.8.1
-	docker push 5edf9636-8df5-4609-b93b-4af5e0b1d81f.tmp.us.enableiot.com:5000/tap-broker:0.8.1
+deps_fetch_newest:
+	$(GOBIN)/govendor remove +all
+	@echo "Update deps used in project to their newest versions"
+	$(GOBIN)/govendor fetch -v +external, +missing

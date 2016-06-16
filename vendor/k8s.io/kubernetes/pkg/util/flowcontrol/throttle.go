@@ -18,8 +18,6 @@ package flowcontrol
 
 import (
 	"sync"
-
-	"github.com/juju/ratelimit"
 )
 
 type RateLimiter interface {
@@ -38,7 +36,6 @@ type RateLimiter interface {
 }
 
 type tokenBucketRateLimiter struct {
-	limiter *ratelimit.Bucket
 }
 
 // NewTokenBucketRateLimiter creates a rate limiter which implements a token bucket approach.
@@ -47,23 +44,20 @@ type tokenBucketRateLimiter struct {
 // The bucket is initially filled with 'burst' tokens, and refills at a rate of 'qps'.
 // The maximum number of tokens in the bucket is capped at 'burst'.
 func NewTokenBucketRateLimiter(qps float32, burst int) RateLimiter {
-	limiter := ratelimit.NewBucketWithRate(float64(qps), int64(burst))
-	return &tokenBucketRateLimiter{limiter}
+	return &tokenBucketRateLimiter{}
 }
 
 func (t *tokenBucketRateLimiter) TryAccept() bool {
-	return t.limiter.TakeAvailable(1) == 1
+	return 1 == 1
 }
 
 func (t *tokenBucketRateLimiter) Saturation() float64 {
-	capacity := t.limiter.Capacity()
-	avail := t.limiter.Available()
-	return float64(capacity-avail) / float64(capacity)
+
+	return 1.0
 }
 
 // Accept will block until a token becomes available
 func (t *tokenBucketRateLimiter) Accept() {
-	t.limiter.Wait(1)
 }
 
 func (t *tokenBucketRateLimiter) Stop() {

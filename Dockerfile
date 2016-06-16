@@ -1,12 +1,31 @@
-FROM alpine:latest
+# Copyright (c) 2016 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 
-RUN mkdir -p /opt/k8sbroker /opt/k8sbroker/secrets-templates/ /opt/k8sbroker/service-templates/
-ADD broker.elf /opt/k8sbroker/broker.elf
-ADD service-templates/ /opt/k8sbroker/service-templates/
-ADD secrets-templates/ /opt/k8sbroker/secrets-templates/
+FROM debian:8.4
+MAINTAINER Jakub Wierzbowski <jakub.a.wierzbowski@intel.com>
 
-EXPOSE 80
+RUN mkdir -p /opt/app /opt/app/catalogData/
+ADD application/tap-template-repository /opt/app
+ADD catalogData/ /opt/app/catalogData/
 
-WORKDIR /opt/k8sbroker/
+RUN chmod +x /opt/app/tap-template-repository
 
-ENTRYPOINT [ "/opt/k8sbroker/broker.elf" ]
+WORKDIR /opt/app/
+
+ENV TEMPLATE_REPOSITORY_PORT "8082"
+EXPOSE 8082
+
+ENTRYPOINT ["/opt/app/tap-template-repository"]
+CMD [""]
