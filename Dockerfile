@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-FROM debian:8.4
+FROM tap-base-binary:binary-jessie
 MAINTAINER Jakub Wierzbowski <jakub.a.wierzbowski@intel.com>
 
 RUN mkdir -p /opt/app /opt/app/catalogData/
