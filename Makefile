@@ -14,10 +14,10 @@ verify_gopath:
 build: bin/app
 	rm -Rf application && mkdir application
 	cp -Rf $(GOBIN)/tap-template-repository application/
-	docker build -t tap/tap-template-repository .
 
 push_docker: build
-	docker tag tap-broker  $(REPOSITORY_URL)/tap-template-repository:latest
+	docker build -t tap-template-repository .
+	docker tag tap-template-repository $(REPOSITORY_URL)/tap-template-repository:latest
 	docker push $(REPOSITORY_URL)/tap-template-repository:latest
 
 deps_fetch_newest:
