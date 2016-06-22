@@ -23,9 +23,11 @@ import (
 
 	"github.com/gocraft/web"
 
+	"github.com/trustedanalytics/tap-go-common/logger"
 	"github.com/trustedanalytics/tap-go-common/state"
 	"github.com/trustedanalytics/tap-go-common/util"
 	"github.com/trustedanalytics/tap-template-repository/catalog"
+	"github.com/trustedanalytics/tap-template-repository/model"
 )
 
 type Config struct {
@@ -35,6 +37,7 @@ type Config struct {
 type Context struct{}
 
 var BrokerConfig *Config
+var logger = logger_wrapper.InitLogger("api")
 
 func (c *Context) CheckBrokerConfig(rw web.ResponseWriter, req *web.Request, next web.NextMiddlewareFunc) {
 	if BrokerConfig == nil {
@@ -44,7 +47,7 @@ func (c *Context) CheckBrokerConfig(rw web.ResponseWriter, req *web.Request, nex
 }
 
 func (c *Context) Templates(rw web.ResponseWriter, req *web.Request) {
-	result := []catalog.Template{}
+	result := []model.Template{}
 	templatesMetadata := catalog.GetAvailableTemplates()
 	for _, templateMetadata := range templatesMetadata {
 		template, err := catalog.GetRawTemplate(templateMetadata, catalog.CatalogPath)
@@ -80,7 +83,7 @@ func (c *Context) GenerateParsedTemplate(rw web.ResponseWriter, req *web.Request
 }
 
 func (c *Context) CreateCustomTemplate(rw web.ResponseWriter, req *web.Request) {
-	reqTemplate := catalog.Template{}
+	reqTemplate := model.Template{}
 
 	err := util.ReadJson(req, &reqTemplate)
 	if err != nil {

@@ -6,40 +6,14 @@ import (
 	"io/ioutil"
 	"os"
 
-	"k8s.io/kubernetes/pkg/apis/extensions"
+	"github.com/trustedanalytics/tap-template-repository/model"
 )
 
-type JobType string
-
-const (
-	JobTypeOnCreateInstance JobType = "onCreateInstance"
-	JobTypeOnDeleteInstance JobType = "onDeleteInstance"
-	JobTypeOnBindInstance   JobType = "onBindInstance"
-	JobTypeOnUnbindInstance JobType = "onUnbindInstance"
-)
-
-type Template struct {
-	Id    string              `json:"id"`
-	Body  KubernetesComponent `json:"body"`
-	Hooks []*JobHook          `json:"hooks"`
-}
-
-type TemplateMetadata struct {
-	Id                  string `json:"id"`
-	TemplateDirName     string `json:"templateDirName"`
-	TemplatePlanDirName string `json:"templatePlanDirName"`
-}
-
-type JobHook struct {
-	Type JobType        `json:"type"`
-	Job  extensions.Job `json:"job"`
-}
-
-var TEMPLATES map[string]*TemplateMetadata
+var TEMPLATES map[string]*model.TemplateMetadata
 var TemplatesPath string = "./catalogData/"
 var CustomTemplatesDir string = TemplatesPath + "custom/"
 
-func GetTemplateMetadataById(id string) *TemplateMetadata {
+func GetTemplateMetadataById(id string) *model.TemplateMetadata {
 	if TEMPLATES != nil {
 		return TEMPLATES[id]
 	} else {
@@ -47,7 +21,7 @@ func GetTemplateMetadataById(id string) *TemplateMetadata {
 	}
 }
 
-func GetAvailableTemplates() map[string]*TemplateMetadata {
+func GetAvailableTemplates() map[string]*model.TemplateMetadata {
 	if TEMPLATES != nil {
 		LoadAvailableTemplates()
 	}
@@ -55,7 +29,7 @@ func GetAvailableTemplates() map[string]*TemplateMetadata {
 }
 
 func LoadAvailableTemplates() {
-	TEMPLATES = make(map[string]*TemplateMetadata)
+	TEMPLATES = make(map[string]*model.TemplateMetadata)
 	logger.Debug("GetAvailableTemplates - need to parse catalog/ directory.")
 	template_file_info, err := ioutil.ReadDir(TemplatesPath)
 	if err != nil {
@@ -100,7 +74,7 @@ func loadPlans(plandir os.FileInfo, templateDirPath, templateDirName string) {
 }
 
 func loadPlan(plan_details os.FileInfo, planDirPath, planDirName, templateDirName string) {
-	var plan_meta PlanMetadata
+	var plan_meta model.PlanMetadata
 	plan_details_dir_full_name := planDirPath + "/" + plan_details.Name()
 	if plan_details.IsDir() {
 		logger.Debug("Skipping directory:", plan_details_dir_full_name)
@@ -115,7 +89,7 @@ func loadPlan(plan_details os.FileInfo, planDirPath, planDirName, templateDirNam
 			logger.Fatal("Error parsing json from file: ", plan_details_dir_full_name, err)
 		}
 
-		TEMPLATES[plan_meta.Id] = &TemplateMetadata{
+		TEMPLATES[plan_meta.Id] = &model.TemplateMetadata{
 			Id:                  plan_meta.Id,
 			TemplateDirName:     templateDirName,
 			TemplatePlanDirName: planDirName,
@@ -125,7 +99,7 @@ func loadPlan(plan_details os.FileInfo, planDirPath, planDirName, templateDirNam
 	}
 }
 
-func AddAndRegisterCustomTemplate(template Template) error {
+func AddAndRegisterCustomTemplate(template model.Template) error {
 	templateDir := CustomTemplatesDir + template.Id + "/k8s"
 	templatePlanDir := CustomTemplatesDir + template.Id
 
@@ -166,7 +140,7 @@ func AddAndRegisterCustomTemplate(template Template) error {
 		}
 	}
 
-	plan := PlanMetadata{Id: template.Id}
+	plan := model.PlanMetadata{Id: template.Id}
 	err := save_k8s_file_in_dir(templatePlanDir, "plan.json", plan)
 	if err != nil {
 		return err
@@ -187,8 +161,8 @@ func RemoveAndUnregisterCustomTemplate(templateId string) error {
 	return nil
 }
 
-func GetParsedTemplate(templateMetadata *TemplateMetadata, catalogPath, instanceId, orgId, spaceId string) (Template, error) {
-	result := Template{Id: templateMetadata.Id}
+func GetParsedTemplate(templateMetadata *model.TemplateMetadata, catalogPath, instanceId, orgId, spaceId string) (model.Template, error) {
+	result := model.Template{Id: templateMetadata.Id}
 	component, err := GetParsedKubernetesComponentByTemplate(catalogPath, instanceId, orgId, spaceId, templateMetadata)
 	if err != nil {
 		return result, err
@@ -209,8 +183,8 @@ func GetParsedTemplate(templateMetadata *TemplateMetadata, catalogPath, instance
 	return result, nil
 }
 
-func GetRawTemplate(templateMetadata *TemplateMetadata, catalogPath string) (Template, error) {
-	result := Template{Id: templateMetadata.Id}
+func GetRawTemplate(templateMetadata *model.TemplateMetadata, catalogPath string) (model.Template, error) {
+	result := model.Template{Id: templateMetadata.Id}
 	blueprint, err := GetKubernetesBlueprint(catalogPath, templateMetadata.TemplateDirName, templateMetadata.TemplatePlanDirName, templateMetadata.Id)
 	if err != nil {
 		return result, err
@@ -236,7 +210,7 @@ func GetRawTemplate(templateMetadata *TemplateMetadata, catalogPath string) (Tem
 	return result, nil
 }
 
-func GetParsedJobHooks(jobs []string, instanceId, svcMetaId, planMetaId, org, space string) ([]*JobHook, error) {
+func GetParsedJobHooks(jobs []string, instanceId, svcMetaId, planMetaId, org, space string) ([]*model.JobHook, error) {
 	parsedJobs := []string{}
 	for i, job := range jobs {
 		parsedJobs = append(parsedJobs, adjust_params(job, org, space, instanceId, svcMetaId, planMetaId, i))
@@ -244,10 +218,10 @@ func GetParsedJobHooks(jobs []string, instanceId, svcMetaId, planMetaId, org, sp
 	return unmarshallJobs(parsedJobs)
 }
 
-func unmarshallJobs(jobs []string) ([]*JobHook, error) {
-	result := []*JobHook{}
+func unmarshallJobs(jobs []string) ([]*model.JobHook, error) {
+	result := []*model.JobHook{}
 	for _, job := range jobs {
-		jobHook := &JobHook{}
+		jobHook := &model.JobHook{}
 		err := json.Unmarshal([]byte(job), jobHook)
 		if err != nil {
 			logger.Error("Unmarshalling JobHook error:", err)
@@ -258,7 +232,7 @@ func unmarshallJobs(jobs []string) ([]*JobHook, error) {
 	return result, nil
 }
 
-func GetJobHooks(catalogPath string, temp *TemplateMetadata) ([]string, error) {
+func GetJobHooks(catalogPath string, temp *model.TemplateMetadata) ([]string, error) {
 	_, _, k8sPlanPath := GetCatalogFilesPath(catalogPath, temp.TemplateDirName, temp.TemplatePlanDirName)
 	return read_k8s_json_files_with_prefix_from_dir(k8sPlanPath, "job")
 }

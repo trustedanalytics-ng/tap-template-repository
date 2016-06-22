@@ -49,7 +49,7 @@ func TestGetOrgIdAndSpaceIdFromCfByServiceInstanceIdJson(t *testing.T) {
 		})
 
 		Convey("Should load data only once", func() {
-			services_metadata := &ServicesMetadata{}
+			services_metadata := &model.ServicesMetadata{}
 			GLOBAL_SERVICES_METADATA = services_metadata
 
 			GetAvailableServicesMetadata()

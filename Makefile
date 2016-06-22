@@ -1,7 +1,7 @@
 GOBIN=$(GOPATH)/bin
 APP_DIR_LIST=$(shell go list ./... | grep -v /vendor/)
 
-bin/app: verify_gopath
+build: verify_gopath
 	CGO_ENABLED=0 go install -tags netgo $(APP_DIR_LIST)
 	go fmt $(APP_DIR_LIST)
 
@@ -11,7 +11,7 @@ verify_gopath:
 		exit 1 ;\
 	fi
 
-build: bin/app
+docker_build: bin/app
 	rm -Rf application && mkdir application
 	cp -Rf $(GOBIN)/tap-template-repository application/
 

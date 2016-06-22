@@ -25,34 +25,16 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/trustedanalytics/tap-template-repository/model"
+
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 )
 
-type KubernetesBlueprint struct {
-	Id                    int
-	SecretsJson           []string
-	DeploymentJson        []string
-	ServiceJson           []string
-	ServiceAcccountJson   []string
-	PersistentVolumeClaim []string
-	CredentialsMapping    string
-	ReplicaTemplate       string
-	UriTemplate           string
-}
-
-type KubernetesComponent struct {
-	PersistentVolumeClaims []*api.PersistentVolumeClaim `json:"persistentVolumeClaims"`
-	Deployments            []*extensions.Deployment     `json:"deployments"`
-	Services               []*api.Service               `json:"services"`
-	ServiceAccounts        []*api.ServiceAccount        `json:"serviceAccounts"`
-	Secrets                []*api.Secret                `json:"secrets"`
-}
-
-var TEMP_DYNAMIC_BLUEPRINTS = map[string]KubernetesBlueprint{}
+var TEMP_DYNAMIC_BLUEPRINTS = map[string]model.KubernetesBlueprint{}
 var possible_rand_chars = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")
 
-func GetParsedKubernetesComponentByTemplate(catalogPath, instanceId, org, space string, temp *TemplateMetadata) (*KubernetesComponent, error) {
+func GetParsedKubernetesComponentByTemplate(catalogPath, instanceId, org, space string, temp *model.TemplateMetadata) (*model.KubernetesComponent, error) {
 	blueprint, err := GetKubernetesBlueprint(catalogPath, temp.TemplateDirName, temp.TemplatePlanDirName, temp.Id)
 	if err != nil {
 		return nil, err
@@ -61,7 +43,8 @@ func GetParsedKubernetesComponentByTemplate(catalogPath, instanceId, org, space 
 	return ParseKubernetesComponent(blueprint, instanceId, temp.Id, temp.Id, org, space)
 }
 
-func GetParsedKubernetesComponentByServiceAndPlan(catalogPath, instanceId, org, space string, svcMeta ServiceMetadata, planMeta PlanMetadata) (*KubernetesComponent, error) {
+func GetParsedKubernetesComponentByServiceAndPlan(catalogPath, instanceId, org, space string, svcMeta model.ServiceMetadata,
+	planMeta model.PlanMetadata) (*model.KubernetesComponent, error) {
 	blueprint, err := GetKubernetesBlueprint(catalogPath, svcMeta.InternalId, planMeta.InternalId, svcMeta.Id)
 	if err != nil {
 		return nil, err
@@ -70,7 +53,7 @@ func GetParsedKubernetesComponentByServiceAndPlan(catalogPath, instanceId, org, 
 	return ParseKubernetesComponent(blueprint, instanceId, svcMeta.Id, planMeta.Id, org, space)
 }
 
-func ParseKubernetesComponent(blueprint KubernetesBlueprint, instanceId, svcMetaId, planMetaId, org, space string) (*KubernetesComponent, error) {
+func ParseKubernetesComponent(blueprint model.KubernetesBlueprint, instanceId, svcMetaId, planMetaId, org, space string) (*model.KubernetesComponent, error) {
 	parsedPVC := []string{}
 	for i, pvc := range blueprint.PersistentVolumeClaim {
 		parsedPVC = append(parsedPVC, adjust_params(pvc, org, space, instanceId, svcMetaId, planMetaId, i))
@@ -104,8 +87,8 @@ func ParseKubernetesComponent(blueprint KubernetesBlueprint, instanceId, svcMeta
 	return CreateKubernetesComponentFromBlueprint(blueprint, false)
 }
 
-func CreateKubernetesComponentFromBlueprint(blueprint KubernetesBlueprint, encodeSecrets bool) (*KubernetesComponent, error) {
-	result := &KubernetesComponent{}
+func CreateKubernetesComponentFromBlueprint(blueprint model.KubernetesBlueprint, encodeSecrets bool) (*model.KubernetesComponent, error) {
+	result := &model.KubernetesComponent{}
 
 	for _, pvc := range blueprint.PersistentVolumeClaim {
 		parsedPVC := &api.PersistentVolumeClaim{}
@@ -170,8 +153,8 @@ func GetCatalogFilesPath(catalogPath, templateDirName, planDirName string) (plan
 	return
 }
 
-func GetKubernetesBlueprint(catalogPath, templateDirName, planDirName, templateId string) (KubernetesBlueprint, error) {
-	result := KubernetesBlueprint{}
+func GetKubernetesBlueprint(catalogPath, templateDirName, planDirName, templateId string) (model.KubernetesBlueprint, error) {
+	result := model.KubernetesBlueprint{}
 	var err error
 	var secretTemplatesExists bool
 

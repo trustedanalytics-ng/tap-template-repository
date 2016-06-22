@@ -22,67 +22,46 @@ import (
 	"io/ioutil"
 
 	"github.com/trustedanalytics/tap-go-common/logger"
+	"github.com/trustedanalytics/tap-template-repository/model"
 )
-
-type ServicesMetadata struct {
-	Services []ServiceMetadata `json:"services"`
-}
-
-type ServiceMetadata struct {
-	Id          string         `json:"id"`
-	Name        string         `json:"name"`
-	Description string         `json:"description"`
-	Bindable    bool           `json:"bindable"`
-	Tags        []string       `json:"tags"`
-	Plans       []PlanMetadata `json:"plans"`
-	InternalId  string         `json:"-"`
-}
-
-type PlanMetadata struct {
-	Id          string `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Free        bool   `json:"free"`
-	InternalId  string `json:"-"`
-}
 
 var CatalogPath string = "./catalogData/"
 var logger = logger_wrapper.InitLogger("catalog")
 
-func WhatToCreateByServiceAndPlanId(service_id, plan_id string) (ServiceMetadata, PlanMetadata, error) {
+func WhatToCreateByServiceAndPlanId(service_id, plan_id string) (model.ServiceMetadata, model.PlanMetadata, error) {
 	//todo we need to check in postgres for dynamic services - we need to only add result to GetAvailableServicesMetadata()
 	svcMeta, err := GetServiceMetadataByServiceId(service_id)
 	if err != nil {
 		logger.Error(err)
-		return ServiceMetadata{}, PlanMetadata{}, err
+		return model.ServiceMetadata{}, model.PlanMetadata{}, err
 	}
 	logger.Info("Found service:", svcMeta)
 	planMeta, err := GetPlanMetadataByPlanIdInServiceMetadata(svcMeta, plan_id)
 	if err != nil {
 		logger.Error(err)
-		return svcMeta, PlanMetadata{}, err
+		return svcMeta, model.PlanMetadata{}, err
 	}
 	logger.Info("Found plan:", planMeta)
 
 	return svcMeta, planMeta, nil
 }
 
-func GetPlanMetadataByPlanIdInServiceMetadata(svc_metadata ServiceMetadata, plan_id string) (PlanMetadata, error) {
+func GetPlanMetadataByPlanIdInServiceMetadata(svc_metadata model.ServiceMetadata, plan_id string) (model.PlanMetadata, error) {
 	for _, plan := range svc_metadata.Plans {
 		if plan.Id == plan_id {
 			return plan, nil
 		}
 	}
-	return PlanMetadata{}, errors.New("No such plan by ID: " + plan_id)
+	return model.PlanMetadata{}, errors.New("No such plan by ID: " + plan_id)
 }
 
-func GetServiceMetadataByServiceId(service_id string) (ServiceMetadata, error) {
+func GetServiceMetadataByServiceId(service_id string) (model.ServiceMetadata, error) {
 	for _, svc := range GetAvailableServicesMetadata().Services {
 		if svc.Id == service_id {
 			return svc, nil
 		}
 	}
-	return ServiceMetadata{}, errors.New("No such service by ID: " + service_id)
+	return model.ServiceMetadata{}, errors.New("No such service by ID: " + service_id)
 }
 
 func CheckIfServiceAlreadyExist(serviceName string) bool {
@@ -94,25 +73,25 @@ func CheckIfServiceAlreadyExist(serviceName string) bool {
 	return false
 }
 
-func GetServiceByName(serviceName string) (ServiceMetadata, error) {
+func GetServiceByName(serviceName string) (model.ServiceMetadata, error) {
 	for _, svc := range GetAvailableServicesMetadata().Services {
 		if svc.Name == serviceName {
 			return svc, nil
 		}
 	}
-	return ServiceMetadata{}, errors.New("service not exist!")
+	return model.ServiceMetadata{}, errors.New("service not exist!")
 }
 
 // add mutex... or return a deep copy (prefered).
-var GLOBAL_SERVICES_METADATA *ServicesMetadata
+var GLOBAL_SERVICES_METADATA *model.ServicesMetadata
 
-func GetAvailableServicesMetadata() ServicesMetadata {
+func GetAvailableServicesMetadata() model.ServicesMetadata {
 	if GLOBAL_SERVICES_METADATA != nil {
 		logger.Debug("GetAvailableServicesMetadata - already exists.")
 		return *GLOBAL_SERVICES_METADATA
 	} else {
 		logger.Debug("GetAvailableServicesMetadata - need to parse catalog/ directory.")
-		services_metadata := ServicesMetadata{}
+		services_metadata := model.ServicesMetadata{}
 		catalog_file_info, err := ioutil.ReadDir(CatalogPath)
 		if err != nil {
 			logger.Panic(err)
@@ -126,11 +105,11 @@ func GetAvailableServicesMetadata() ServicesMetadata {
 				if err != nil {
 					logger.Panic(err)
 				}
-				var svc_meta ServiceMetadata
-				var plan_metas []PlanMetadata
+				var svc_meta model.ServiceMetadata
+				var plan_metas []model.PlanMetadata
 				for _, plandir := range plans_file_info {
 					plan_dir_full_name := svcdirname + "/" + plandir.Name()
-					var plan_meta PlanMetadata
+					var plan_meta model.PlanMetadata
 					if plandir.IsDir() {
 						logger.Debug(" ====> ", plandir.Name(), plan_dir_full_name)
 						plans_content_file_info, err := ioutil.ReadDir(plan_dir_full_name)

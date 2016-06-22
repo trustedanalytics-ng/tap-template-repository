@@ -24,12 +24,11 @@ import (
 	"strconv"
 
 	brokerHttp "github.com/trustedanalytics/tap-go-common/http"
-	"github.com/trustedanalytics/tap-go-common/logger"
-	"github.com/trustedanalytics/tap-template-repository/catalog"
+	"github.com/trustedanalytics/tap-template-repository/model"
 )
 
 type TemplateRepository interface {
-	GenerateParsedTemplate(templateId, uuid string) (catalog.Template, error)
+	GenerateParsedTemplate(templateId, uuid string) (model.Template, error)
 }
 
 type TemplateRepositoryConnector struct {
@@ -38,8 +37,6 @@ type TemplateRepositoryConnector struct {
 	Password string
 	Client   *http.Client
 }
-
-var logger = logger_wrapper.InitLogger("api")
 
 func NewTemplateRepositoryBasicAuth(address, username, password string) (*TemplateRepositoryConnector, error) {
 	client, _, err := brokerHttp.GetHttpClientWithBasicAuth()
@@ -57,14 +54,13 @@ func NewTemplateRepositoryCa(address, username, password, certPemFile, keyPemFil
 	return &TemplateRepositoryConnector{address, username, password, client}, nil
 }
 
-func (t *TemplateRepositoryConnector) GenerateParsedTemplate(templateId, uuid string) (catalog.Template, error) {
-	template := catalog.Template{}
+func (t *TemplateRepositoryConnector) GenerateParsedTemplate(templateId, uuid string) (model.Template, error) {
+	template := model.Template{}
 
 	url := fmt.Sprintf("%s/parsed_template/%s?serviceId=%s", t.Address, templateId, uuid)
 	status, body, err := brokerHttp.RestPOST(url, "", &brokerHttp.BasicAuth{t.Username, t.Password}, t.Client)
 	err = json.Unmarshal(body, &template)
 	if err != nil {
-		logger.Error("GenerateParsedTemplate unmarshall response error:", err)
 		return template, err
 	}
 	if status != http.StatusOK {
