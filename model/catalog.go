@@ -15,9 +15,9 @@ const (
 )
 
 type Template struct {
-	Id    string              `json:"id"`
-	Body  KubernetesComponent `json:"body"`
-	Hooks []*JobHook          `json:"hooks"`
+	Id    string                      `json:"id"`
+	Body  KubernetesComponent         `json:"body"`
+	Hooks map[JobType]*extensions.Job `json:"hooks"`
 }
 
 type TemplateMetadata struct {

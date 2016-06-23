@@ -179,7 +179,9 @@ func GetParsedTemplate(templateMetadata *model.TemplateMetadata, catalogPath, in
 	}
 
 	result.Body = *component
-	result.Hooks = jobHooks
+	for _, job := range jobHooks {
+		result.Hooks[job.Type] = &job.Job
+	}
 	return result, nil
 }
 
@@ -206,7 +208,9 @@ func GetRawTemplate(templateMetadata *model.TemplateMetadata, catalogPath string
 	}
 
 	result.Body = *component
-	result.Hooks = jobHooks
+	for _, job := range jobHooks {
+		result.Hooks[job.Type] = &job.Job
+	}
 	return result, nil
 }
 
