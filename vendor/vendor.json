@@ -9,10 +9,10 @@
 			"revisionTime": "2016-03-17T14:11:10Z"
 		},
 		{
-			"checksumSHA1": "DPzX371SPZtwuF41uHHNierOcu4=",
+			"checksumSHA1": "r1CX8/M/ipvntOfH0rT9jOQ6fdM=",
 			"path": "github.com/cloudfoundry-incubator/candiedyaml",
-			"revision": "646fd8fe27c55af8231d9f2524f5dc88f9dfe02d",
-			"revisionTime": "2016-04-05T00:49:12Z"
+			"revision": "99c3df83b51532e3615f851d8c2dbb638f5313bf",
+			"revisionTime": "2016-04-29T08:01:25Z"
 		},
 		{
 			"checksumSHA1": "5rPfda8jFccr3A6heL+JAmi9K9g=",
@@ -81,10 +81,10 @@
 			"revisionTime": "2015-08-16T20:43:22Z"
 		},
 		{
-			"checksumSHA1": "KOThXqDanFZmWCmJsOGrpVIdpPo=",
+			"checksumSHA1": "l2w6jertyAzSdcdKIXnHm02X8Jk=",
 			"path": "github.com/ghodss/yaml",
-			"revision": "1a6f069841556a7bcaff4a397ca6e8328d266c2f",
-			"revisionTime": "2016-03-07T21:52:05Z"
+			"revision": "aa0c862057666179de291b67d9f093d12b5a8473",
+			"revisionTime": "2016-06-04T00:29:25Z"
 		},
 		{
 			"checksumSHA1": "XZ/RQf9rdLpFHKhstEckOpGqsOU=",
@@ -95,8 +95,8 @@
 		{
 			"checksumSHA1": "iZVulPMFFGC70xeLZJafiKzTn18=",
 			"path": "github.com/gogo/protobuf/proto",
-			"revision": "43a2e0b1c32252bfbbdf81f7faa7a88fb3fa4028",
-			"revisionTime": "2016-05-03T12:46:25Z"
+			"revision": "2752d97bbd91927dd1c43296dbf8700e50e2708c",
+			"revisionTime": "2016-06-17T09:13:52Z"
 		},
 		{
 			"checksumSHA1": "HmbftipkadrLlCfzzVQ+iFHbl6g=",
@@ -127,12 +127,6 @@
 			"path": "github.com/jtolds/gls",
 			"revision": "8ddce2a84170772b95dd5d576c48d517b22cac63",
 			"revisionTime": "2016-01-05T22:08:40Z"
-		},
-		{
-			"checksumSHA1": "gcLub3oB+u4QrOJZcYmk/y2AP4k=",
-			"path": "github.com/nu7hatch/gouuid",
-			"revision": "179d4d0c4d8d407a32af483c2354df1d2c91e6c3",
-			"revisionTime": "2013-12-21T20:05:32Z"
 		},
 		{
 			"checksumSHA1": "BoXdUBWB8UnSlFlbnuTQaPqfCGk=",
@@ -249,10 +243,10 @@
 			"revisionTime": "2016-03-28T06:07:40Z"
 		},
 		{
-			"checksumSHA1": "5ARrN3Zq+E9zazFb/N+b08Serys=",
+			"checksumSHA1": "9jjO5GjLa0XF/nfWihF02RoH4qc=",
 			"path": "golang.org/x/net/context",
-			"revision": "a4bbce9fcae005b22ae5443f6af064d80a6f5a55",
-			"revisionTime": "2016-03-05T22:58:14Z"
+			"revision": "8bf2b39827dbadfd566c4fae7a8790d12be8b23c",
+			"revisionTime": "2016-06-18T00:37:29Z"
 		},
 		{
 			"checksumSHA1": "CoRxz7vk573Zu/UcMS4PzpAsv3w=",
