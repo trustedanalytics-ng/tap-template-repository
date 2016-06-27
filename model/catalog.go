@@ -8,12 +8,12 @@ import (
 type JobType string
 
 const (
-	JobTypeDeployment JobType = "deployment"
-	JobTypeProvision JobType = "provision"
+	JobTypeDeployment  JobType = "deployment"
+	JobTypeProvision   JobType = "provision"
 	JobTypeDeprovision JobType = "deprovision"
-	JobTypeBind JobType = "bind"
-	JobTypeUnbind JobType = "unbind"
-	JobTypeRemoval JobType = "removal"
+	JobTypeBind        JobType = "bind"
+	JobTypeUnbind      JobType = "unbind"
+	JobTypeRemoval     JobType = "removal"
 )
 
 type Template struct {
@@ -48,13 +48,13 @@ type KubernetesBlueprint struct {
 type ComponentType string
 
 const (
-	ComponentTypeBroker ComponentType = "broker"
-	ComponentTypeInstance JobType = "instance"
-	ComponentTypeBoth   JobType = "both"
+	ComponentTypeBroker   ComponentType = "broker"
+	ComponentTypeInstance JobType       = "instance"
+	ComponentTypeBoth     JobType       = "both"
 )
 
 type KubernetesComponent struct {
-	Type                   ComponentType `json:"componentType"`
+	Type                   ComponentType                `json:"componentType"`
 	PersistentVolumeClaims []*api.PersistentVolumeClaim `json:"persistentVolumeClaims"`
 	Deployments            []*extensions.Deployment     `json:"deployments"`
 	Services               []*api.Service               `json:"services"`

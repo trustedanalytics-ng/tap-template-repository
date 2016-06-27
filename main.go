@@ -20,7 +20,6 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/gocraft/web"
@@ -62,12 +61,8 @@ func main() {
 	port := os.Getenv("TEMPLATE_REPOSITORY_PORT")
 	logger.Info("Will listen on:", port)
 
-	isSSLEnabled, err := strconv.ParseBool(os.Getenv("TEMPLATE_REPOSITORY_SSL_ACTIVE"))
-	if err != nil {
-		logger.Critical("Couldn't read env TEMPLATE_REPOSITORY_SSL_ACTIVE!", err)
-	}
-
-	if isSSLEnabled {
+	var err error
+	if os.Getenv("TEMPLATE_REPOSITORY_SSL_ACTIVE") != "" {
 		err = http.ListenAndServeTLS(":"+port, os.Getenv("TEMPLATE_REPOSITORY_SSL_CERT_FILE_LOCATION"),
 			os.Getenv("TEMPLATE_REPOSITORY_SSL_KEY_FILE_LOCATION"), r)
 	} else {

@@ -53,14 +53,6 @@
                   }
                 }
               },
-              { "name": "TEMPLATE_REPOSITORY_SSL_ACTIVE",
-                "valueFrom": {
-                  "configMapKeyRef": {
-                    "name": "template-repository-credentials",
-                    "key": "template-repository-ssl-active"
-                  }
-                }
-              },
               { "name": "TEMPLATE_REPOSITORY_SSL_CERT_FILE_LOCATION",
                 "valueFrom": {
                   "configMapKeyRef": {
