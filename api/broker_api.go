@@ -24,27 +24,14 @@ import (
 	"github.com/gocraft/web"
 
 	"github.com/trustedanalytics/tap-go-common/logger"
-	"github.com/trustedanalytics/tap-go-common/state"
 	"github.com/trustedanalytics/tap-go-common/util"
 	"github.com/trustedanalytics/tap-template-repository/catalog"
 	"github.com/trustedanalytics/tap-template-repository/model"
 )
 
-type Config struct {
-	StateService state.StateService
-}
-
 type Context struct{}
 
-var BrokerConfig *Config
 var logger = logger_wrapper.InitLogger("api")
-
-func (c *Context) CheckBrokerConfig(rw web.ResponseWriter, req *web.Request, next web.NextMiddlewareFunc) {
-	if BrokerConfig == nil {
-		util.Respond500(rw, errors.New("brokerConfig not set!"))
-	}
-	next(rw, req)
-}
 
 func (c *Context) Templates(rw web.ResponseWriter, req *web.Request) {
 	result := []model.Template{}

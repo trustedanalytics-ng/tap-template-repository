@@ -25,7 +25,6 @@ import (
 	"github.com/gocraft/web"
 
 	"github.com/trustedanalytics/tap-go-common/logger"
-	"github.com/trustedanalytics/tap-go-common/state"
 	"github.com/trustedanalytics/tap-template-repository/api"
 	"github.com/trustedanalytics/tap-template-repository/catalog"
 )
@@ -36,13 +35,10 @@ var logger = logger_wrapper.InitLogger("main")
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
-
 	catalog.LoadAvailableTemplates()
-	initServices()
 
 	r := web.New(api.Context{})
 	r.Middleware(web.LoggerMiddleware)
-	r.Middleware((*api.Context).CheckBrokerConfig)
 
 	basicAuthRouter := r.Subrouter(api.Context{}, "/api/v1")
 	basicAuthRouter.Middleware((*api.Context).BasicAuthorizeMiddleware)
@@ -72,9 +68,4 @@ func main() {
 	if err != nil {
 		logger.Critical("Couldn't serve app on port:", port, " Error:", err)
 	}
-}
-
-func initServices() {
-	api.BrokerConfig = &api.Config{}
-	api.BrokerConfig.StateService = &state.StateMemoryService{}
 }
