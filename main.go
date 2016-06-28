@@ -58,7 +58,7 @@ func main() {
 	logger.Info("Will listen on:", port)
 
 	var err error
-	if os.Getenv("TEMPLATE_REPOSITORY_SSL_ACTIVE") != "" {
+	if os.Getenv("TEMPLATE_REPOSITORY_SSL_CERT_FILE_LOCATION") != "" {
 		err = http.ListenAndServeTLS(":"+port, os.Getenv("TEMPLATE_REPOSITORY_SSL_CERT_FILE_LOCATION"),
 			os.Getenv("TEMPLATE_REPOSITORY_SSL_KEY_FILE_LOCATION"), r)
 	} else {

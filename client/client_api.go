@@ -57,7 +57,7 @@ func NewTemplateRepositoryCa(address, username, password, certPemFile, keyPemFil
 func (t *TemplateRepositoryConnector) GenerateParsedTemplate(templateId, uuid string) (model.Template, error) {
 	template := model.Template{}
 
-	url := fmt.Sprintf("%s/parsed_template/%s?serviceId=%s", t.Address, templateId, uuid)
+	url := fmt.Sprintf("%s/api/v1/parsed_template/%s?serviceId=%s", t.Address, templateId, uuid)
 	status, body, err := brokerHttp.RestPOST(url, "", &brokerHttp.BasicAuth{t.Username, t.Password}, t.Client)
 	err = json.Unmarshal(body, &template)
 	if err != nil {

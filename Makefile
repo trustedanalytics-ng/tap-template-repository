@@ -11,14 +11,19 @@ verify_gopath:
 		exit 1 ;\
 	fi
 
-docker_build: bin/app
+docker_build: build
 	rm -Rf application && mkdir application
 	cp -Rf $(GOBIN)/tap-template-repository application/
-
-push_docker: build
 	docker build -t tap-template-repository .
+
+push_docker: docker_builds
 	docker tag tap-template-repository $(REPOSITORY_URL)/tap-template-repository:latest
 	docker push $(REPOSITORY_URL)/tap-template-repository:latest
+
+kubernetes_deploy:
+	kubectl create -f configmap.json
+	kubectl create -f service.json
+	kubectl create -f deployment.json
 
 deps_fetch_newest:
 	$(GOBIN)/govendor remove +all
