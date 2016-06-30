@@ -16,14 +16,14 @@ docker_build: build
 	cp -Rf $(GOBIN)/tap-template-repository application/
 	docker build -t tap-template-repository .
 
-push_docker: docker_builds
+push_docker: docker_build
 	docker tag tap-template-repository $(REPOSITORY_URL)/tap-template-repository:latest
 	docker push $(REPOSITORY_URL)/tap-template-repository:latest
 
 kubernetes_deploy:
-	kubectl create -f configmap.json
-	kubectl create -f service.json
-	kubectl create -f deployment.json
+	kubectl create -f configmap.yaml
+	kubectl create -f service.yaml
+	kubectl create -f deployment.yaml
 
 deps_fetch_newest:
 	$(GOBIN)/govendor remove +all

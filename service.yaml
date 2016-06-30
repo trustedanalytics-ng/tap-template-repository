@@ -1,0 +1,16 @@
+---
+  kind: "Service"
+  apiVersion: "v1"
+  metadata:
+    name: "template-repository"
+    labels:
+      id: "template-repository"
+  spec:
+    type: "NodePort"
+    selector:
+      id: "template-repository"
+    ports:
+      -
+        port: 8082
+        protocol: "TCP"
+        name: "rest"
