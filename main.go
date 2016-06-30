@@ -47,12 +47,11 @@ func main() {
 	jwtRouter.Middleware((*api.Context).JWTAuthorizeMiddleware)
 
 	basicAuthRouter.Get("/templates", (*api.Context).Templates)
-	basicAuthRouter.Post("/templates", (*api.Context).CreateCustomTemplate)
+	basicAuthRouter.Get("/templates/:templateId", (*api.Context).GetCustomTemplate)
+	basicAuthRouter.Get("/parsed_template/:templateId/", (*api.Context).GenerateParsedTemplate)
 
-	basicAuthRouter.Post("/parsed_template/:templateId/", (*api.Context).GenerateParsedTemplate)
-
-	jwtRouter.Get("/template/:templateId", (*api.Context).GetCustomTemplate)
-	jwtRouter.Delete("/template/:templateId", (*api.Context).DeleteCustomTemplate)
+	jwtRouter.Post("/templates", (*api.Context).CreateCustomTemplate)
+	jwtRouter.Delete("/templates/:templateId", (*api.Context).DeleteCustomTemplate)
 
 	port := os.Getenv("TEMPLATE_REPOSITORY_PORT")
 	logger.Info("Will listen on:", port)
