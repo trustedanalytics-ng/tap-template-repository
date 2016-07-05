@@ -29,6 +29,7 @@ import (
 
 type TemplateRepository interface {
 	GenerateParsedTemplate(templateId, uuid string) (model.Template, error)
+	CreateTemplate(template model.Template) error
 }
 
 type TemplateRepositoryConnector struct {
@@ -59,6 +60,9 @@ func (t *TemplateRepositoryConnector) GenerateParsedTemplate(templateId, uuid st
 
 	url := fmt.Sprintf("%s/api/v1/parsed_template/%s?serviceId=%s", t.Address, templateId, uuid)
 	status, body, err := brokerHttp.RestGET(url, &brokerHttp.BasicAuth{t.Username, t.Password}, t.Client)
+	if err != nil {
+		return template, err
+	}
 	err = json.Unmarshal(body, &template)
 	if err != nil {
 		return template, err
@@ -67,4 +71,23 @@ func (t *TemplateRepositoryConnector) GenerateParsedTemplate(templateId, uuid st
 		return template, errors.New("Bad response status: " + strconv.Itoa(status) + ". Body: " + string(body))
 	}
 	return template, nil
+}
+
+func (t *TemplateRepositoryConnector) CreateTemplate(template model.Template) error {
+
+	url := fmt.Sprintf("%s/api/v1/templates", t.Address)
+
+	b, err := json.Marshal(&template)
+	if err != nil {
+		return err
+	}
+
+	status, _, err := brokerHttp.RestPOST(url, string(b), &brokerHttp.BasicAuth{t.Username, t.Password}, t.Client)
+	if err != nil {
+		return err
+	}
+	if status != http.StatusCreated {
+		return errors.New("Bad response status: " + strconv.Itoa(status))
+	}
+	return nil
 }

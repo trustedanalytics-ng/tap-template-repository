@@ -50,8 +50,9 @@ func main() {
 	basicAuthRouter.Get("/templates/:templateId", (*api.Context).GetCustomTemplate)
 	basicAuthRouter.Get("/parsed_template/:templateId/", (*api.Context).GenerateParsedTemplate)
 
-	jwtRouter.Post("/templates", (*api.Context).CreateCustomTemplate)
-	jwtRouter.Delete("/templates/:templateId", (*api.Context).DeleteCustomTemplate)
+	//TODO: change to jwtRouter after UAA integration
+	basicAuthRouter.Post("/templates", (*api.Context).CreateCustomTemplate)
+	basicAuthRouter.Delete("/templates/:templateId", (*api.Context).DeleteCustomTemplate)
 
 	port := os.Getenv("TEMPLATE_REPOSITORY_PORT")
 	logger.Info("Will listen on:", port)

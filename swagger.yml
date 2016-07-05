@@ -30,7 +30,7 @@ paths:
               schema:
                 $ref: '#/definitions/Template'
           responses:
-            200:
+            201:
               description: bb
   /api/v1/parsed_template/{templateId}:
     get:
