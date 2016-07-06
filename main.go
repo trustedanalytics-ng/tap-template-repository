@@ -24,9 +24,9 @@ import (
 
 	"github.com/gocraft/web"
 
-	"github.com/trustedanalytics/tap-go-common/logger"
-	"github.com/trustedanalytics/tap-template-repository/api"
-	"github.com/trustedanalytics/tap-template-repository/catalog"
+	"github.com/trustedanalytics/tapng-go-common/logger"
+	"github.com/trustedanalytics/tapng-template-repository/api"
+	"github.com/trustedanalytics/tapng-template-repository/catalog"
 )
 
 type appHandler func(web.ResponseWriter, *web.Request) error

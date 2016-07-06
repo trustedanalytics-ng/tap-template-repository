@@ -25,10 +25,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/trustedanalytics/tap-template-repository/model"
-
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/apis/extensions"
+
+	"github.com/trustedanalytics/tapng-template-repository/model"
 )
 
 var TEMP_DYNAMIC_BLUEPRINTS = map[string]model.KubernetesBlueprint{}

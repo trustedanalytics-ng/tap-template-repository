@@ -17,15 +17,15 @@ FROM tapimages.us.enableiot.com:8080/tap-base-binary:binary-jessie
 MAINTAINER Jakub Wierzbowski <jakub.a.wierzbowski@intel.com>
 
 RUN mkdir -p /opt/app /opt/app/catalogData/
-ADD application/tap-template-repository /opt/app
+ADD application/tapng-template-repository /opt/app
 ADD catalogData/ /opt/app/catalogData/
 
-RUN chmod +x /opt/app/tap-template-repository
+RUN chmod +x /opt/app/tapng-template-repository
 
 WORKDIR /opt/app/
 
 ENV TEMPLATE_REPOSITORY_PORT "8082"
 EXPOSE 8082
 
-ENTRYPOINT ["/opt/app/tap-template-repository"]
+ENTRYPOINT ["/opt/app/tapng-template-repository"]
 CMD [""]

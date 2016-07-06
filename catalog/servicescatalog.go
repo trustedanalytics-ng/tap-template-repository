@@ -21,8 +21,8 @@ import (
 	"errors"
 	"io/ioutil"
 
-	"github.com/trustedanalytics/tap-go-common/logger"
-	"github.com/trustedanalytics/tap-template-repository/model"
+	"github.com/trustedanalytics/tapng-go-common/logger"
+	"github.com/trustedanalytics/tapng-template-repository/model"
 )
 
 var CatalogPath string = "./catalogData/"

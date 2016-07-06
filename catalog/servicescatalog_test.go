@@ -19,6 +19,8 @@ import (
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
+
+	"github.com/trustedanalytics/tapng-template-repository/model"
 )
 
 var testCatalogPath = "test_catalog/"

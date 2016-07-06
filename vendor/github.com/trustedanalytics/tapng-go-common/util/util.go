@@ -24,7 +24,7 @@ import (
 
 	"github.com/gocraft/web"
 
-	"github.com/trustedanalytics/tap-go-common/logger"
+	"github.com/trustedanalytics/tapng-go-common/logger"
 )
 
 var logger = logger_wrapper.InitLogger("api")

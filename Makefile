@@ -13,12 +13,12 @@ verify_gopath:
 
 docker_build: build
 	rm -Rf application && mkdir application
-	cp -Rf $(GOBIN)/tap-template-repository application/
-	docker build -t tap-template-repository .
+	cp -Rf $(GOBIN)/tapng-template-repository application/
+	docker build -t tapng-template-repository .
 
 push_docker: docker_build
-	docker tag tap-template-repository $(REPOSITORY_URL)/tap-template-repository:latest
-	docker push $(REPOSITORY_URL)/tap-template-repository:latest
+	docker tag tapng-template-repository $(REPOSITORY_URL)/tapng-template-repository:latest
+	docker push $(REPOSITORY_URL)/tapng-template-repository:latest
 
 kubernetes_deploy:
 	kubectl create -f configmap.yaml
@@ -42,13 +42,13 @@ tests: verify_gopath
 	go test --cover $(APP_DIR_LIST)
 
 prepare_dirs:
-	mkdir -p ./temp/src/github.com/trustedanalytics/tap-template-repository
+	mkdir -p ./temp/src/github.com/trustedanalytics/tapng-template-repository
 	$(eval REPOFILES=$(shell pwd)/*)
-	ln -sf $(REPOFILES) temp/src/github.com/trustedanalytics/tap-template-repository
+	ln -sf $(REPOFILES) temp/src/github.com/trustedanalytics/tapng-template-repository
 
 build_anywhere: prepare_dirs
 	$(eval GOPATH=$(shell cd ./temp; pwd))
-	$(eval APP_DIR_LIST=$(shell GOPATH=$(GOPATH) go list ./temp/src/github.com/trustedanalytics/tap-template-repository/... | grep -v /vendor/))
+	$(eval APP_DIR_LIST=$(shell GOPATH=$(GOPATH) go list ./temp/src/github.com/trustedanalytics/tapng-template-repository/... | grep -v /vendor/))
 	GOPATH=$(GOPATH) CGO_ENABLED=0 go install -tags netgo $(APP_DIR_LIST)
 	rm -Rf application && mkdir application
-	cp $(GOPATH)/bin/tap-template-repository ./application/tap-template-repository
+	cp $(GOPATH)/bin/tapng-template-repository ./application/tapng-template-repository

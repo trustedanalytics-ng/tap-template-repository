@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/trustedanalytics/tap-template-repository/model"
+	"github.com/trustedanalytics/tapng-template-repository/model"
 )
 
 var TEMPLATES map[string]*model.TemplateMetadata

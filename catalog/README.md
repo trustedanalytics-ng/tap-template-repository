@@ -1,6 +1,6 @@
 # Dynamic Offering
 
-New element in catalog can be added dynamicly with HTTP request and does not required any broker restarts:
+New element in catalog can be added dynamically with HTTP request and does not required any broker restarts:
 
 1) Add new service using PUT call on /v2/dynamicservice - exampled request is placed below
 2) Use CLI cf client to enable access to new created service:
