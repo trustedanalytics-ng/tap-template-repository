@@ -116,7 +116,7 @@ func (c *Context) GetCustomTemplate(rw web.ResponseWriter, req *web.Request) {
 
 	templateMetadata := catalog.GetTemplateMetadataById(templateId)
 	if templateMetadata == nil {
-		util.Respond500(rw, errors.New("Template not exist!"))
+		util.Respond404(rw, errors.New("Template doesn't exist!"))
 		return
 	}
 

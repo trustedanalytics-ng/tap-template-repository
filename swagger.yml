@@ -10,6 +10,10 @@ paths:
           description: bb
           schema:
             $ref: '#/definitions/Template'
+        400:
+          description: Template not found
+          schema:
+            type: string
     delete:
       responses:
         204:
