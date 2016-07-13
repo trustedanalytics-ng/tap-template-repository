@@ -65,7 +65,7 @@ func (c *Context) GenerateParsedTemplate(rw web.ResponseWriter, req *web.Request
 
 	templateMetadata := catalog.GetTemplateMetadataById(templateId)
 	if templateMetadata == nil {
-		util.Respond500(rw, errors.New(fmt.Sprintf("Can't find template by id: %s", templateId)))
+		util.Respond404(rw, errors.New(fmt.Sprintf("Can't find template by id: %s", templateId)))
 		return
 	}
 
