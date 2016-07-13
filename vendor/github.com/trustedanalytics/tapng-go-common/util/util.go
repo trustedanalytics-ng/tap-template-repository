@@ -70,3 +70,9 @@ func Respond404(rw web.ResponseWriter, err error) {
 	rw.WriteHeader(http.StatusNotFound)
 	fmt.Fprintf(rw, "%s", err.Error())
 }
+
+func Respond400(rw web.ResponseWriter, err error) {
+	logger.Error("Respond400: reason: error ", err)
+	rw.WriteHeader(http.StatusBadRequest)
+	fmt.Fprintf(rw, "%s", err.Error())
+}

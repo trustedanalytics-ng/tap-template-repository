@@ -50,8 +50,16 @@ func (c *Context) Templates(rw web.ResponseWriter, req *web.Request) {
 func (c *Context) GenerateParsedTemplate(rw web.ResponseWriter, req *web.Request) {
 	templateId := req.PathParams["templateId"]
 	uuid := req.URL.Query().Get("serviceId")
-	if templateId == "" || uuid == "" {
-		util.Respond500(rw, errors.New("templateId and uuid can't be empty!"))
+
+	err := validateTemplateId(templateId)
+	if err != nil {
+		util.Respond400(rw, err)
+		return
+	}
+
+	err = validateUuid(uuid)
+	if err != nil {
+		util.Respond400(rw, err)
 		return
 	}
 
@@ -78,8 +86,9 @@ func (c *Context) CreateCustomTemplate(rw web.ResponseWriter, req *web.Request) 
 		return
 	}
 
-	if reqTemplate.Id == "" {
-		util.Respond500(rw, errors.New("Teplate Id can not be empty!"))
+	err = validateTemplateId(reqTemplate.Id)
+	if err != nil {
+		util.Respond400(rw, err)
 		return
 	}
 
@@ -99,8 +108,9 @@ func (c *Context) CreateCustomTemplate(rw web.ResponseWriter, req *web.Request) 
 
 func (c *Context) GetCustomTemplate(rw web.ResponseWriter, req *web.Request) {
 	templateId := req.PathParams["templateId"]
-	if templateId == "" {
-		util.Respond500(rw, errors.New("templateId can not be empty!"))
+	err := validateTemplateId(templateId)
+	if err != nil {
+		util.Respond400(rw, err)
 		return
 	}
 
@@ -120,17 +130,18 @@ func (c *Context) GetCustomTemplate(rw web.ResponseWriter, req *web.Request) {
 
 func (c *Context) DeleteCustomTemplate(rw web.ResponseWriter, req *web.Request) {
 	templateId := req.PathParams["templateId"]
-	if templateId == "" {
-		util.Respond500(rw, errors.New("templateId can not be empty!"))
+	err := validateTemplateId(templateId)
+	if err != nil {
+		util.Respond400(rw, err)
 		return
 	}
 
-	err := catalog.RemoveAndUnregisterCustomTemplate(templateId)
+	err = catalog.RemoveAndUnregisterCustomTemplate(templateId)
 	if err != nil {
 		util.Respond500(rw, err)
 		return
 	}
-	util.WriteJson(rw, "", http.StatusOK)
+	util.WriteJson(rw, "", http.StatusNoContent)
 }
 
 func (c *Context) Error(rw web.ResponseWriter, r *web.Request, err interface{}) {

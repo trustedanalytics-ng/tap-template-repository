@@ -12,8 +12,8 @@ paths:
             $ref: '#/definitions/Template'
     delete:
       responses:
-        200:
-          description: bb
+        204:
+          description: Delete succeeded
   /api/v1/templates:
     get:
       responses:
@@ -50,6 +50,8 @@ paths:
           description: aa
           schema:
             $ref: '#/definitions/Template'
+        400:
+          description: ServiceId is shorter than 15 chars
 definitions:
   Template:
     type: object
