@@ -35,24 +35,27 @@ var logger = logger_wrapper.InitLogger("main")
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
-	catalog.LoadAvailableTemplates()
+	context := api.Context{
+		Template: &catalog.Template{},
+	}
+	context.Template.LoadAvailableTemplates()
 
-	r := web.New(api.Context{})
+	r := web.New(context)
 	r.Middleware(web.LoggerMiddleware)
 
-	basicAuthRouter := r.Subrouter(api.Context{}, "/api/v1")
-	basicAuthRouter.Middleware((*api.Context).BasicAuthorizeMiddleware)
+	basicAuthRouter := r.Subrouter(context, "/api/v1")
+	basicAuthRouter.Middleware(context.BasicAuthorizeMiddleware)
 
-	jwtRouter := r.Subrouter(api.Context{}, "/api/v1")
-	jwtRouter.Middleware((*api.Context).JWTAuthorizeMiddleware)
+	jwtRouter := r.Subrouter(context, "/api/v1")
+	jwtRouter.Middleware(context.JWTAuthorizeMiddleware)
 
-	basicAuthRouter.Get("/templates", (*api.Context).Templates)
-	basicAuthRouter.Get("/templates/:templateId", (*api.Context).GetCustomTemplate)
-	basicAuthRouter.Get("/parsed_template/:templateId/", (*api.Context).GenerateParsedTemplate)
+	basicAuthRouter.Get("/templates", context.Templates)
+	basicAuthRouter.Get("/templates/:templateId", context.GetCustomTemplate)
+	basicAuthRouter.Get("/parsed_template/:templateId/", context.GenerateParsedTemplate)
 
 	//TODO: change to jwtRouter after UAA integration
 	basicAuthRouter.Post("/templates", (*api.Context).CreateCustomTemplate)
-	basicAuthRouter.Delete("/templates/:templateId", (*api.Context).DeleteCustomTemplate)
+	basicAuthRouter.Delete("/templates/:templateId", context.DeleteCustomTemplate)
 
 	port := os.Getenv("TEMPLATE_REPOSITORY_PORT")
 	logger.Info("Will listen on:", port)

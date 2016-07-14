@@ -2,3 +2,4 @@
 *.iml
 application/*
 *mock_test.go
+*mock.go

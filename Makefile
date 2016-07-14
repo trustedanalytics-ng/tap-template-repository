@@ -38,7 +38,13 @@ deps_update: verify_gopath
 bin/govendor: verify_gopath
 	go get -v -u github.com/kardianos/govendor
 
-tests: verify_gopath
+bin/gomock: verify_gopath
+	go get -v -u github.com/golang/mock/mockgen
+
+mock_update: bin/gomock
+	$(GOBIN)/mockgen -source=catalog/template.go -package=catalog -destination=catalog/template_mock.go
+
+tests: verify_gopath mock_update
 	go test --cover $(APP_DIR_LIST)
 
 prepare_dirs:

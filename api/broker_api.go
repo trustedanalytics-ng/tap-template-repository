@@ -29,24 +29,17 @@ import (
 	"github.com/trustedanalytics/tapng-template-repository/model"
 )
 
-type Context struct{}
+type Context struct {
+	Template catalog.TemplateApi
+}
 
 var logger = logger_wrapper.InitLogger("api")
 
-var (
-	getRawTemplate                    = catalog.GetRawTemplate
-	getAvailableTemplates             = catalog.GetAvailableTemplates
-	getTemplateMetadataById           = catalog.GetTemplateMetadataById
-	getParsedTemplate                 = catalog.GetParsedTemplate
-	addAndRegisterCustomTemplate      = catalog.AddAndRegisterCustomTemplate
-	removeAndUnregisterCustomTemplate = catalog.RemoveAndUnregisterCustomTemplate
-)
-
 func (c *Context) Templates(rw web.ResponseWriter, req *web.Request) {
 	result := []model.Template{}
-	templatesMetadata := getAvailableTemplates()
+	templatesMetadata := c.Template.GetAvailableTemplates()
 	for _, templateMetadata := range templatesMetadata {
-		template, err := getRawTemplate(templateMetadata, catalog.CatalogPath)
+		template, err := c.Template.GetRawTemplate(templateMetadata, catalog.CatalogPath)
 		if err != nil {
 			util.Respond500(rw, err)
 			return
@@ -64,13 +57,13 @@ func (c *Context) GenerateParsedTemplate(rw web.ResponseWriter, req *web.Request
 		return
 	}
 
-	templateMetadata := getTemplateMetadataById(templateId)
+	templateMetadata := c.Template.GetTemplateMetadataById(templateId)
 	if templateMetadata == nil {
 		util.Respond500(rw, errors.New(fmt.Sprintf("Can't find template by id: %s", templateId)))
 		return
 	}
 
-	template, err := getParsedTemplate(templateMetadata, catalog.CatalogPath, uuid, "defaultOrg", "defaultSpace")
+	template, err := c.Template.GetParsedTemplate(templateMetadata, catalog.CatalogPath, uuid, "defaultOrg", "defaultSpace")
 	if err != nil {
 		util.Respond500(rw, err)
 		return
@@ -92,13 +85,13 @@ func (c *Context) CreateCustomTemplate(rw web.ResponseWriter, req *web.Request) 
 		return
 	}
 
-	if getTemplateMetadataById(reqTemplate.Id) != nil {
+	if c.Template.GetTemplateMetadataById(reqTemplate.Id) != nil {
 		logger.Warning(fmt.Sprintf("Template with Id: %s already exists!", reqTemplate.Id))
 		util.WriteJson(rw, "", http.StatusConflict)
 		return
 	}
 
-	err = addAndRegisterCustomTemplate(reqTemplate)
+	err = c.Template.AddAndRegisterCustomTemplate(reqTemplate)
 	if err != nil {
 		util.Respond500(rw, err)
 		return
@@ -113,13 +106,13 @@ func (c *Context) GetCustomTemplate(rw web.ResponseWriter, req *web.Request) {
 		return
 	}
 
-	templateMetadata := getTemplateMetadataById(templateId)
+	templateMetadata := c.Template.GetTemplateMetadataById(templateId)
 	if templateMetadata == nil {
 		util.Respond500(rw, errors.New("Template not exist!"))
 		return
 	}
 
-	template, err := getRawTemplate(templateMetadata, catalog.CatalogPath)
+	template, err := c.Template.GetRawTemplate(templateMetadata, catalog.CatalogPath)
 	if err != nil {
 		util.Respond500(rw, err)
 		return
@@ -134,7 +127,7 @@ func (c *Context) DeleteCustomTemplate(rw web.ResponseWriter, req *web.Request) 
 		return
 	}
 
-	err := removeAndUnregisterCustomTemplate(templateId)
+	err := c.Template.RemoveAndUnregisterCustomTemplate(templateId)
 	if err != nil {
 		util.Respond500(rw, err)
 		return

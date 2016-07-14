@@ -13,7 +13,21 @@ var TEMPLATES map[string]*model.TemplateMetadata
 var TemplatesPath string = "./catalogData/"
 var CustomTemplatesDir string = TemplatesPath + "custom/"
 
-func GetTemplateMetadataById(id string) *model.TemplateMetadata {
+type TemplateApi interface {
+	GetTemplateMetadataById(id string) *model.TemplateMetadata
+	GetAvailableTemplates() map[string]*model.TemplateMetadata
+	LoadAvailableTemplates()
+	AddAndRegisterCustomTemplate(template model.Template) error
+	RemoveAndUnregisterCustomTemplate(templateId string) error
+	GetParsedTemplate(templateMetadata *model.TemplateMetadata, catalogPath, instanceId, orgId, spaceId string) (model.Template, error)
+	GetRawTemplate(templateMetadata *model.TemplateMetadata, catalogPath string) (model.Template, error)
+	GetParsedJobHooks(jobs []string, instanceId, svcMetaId, planMetaId, org, space string) ([]*model.JobHook, error)
+	GetJobHooks(catalogPath string, temp *model.TemplateMetadata) ([]string, error)
+}
+
+type Template struct{}
+
+func (t *Template) GetTemplateMetadataById(id string) *model.TemplateMetadata {
 	if TEMPLATES != nil {
 		return TEMPLATES[id]
 	} else {
@@ -21,14 +35,14 @@ func GetTemplateMetadataById(id string) *model.TemplateMetadata {
 	}
 }
 
-func GetAvailableTemplates() map[string]*model.TemplateMetadata {
+func (t *Template) GetAvailableTemplates() map[string]*model.TemplateMetadata {
 	if TEMPLATES != nil {
-		LoadAvailableTemplates()
+		t.LoadAvailableTemplates()
 	}
 	return TEMPLATES
 }
 
-func LoadAvailableTemplates() {
+func (t *Template) LoadAvailableTemplates() {
 	TEMPLATES = make(map[string]*model.TemplateMetadata)
 	logger.Debug("GetAvailableTemplates - need to parse catalog/ directory.")
 	template_file_info, err := ioutil.ReadDir(TemplatesPath)
@@ -36,11 +50,11 @@ func LoadAvailableTemplates() {
 		logger.Panic(err)
 	}
 	for _, templateDir := range template_file_info {
-		loadTemplateMetadata(templateDir)
+		t.loadTemplateMetadata(templateDir)
 	}
 }
 
-func loadTemplateMetadata(templateDir os.FileInfo) {
+func (t *Template) loadTemplateMetadata(templateDir os.FileInfo) {
 	if templateDir.IsDir() {
 		templateDirPath := TemplatesPath + templateDir.Name()
 		logger.Debug(" => ", templateDir.Name(), templateDirPath)
@@ -50,12 +64,12 @@ func loadTemplateMetadata(templateDir os.FileInfo) {
 			logger.Panic(err)
 		}
 		for _, plandir := range plans_file_info {
-			loadPlans(plandir, templateDirPath, templateDir.Name())
+			t.loadPlans(plandir, templateDirPath, templateDir.Name())
 		}
 	}
 }
 
-func loadPlans(plandir os.FileInfo, templateDirPath, templateDirName string) {
+func (t *Template) loadPlans(plandir os.FileInfo, templateDirPath, templateDirName string) {
 	planDirPath := templateDirPath + "/" + plandir.Name()
 
 	if plandir.IsDir() {
@@ -66,14 +80,14 @@ func loadPlans(plandir os.FileInfo, templateDirPath, templateDirName string) {
 		}
 
 		for _, plan_details := range plans_content_file_info {
-			loadPlan(plan_details, planDirPath, plandir.Name(), templateDirName)
+			t.loadPlan(plan_details, planDirPath, plandir.Name(), templateDirName)
 		}
 	} else {
 		logger.Debug("Skipping file: ", planDirPath)
 	}
 }
 
-func loadPlan(plan_details os.FileInfo, planDirPath, planDirName, templateDirName string) {
+func (t *Template) loadPlan(plan_details os.FileInfo, planDirPath, planDirName, templateDirName string) {
 	var plan_meta model.PlanMetadata
 	plan_details_dir_full_name := planDirPath + "/" + plan_details.Name()
 	if plan_details.IsDir() {
@@ -99,7 +113,7 @@ func loadPlan(plan_details os.FileInfo, planDirPath, planDirName, templateDirNam
 	}
 }
 
-func AddAndRegisterCustomTemplate(template model.Template) error {
+func (t *Template) AddAndRegisterCustomTemplate(template model.Template) error {
 	templateDir := CustomTemplatesDir + template.Id + "/k8s"
 	templatePlanDir := CustomTemplatesDir + template.Id
 
@@ -146,34 +160,34 @@ func AddAndRegisterCustomTemplate(template model.Template) error {
 		return err
 	}
 
-	LoadAvailableTemplates()
+	t.LoadAvailableTemplates()
 	return nil
 }
 
-func RemoveAndUnregisterCustomTemplate(templateId string) error {
+func (t *Template) RemoveAndUnregisterCustomTemplate(templateId string) error {
 	templateDir := CustomTemplatesDir + templateId
 	err := os.RemoveAll(templateDir)
 	if err != nil {
 		return err
 	}
 
-	LoadAvailableTemplates()
+	t.LoadAvailableTemplates()
 	return nil
 }
 
-func GetParsedTemplate(templateMetadata *model.TemplateMetadata, catalogPath, instanceId, orgId, spaceId string) (model.Template, error) {
+func (t *Template) GetParsedTemplate(templateMetadata *model.TemplateMetadata, catalogPath, instanceId, orgId, spaceId string) (model.Template, error) {
 	result := model.Template{Id: templateMetadata.Id}
 	component, err := GetParsedKubernetesComponentByTemplate(catalogPath, instanceId, orgId, spaceId, templateMetadata)
 	if err != nil {
 		return result, err
 	}
 
-	jobsHooksRaw, err := GetJobHooks(catalogPath, templateMetadata)
+	jobsHooksRaw, err := t.GetJobHooks(catalogPath, templateMetadata)
 	if err != nil {
 		return result, err
 	}
 
-	jobHooks, err := GetParsedJobHooks(jobsHooksRaw, instanceId, templateMetadata.Id, templateMetadata.Id, orgId, spaceId)
+	jobHooks, err := t.GetParsedJobHooks(jobsHooksRaw, instanceId, templateMetadata.Id, templateMetadata.Id, orgId, spaceId)
 	if err != nil {
 		return result, err
 	}
@@ -185,7 +199,7 @@ func GetParsedTemplate(templateMetadata *model.TemplateMetadata, catalogPath, in
 	return result, nil
 }
 
-func GetRawTemplate(templateMetadata *model.TemplateMetadata, catalogPath string) (model.Template, error) {
+func (t *Template) GetRawTemplate(templateMetadata *model.TemplateMetadata, catalogPath string) (model.Template, error) {
 	result := model.Template{Id: templateMetadata.Id}
 	blueprint, err := GetKubernetesBlueprint(catalogPath, templateMetadata.TemplateDirName, templateMetadata.TemplatePlanDirName, templateMetadata.Id)
 	if err != nil {
@@ -197,7 +211,7 @@ func GetRawTemplate(templateMetadata *model.TemplateMetadata, catalogPath string
 		return result, err
 	}
 
-	jobsHooksRaw, err := GetJobHooks(catalogPath, templateMetadata)
+	jobsHooksRaw, err := t.GetJobHooks(catalogPath, templateMetadata)
 	if err != nil {
 		return result, err
 	}
@@ -214,7 +228,7 @@ func GetRawTemplate(templateMetadata *model.TemplateMetadata, catalogPath string
 	return result, nil
 }
 
-func GetParsedJobHooks(jobs []string, instanceId, svcMetaId, planMetaId, org, space string) ([]*model.JobHook, error) {
+func (t *Template) GetParsedJobHooks(jobs []string, instanceId, svcMetaId, planMetaId, org, space string) ([]*model.JobHook, error) {
 	parsedJobs := []string{}
 	for i, job := range jobs {
 		parsedJobs = append(parsedJobs, adjust_params(job, org, space, instanceId, svcMetaId, planMetaId, i))
@@ -236,7 +250,7 @@ func unmarshallJobs(jobs []string) ([]*model.JobHook, error) {
 	return result, nil
 }
 
-func GetJobHooks(catalogPath string, temp *model.TemplateMetadata) ([]string, error) {
+func (t *Template) GetJobHooks(catalogPath string, temp *model.TemplateMetadata) ([]string, error) {
 	_, _, k8sPlanPath := GetCatalogFilesPath(catalogPath, temp.TemplateDirName, temp.TemplatePlanDirName)
 	return read_k8s_json_files_with_prefix_from_dir(k8sPlanPath, "job")
 }

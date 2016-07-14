@@ -22,38 +22,25 @@ import (
 	"github.com/gocraft/web"
 
 	"encoding/json"
+	"github.com/golang/mock/gomock"
+	"github.com/signalfx/golib/errors"
 	"github.com/smartystreets/goconvey/convey"
+	"github.com/trustedanalytics/tapng-template-repository/catalog"
 	"github.com/trustedanalytics/tapng-template-repository/model"
 	TestUtils "github.com/trustedanalytics/tapng-template-repository/test"
-	catalog_mock "github.com/trustedanalytics/tapng-template-repository/test/catalog"
 )
 
 func prepareMocksAndRouter(t *testing.T) (router *web.Router, c Context) {
-	c = Context{}
-	router = web.New(c)
+
 	return router, c
 }
 
 func TestGenerateParsedTemplate(t *testing.T) {
-	var (
-		originalGetRawTemplate                    = getRawTemplate
-		originalGetAvailableTemplates             = getAvailableTemplates
-		originalGetTemplateMetadataById           = getTemplateMetadataById
-		originalGetParsedTemplate                 = getParsedTemplate
-		originalAddAndRegisterCustomTemplate      = addAndRegisterCustomTemplate
-		originalRemoveAndUnregisterCustomTemplate = removeAndUnregisterCustomTemplate
-	)
+	mockCtrl := gomock.NewController(t)
+	templateMock := catalog.NewMockTemplateApi(mockCtrl)
+	context := Context{templateMock}
+	router := web.New(context)
 
-	defer func() {
-		getRawTemplate = originalGetRawTemplate
-		getAvailableTemplates = originalGetAvailableTemplates
-		getTemplateMetadataById = originalGetTemplateMetadataById
-		getParsedTemplate = originalGetParsedTemplate
-		addAndRegisterCustomTemplate = originalAddAndRegisterCustomTemplate
-		removeAndUnregisterCustomTemplate = originalRemoveAndUnregisterCustomTemplate
-	}()
-
-	router, context := prepareMocksAndRouter(t)
 	router.Get("/api/v1/parsed_template/:templateId/", context.GenerateParsedTemplate)
 
 	convey.Convey("Test Generate Parsed Template", t, func() {
@@ -66,17 +53,37 @@ func TestGenerateParsedTemplate(t *testing.T) {
 			TestUtils.AssertResponse(response, "templateId and uuid can't be empty!", 500)
 		})
 		convey.Convey("Template with templateId not found", func() {
-			getTemplateMetadataById = catalog_mock.GetTemplateMetadataByIdNilMock
+			gomock.InOrder(
+				templateMock.EXPECT().GetTemplateMetadataById("templateId").Return(nil),
+			)
 			response := TestUtils.SendRequest("GET", "/api/v1/parsed_template/templateId?serviceId=a5740d8a-9f4b-4711-a1a0-eae62db54474", nil, router)
 			TestUtils.AssertResponse(response, "Can't find template by id: templateId", 500)
 		})
-		convey.Convey("Non existing templateId provided", func() {
-			getTemplateMetadataById = catalog_mock.GetTemplateMetadataByIdTemplateMock
-			getParsedTemplate = catalog_mock.GetParsedTemplate
-			response := TestUtils.SendRequest("GET", "/api/v1/parsed_template/non_existing?serviceId=a5740d8a-9f4b-4711-a1a0-eae62db54474", nil, router)
+		convey.Convey("Getting parsed component failed", func() {
+			gomock.InOrder(
+				templateMock.EXPECT().GetTemplateMetadataById("templateId").Return(&model.TemplateMetadata{
+					Id:                  "templateId",
+					TemplateDirName:     "dir",
+					TemplatePlanDirName: "planDir",
+				}),
+				templateMock.EXPECT().GetParsedTemplate(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(model.Template{Id: "templateId"}, errors.New("failed")),
+			)
+			response := TestUtils.SendRequest("GET", "/api/v1/parsed_template/templateId?serviceId=a5740d8a-9f4b-4711-a1a0-eae62db54474", nil, router)
+			TestUtils.AssertResponse(response, "failed", 500)
+		})
+		convey.Convey("Existing templateId provided", func() {
+			gomock.InOrder(
+				templateMock.EXPECT().GetTemplateMetadataById("templateId").Return(&model.TemplateMetadata{
+					Id:                  "templateId",
+					TemplateDirName:     "dir",
+					TemplatePlanDirName: "planDir",
+				}),
+				templateMock.EXPECT().GetParsedTemplate(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(model.Template{Id: "templateId"}, nil),
+			)
+			response := TestUtils.SendRequest("GET", "/api/v1/parsed_template/templateId?serviceId=a5740d8a-9f4b-4711-a1a0-eae62db54474", nil, router)
 			var template model.Template
 			json.Unmarshal(response.Body.Bytes(), &template)
-			convey.So(template.Id, convey.ShouldEqual, "non_existing")
+			convey.So(template.Id, convey.ShouldEqual, "templateId")
 			convey.So(response.Code, convey.ShouldEqual, 200)
 		})
 
