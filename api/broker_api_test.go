@@ -30,17 +30,56 @@ import (
 	TestUtils "github.com/trustedanalytics/tapng-template-repository/test"
 )
 
-func prepareMocksAndRouter(t *testing.T) (router *web.Router, c Context) {
+func prepareMocksAndRouter(t *testing.T) (router *web.Router, c Context, templateMock *catalog.MockTemplateApi) {
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+	templateMock = catalog.NewMockTemplateApi(mockCtrl)
+	c = Context{templateMock}
+	router = web.New(c)
+	return
+}
 
-	return router, c
+func TestTemplates(t *testing.T) {
+	router, context, templateMock := prepareMocksAndRouter(t)
+	router.Get("/api/v1/templates", context.Templates)
+
+	convey.Convey("Test Templates", t, func() {
+		convey.Convey("No templates available", func() {
+			gomock.InOrder(
+				templateMock.EXPECT().GetAvailableTemplates().Return(make(map[string]*model.TemplateMetadata)),
+			)
+			response := TestUtils.SendRequest("GET", "/api/v1/templates", nil, router)
+			TestUtils.AssertResponse(response, "[]", 200)
+		})
+		convey.Convey("Template retrieval failed", func() {
+			availableTemplates := make(map[string]*model.TemplateMetadata)
+			availableTemplates["test"] = &model.TemplateMetadata{Id: "templateId"}
+			gomock.InOrder(
+				templateMock.EXPECT().GetAvailableTemplates().Return(availableTemplates),
+				templateMock.EXPECT().GetRawTemplate(availableTemplates["test"], gomock.Any()).Return(model.Template{}, errors.New("failed")),
+			)
+			response := TestUtils.SendRequest("GET", "/api/v1/templates", nil, router)
+			TestUtils.AssertResponse(response, "failed", 500)
+		})
+		convey.Convey("All avialable templates successfully retrieved", func() {
+			availableTemplates := make(map[string]*model.TemplateMetadata)
+			availableTemplates["test"] = &model.TemplateMetadata{Id: "templateId"}
+			gomock.InOrder(
+				templateMock.EXPECT().GetAvailableTemplates().Return(availableTemplates),
+				templateMock.EXPECT().GetRawTemplate(availableTemplates["test"], gomock.Any()).Return(model.Template{Id: "templateId"}, nil),
+			)
+			response := TestUtils.SendRequest("GET", "/api/v1/templates", nil, router)
+			var templates []model.Template
+			json.Unmarshal(response.Body.Bytes(), &templates)
+			convey.So(len(templates), convey.ShouldEqual, 1)
+			convey.So(templates[0].Id, convey.ShouldEqual, "templateId")
+			convey.So(response.Code, convey.ShouldEqual, 200)
+		})
+	})
 }
 
 func TestGenerateParsedTemplate(t *testing.T) {
-	mockCtrl := gomock.NewController(t)
-	templateMock := catalog.NewMockTemplateApi(mockCtrl)
-	context := Context{templateMock}
-	router := web.New(context)
-
+	router, context, templateMock := prepareMocksAndRouter(t)
 	router.Get("/api/v1/parsed_template/:templateId/", context.GenerateParsedTemplate)
 
 	convey.Convey("Test Generate Parsed Template", t, func() {
