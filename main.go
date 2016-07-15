@@ -18,12 +18,13 @@ package main
 
 import (
 	"math/rand"
-	"net/http"
+
 	"os"
 	"time"
 
 	"github.com/gocraft/web"
 
+	httpGoCommon "github.com/trustedanalytics/tapng-go-common/http"
 	"github.com/trustedanalytics/tapng-go-common/logger"
 	"github.com/trustedanalytics/tapng-template-repository/api"
 	"github.com/trustedanalytics/tapng-template-repository/catalog"
@@ -41,31 +42,26 @@ func main() {
 	r.Middleware(web.LoggerMiddleware)
 
 	basicAuthRouter := r.Subrouter(api.Context{}, "/api/v1")
-	basicAuthRouter.Middleware((*api.Context).BasicAuthorizeMiddleware)
+	route(basicAuthRouter)
+	v1AliasRouter := r.Subrouter(api.Context{}, "/api/v1.0")
+	route(v1AliasRouter)
 
-	jwtRouter := r.Subrouter(api.Context{}, "/api/v1")
-	jwtRouter.Middleware((*api.Context).JWTAuthorizeMiddleware)
-
-	basicAuthRouter.Get("/templates", (*api.Context).Templates)
-	basicAuthRouter.Get("/templates/:templateId", (*api.Context).GetCustomTemplate)
-	basicAuthRouter.Get("/parsed_template/:templateId/", (*api.Context).GenerateParsedTemplate)
-
-	//TODO: change to jwtRouter after UAA integration
-	basicAuthRouter.Post("/templates", (*api.Context).CreateCustomTemplate)
-	basicAuthRouter.Delete("/templates/:templateId", (*api.Context).DeleteCustomTemplate)
-
-	port := os.Getenv("TEMPLATE_REPOSITORY_PORT")
-	logger.Info("Will listen on:", port)
-
-	var err error
-	if os.Getenv("TEMPLATE_REPOSITORY_SSL_CERT_FILE_LOCATION") != "" {
-		err = http.ListenAndServeTLS(":"+port, os.Getenv("TEMPLATE_REPOSITORY_SSL_CERT_FILE_LOCATION"),
+	if os.Getenv("CONSOLE_SERVICE_SSL_CERT_FILE_LOCATION") != "" {
+		httpGoCommon.StartServerTLS(os.Getenv("TEMPLATE_REPOSITORY_SSL_CERT_FILE_LOCATION"),
 			os.Getenv("TEMPLATE_REPOSITORY_SSL_KEY_FILE_LOCATION"), r)
 	} else {
-		err = http.ListenAndServe(":"+port, r)
+		httpGoCommon.StartServer(r)
 	}
 
-	if err != nil {
-		logger.Critical("Couldn't serve app on port:", port, " Error:", err)
-	}
+}
+
+func route(router *web.Router) {
+	router.Middleware((*api.Context).BasicAuthorizeMiddleware)
+	router.Get("/templates", (*api.Context).Templates)
+	router.Get("/templates/:templateId", (*api.Context).GetCustomTemplate)
+	router.Get("/parsed_template/:templateId/", (*api.Context).GenerateParsedTemplate)
+
+	//TODO: change to jwtRouter after UAA integration
+	router.Post("/templates", (*api.Context).CreateCustomTemplate)
+	router.Delete("/templates/:templateId", (*api.Context).DeleteCustomTemplate)
 }

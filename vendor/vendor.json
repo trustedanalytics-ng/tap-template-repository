@@ -231,6 +231,11 @@
 			"revisionTime": "2016-03-28T06:07:40Z"
 		},
 		{
+			"path": "github.com:intel-data/tapng-go-common",
+			"revision": "",
+			"version": "ng0.8"
+		},
+		{
 			"checksumSHA1": "9jjO5GjLa0XF/nfWihF02RoH4qc=",
 			"path": "golang.org/x/net/context",
 			"revision": "8bf2b39827dbadfd566c4fae7a8790d12be8b23c",
