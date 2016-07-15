@@ -251,7 +251,7 @@ func TestDeleteCustomTemplate(t *testing.T) {
 				templateMock.EXPECT().RemoveAndUnregisterCustomTemplate("templateId").Return(nil),
 			)
 			response := TestUtils.SendRequest("DELETE", "/api/v1/templates/templateId", nil, router)
-			convey.So(response.Code, convey.ShouldEqual, 200)
+			convey.So(response.Code, convey.ShouldEqual, 204)
 		})
 	})
 }

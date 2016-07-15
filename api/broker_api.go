@@ -132,10 +132,5 @@ func (c *Context) DeleteCustomTemplate(rw web.ResponseWriter, req *web.Request) 
 		util.Respond500(rw, err)
 		return
 	}
-	util.WriteJson(rw, "", http.StatusOK)
-}
-
-func (c *Context) Error(rw web.ResponseWriter, r *web.Request, err interface{}) {
-	logger.Error("Respond500: reason: error ", err)
-	rw.WriteHeader(http.StatusInternalServerError)
+	util.WriteJson(rw, "", http.StatusNoContent)
 }
