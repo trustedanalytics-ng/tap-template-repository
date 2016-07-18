@@ -2,11 +2,12 @@ package catalog
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/trustedanalytics/tapng-template-repository/model"
 	"io/ioutil"
 	"os"
-
-	"github.com/trustedanalytics/tapng-template-repository/model"
+	"strings"
 )
 
 var TEMPLATES map[string]*model.TemplateMetadata
@@ -165,6 +166,9 @@ func (t *Template) AddAndRegisterCustomTemplate(template model.Template) error {
 }
 
 func (t *Template) RemoveAndUnregisterCustomTemplate(templateId string) error {
+	if strings.Contains(templateId, "..") {
+		return errors.New("Illegal templateId")
+	}
 	templateDir := CustomTemplatesDir + templateId
 	err := os.RemoveAll(templateDir)
 	if err != nil {
