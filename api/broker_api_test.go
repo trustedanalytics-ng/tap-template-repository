@@ -85,18 +85,18 @@ func TestGenerateParsedTemplate(t *testing.T) {
 	convey.Convey("Test Generate Parsed Template", t, func() {
 		convey.Convey("No templateId provided", func() {
 			response := TestUtils.SendRequest("GET", "/api/v1/parsed_template//?serviceId=a5740d8a-9f4b-4711-a1a0-eae62db54474", nil, router)
-			TestUtils.AssertResponse(response, "templateId and uuid can't be empty!", 500)
+			TestUtils.AssertResponse(response, "templateId can't be empty!", 400)
 		})
 		convey.Convey("No serviceId provided", func() {
 			response := TestUtils.SendRequest("GET", "/api/v1/parsed_template/1", nil, router)
-			TestUtils.AssertResponse(response, "templateId and uuid can't be empty!", 500)
+			TestUtils.AssertResponse(response, "uuid can't be empty!", 400)
 		})
 		convey.Convey("Template with templateId not found", func() {
 			gomock.InOrder(
 				templateMock.EXPECT().GetTemplateMetadataById("templateId").Return(nil),
 			)
 			response := TestUtils.SendRequest("GET", "/api/v1/parsed_template/templateId?serviceId=a5740d8a-9f4b-4711-a1a0-eae62db54474", nil, router)
-			TestUtils.AssertResponse(response, "Can't find template by id: templateId", 500)
+			TestUtils.AssertResponse(response, "Can't find template by id: templateId", 404)
 		})
 		convey.Convey("Getting parsed component failed", func() {
 			gomock.InOrder(
@@ -142,7 +142,7 @@ func TestCreateCustomTemplate(t *testing.T) {
 			body := model.Template{}
 			body_bytes, _ := json.Marshal(body)
 			response := TestUtils.SendRequest("POST", "/api/v1/templates", body_bytes, router)
-			TestUtils.AssertResponse(response, "Teplate Id can not be empty!", 500)
+			TestUtils.AssertResponse(response, "templateId can't be empty!", 400)
 		})
 		convey.Convey("Template with id exists", func() {
 			body := model.Template{
@@ -191,14 +191,14 @@ func TestGetCustomTemplate(t *testing.T) {
 	convey.Convey("Test Get Custom Template", t, func() {
 		convey.Convey("No template id provided", func() {
 			response := TestUtils.SendRequest("GET", "/api/v1/templates//", nil, router)
-			TestUtils.AssertResponse(response, "templateId can not be empty!", 500)
+			TestUtils.AssertResponse(response, "templateId can't be empty!", 400)
 		})
 		convey.Convey("Template does not exist", func() {
 			gomock.InOrder(
 				templateMock.EXPECT().GetTemplateMetadataById("templateId").Return(nil),
 			)
 			response := TestUtils.SendRequest("GET", "/api/v1/templates/templateId", nil, router)
-			TestUtils.AssertResponse(response, "Template not exist!", 500)
+			TestUtils.AssertResponse(response, "Template doesn't exist!", 404)
 		})
 		convey.Convey("Error gettting template", func() {
 			templateMeta := model.TemplateMetadata{
@@ -237,7 +237,7 @@ func TestDeleteCustomTemplate(t *testing.T) {
 	convey.Convey("Test Delete Custom Template", t, func() {
 		convey.Convey("No template id provided", func() {
 			response := TestUtils.SendRequest("DELETE", "/api/v1/templates//", nil, router)
-			TestUtils.AssertResponse(response, "templateId can not be empty!", 500)
+			TestUtils.AssertResponse(response, "templateId can't be empty!", 400)
 		})
 		convey.Convey("Deletion failed", func() {
 			gomock.InOrder(
