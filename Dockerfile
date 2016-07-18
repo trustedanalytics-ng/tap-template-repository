@@ -24,8 +24,7 @@ RUN chmod +x /opt/app/tapng-template-repository
 
 WORKDIR /opt/app/
 
-ENV TEMPLATE_REPOSITORY_PORT "8082"
-EXPOSE 8082
+EXPOSE 80
 
 ENTRYPOINT ["/opt/app/tapng-template-repository"]
 CMD [""]

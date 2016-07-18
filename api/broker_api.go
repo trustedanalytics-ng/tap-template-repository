@@ -52,14 +52,22 @@ func (c *Context) Templates(rw web.ResponseWriter, req *web.Request) {
 func (c *Context) GenerateParsedTemplate(rw web.ResponseWriter, req *web.Request) {
 	templateId := req.PathParams["templateId"]
 	uuid := req.URL.Query().Get("serviceId")
-	if templateId == "" || uuid == "" {
-		util.Respond500(rw, errors.New("templateId and uuid can't be empty!"))
+
+	err := validateTemplateId(templateId)
+	if err != nil {
+		util.Respond400(rw, err)
+		return
+	}
+
+	err = validateUuid(uuid)
+	if err != nil {
+		util.Respond400(rw, err)
 		return
 	}
 
 	templateMetadata := c.Template.GetTemplateMetadataById(templateId)
 	if templateMetadata == nil {
-		util.Respond500(rw, errors.New(fmt.Sprintf("Can't find template by id: %s", templateId)))
+		util.Respond404(rw, errors.New(fmt.Sprintf("Can't find template by id: %s", templateId)))
 		return
 	}
 
@@ -80,8 +88,9 @@ func (c *Context) CreateCustomTemplate(rw web.ResponseWriter, req *web.Request) 
 		return
 	}
 
-	if reqTemplate.Id == "" {
-		util.Respond500(rw, errors.New("Teplate Id can not be empty!"))
+	err = validateTemplateId(reqTemplate.Id)
+	if err != nil {
+		util.Respond400(rw, err)
 		return
 	}
 
@@ -101,14 +110,15 @@ func (c *Context) CreateCustomTemplate(rw web.ResponseWriter, req *web.Request) 
 
 func (c *Context) GetCustomTemplate(rw web.ResponseWriter, req *web.Request) {
 	templateId := req.PathParams["templateId"]
-	if templateId == "" {
-		util.Respond500(rw, errors.New("templateId can not be empty!"))
+	err := validateTemplateId(templateId)
+	if err != nil {
+		util.Respond400(rw, err)
 		return
 	}
 
 	templateMetadata := c.Template.GetTemplateMetadataById(templateId)
 	if templateMetadata == nil {
-		util.Respond500(rw, errors.New("Template not exist!"))
+		util.Respond404(rw, errors.New("Template doesn't exist!"))
 		return
 	}
 
@@ -122,12 +132,13 @@ func (c *Context) GetCustomTemplate(rw web.ResponseWriter, req *web.Request) {
 
 func (c *Context) DeleteCustomTemplate(rw web.ResponseWriter, req *web.Request) {
 	templateId := req.PathParams["templateId"]
-	if templateId == "" {
-		util.Respond500(rw, errors.New("templateId can not be empty!"))
+	err := validateTemplateId(templateId)
+	if err != nil {
+		util.Respond400(rw, err)
 		return
 	}
 
-	err := c.Template.RemoveAndUnregisterCustomTemplate(templateId)
+	err = c.Template.RemoveAndUnregisterCustomTemplate(templateId)
 	if err != nil {
 		util.Respond500(rw, err)
 		return
