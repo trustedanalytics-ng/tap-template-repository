@@ -46,7 +46,7 @@ func main() {
 
 	basicAuthRouter := r.Subrouter(context, "/api/v1")
 	route(basicAuthRouter, &context)
-	v1AliasRouter := r.Subrouter(api.Context{}, "/api/v1.0")
+	v1AliasRouter := r.Subrouter(context, "/api/v1.0")
 	route(v1AliasRouter, &context)
 
 	if os.Getenv("TEMPLATE_REPOSITORY_SSL_CERT_FILE_LOCATION") != "" {
