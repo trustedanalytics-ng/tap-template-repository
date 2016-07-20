@@ -19,7 +19,7 @@
             image: "tapng-template-repository"
             ports: 
               - 
-                containerPort: 8082
+                containerPort: 80
                 protocol: "TCP"
             env: 
               - 

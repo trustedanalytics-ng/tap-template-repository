@@ -11,6 +11,6 @@
       id: "template-repository"
     ports:
       -
-        port: 8082
+        port: 80
         protocol: "TCP"
         name: "rest"

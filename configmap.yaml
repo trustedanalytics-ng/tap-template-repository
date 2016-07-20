@@ -6,7 +6,7 @@
     labels:
       id: "template-repository-credentials"
   data:
-    template-repository-port: "8082"
+    template-repository-port: "80"
     template-repository-user: "admin"
     template-repository-pass: "password"
     template-repository-ssl-cert-file-location: ""
