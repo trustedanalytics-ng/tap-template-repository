@@ -30,6 +30,7 @@ import (
 type TemplateRepository interface {
 	GenerateParsedTemplate(templateId, uuid string) (model.Template, error)
 	CreateTemplate(template model.Template) error
+	GetTemplateRepositoryHealth() error
 }
 
 type TemplateRepositoryConnector struct {
@@ -90,4 +91,14 @@ func (t *TemplateRepositoryConnector) CreateTemplate(template model.Template) er
 		return errors.New("Bad response status: " + strconv.Itoa(status))
 	}
 	return nil
+}
+
+func (t *TemplateRepositoryConnector) GetTemplateRepositoryHealth() error {
+	url := fmt.Sprintf("%s/api/v1/healthz", t.Address)
+
+	status, _, err := brokerHttp.RestGET(url, &brokerHttp.BasicAuth{t.Username, t.Password}, t.Client)
+	if status != http.StatusOK {
+		err = errors.New("Invalid health status: " + string(status))
+	}
+	return err
 }

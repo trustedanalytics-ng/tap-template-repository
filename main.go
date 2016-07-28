@@ -67,4 +67,6 @@ func route(router *web.Router, context *api.Context) {
 	//TODO: change to jwtRouter after UAA integration
 	router.Post("/templates", (*context).CreateCustomTemplate)
 	router.Delete("/templates/:templateId", (*context).DeleteCustomTemplate)
+
+	router.Get("/healthz", (*api.Context).GetTemplateRepositoryHealth)
 }
