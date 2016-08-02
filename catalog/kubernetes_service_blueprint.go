@@ -35,59 +35,80 @@ var TEMP_DYNAMIC_BLUEPRINTS = map[string]model.KubernetesBlueprint{}
 var possible_rand_chars = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")
 var domain = os.Getenv("DOMAIN")
 
-func GetParsedKubernetesComponentByTemplate(catalogPath, instanceId, org, space string, temp *model.TemplateMetadata) (*model.KubernetesComponent, error) {
+func GetParsedKubernetesComponentByTemplate(catalogPath, instanceId, org, space string, temp *model.TemplateMetadata,
+	additionalReplacements map[string]string) (*model.KubernetesComponent, error) {
+
 	blueprint, err := GetKubernetesBlueprint(catalogPath, temp.TemplateDirName, temp.TemplatePlanDirName, temp.Id)
 	if err != nil {
 		return nil, err
 	}
 
-	return ParseKubernetesComponent(blueprint, instanceId, temp.Id, temp.Id, org, space)
+	replacements := buildStdReplacementsMap(org, space, instanceId, temp.Id, temp.Id)
+	for key, value := range additionalReplacements {
+		replacements[key] = value
+	}
+
+	return ParseKubernetesComponent(blueprint, replacements)
 }
 
-func GetParsedKubernetesComponentByServiceAndPlan(catalogPath, instanceId, org, space string, svcMeta model.ServiceMetadata,
-	planMeta model.PlanMetadata) (*model.KubernetesComponent, error) {
+func GetParsedKubernetesComponentByServiceAndPlan(catalogPath, instanceId, org, space string,
+	svcMeta model.ServiceMetadata, planMeta model.PlanMetadata) (*model.KubernetesComponent, error) {
+
 	blueprint, err := GetKubernetesBlueprint(catalogPath, svcMeta.InternalId, planMeta.InternalId, svcMeta.Id)
 	if err != nil {
 		return nil, err
 	}
-
-	return ParseKubernetesComponent(blueprint, instanceId, svcMeta.Id, planMeta.Id, org, space)
+	replacements := buildStdReplacementsMap(org, space, instanceId, svcMeta.Id, planMeta.Id)
+	return ParseKubernetesComponent(blueprint, replacements)
 }
 
-func ParseKubernetesComponent(blueprint model.KubernetesBlueprint, instanceId, svcMetaId, planMetaId, org, space string) (*model.KubernetesComponent, error) {
+func buildStdReplacementsMap(org, space, cf_service_id string, svc_meta_id, plan_meta_id string) map[string]string {
+	replacements := make(map[string]string)
+	replacements["$org"] = org
+	replacements["$space"] = space
+	replacements["$service_id"] = cf_service_id
+	replacements["$catalog_service_id"] = svc_meta_id
+	replacements["$catalog_plan_id"] = plan_meta_id
+	replacements["$domain_name"] = domain
+
+	return replacements
+}
+
+func ParseKubernetesComponent(blueprint model.KubernetesBlueprint, replacements map[string]string) (*model.KubernetesComponent, error) {
 	parsedPVC := []string{}
 	for i, pvc := range blueprint.PersistentVolumeClaim {
-		parsedPVC = append(parsedPVC, adjust_params(pvc, org, space, instanceId, svcMetaId, planMetaId, i))
+		parsedPVC = append(parsedPVC, adjust_params(pvc, replacements, i))
 	}
 	blueprint.PersistentVolumeClaim = parsedPVC
 
 	parsedSecrets := []string{}
 	for i, secret := range blueprint.SecretsJson {
-		parsedSecrets = append(parsedSecrets, adjust_params(secret, org, space, instanceId, svcMetaId, planMetaId, i))
+		parsedSecrets = append(parsedSecrets, adjust_params(secret, replacements, i))
 	}
 	blueprint.SecretsJson = parsedSecrets
 
 	parsedDeployments := []string{}
 	for i, deployment := range blueprint.DeploymentJson {
-		parsedDeployments = append(parsedDeployments, adjust_params(deployment, org, space, instanceId, svcMetaId, planMetaId, i))
+		parsedDeployments = append(parsedDeployments, adjust_params(deployment, replacements, i))
 	}
 	blueprint.DeploymentJson = parsedDeployments
 
 	parsedIngresses := []string{}
 	for i, ingress := range blueprint.IngressJson {
-		parsedIngresses = append(parsedIngresses, adjust_params(ingress, org, space, instanceId, svcMetaId, planMetaId, i))
+
+		parsedIngresses = append(parsedIngresses, adjust_params(ingress, replacements, i))
 	}
 	blueprint.IngressJson = parsedIngresses
 
 	parsedSvcs := []string{}
 	for i, svc := range blueprint.ServiceJson {
-		parsedSvcs = append(parsedSvcs, adjust_params(svc, org, space, instanceId, svcMetaId, planMetaId, i))
+		parsedSvcs = append(parsedSvcs, adjust_params(svc, replacements, i))
 	}
 	blueprint.ServiceJson = parsedSvcs
 
 	parsedAccountSvcs := []string{}
 	for i, svc := range blueprint.ServiceAcccountJson {
-		parsedAccountSvcs = append(parsedAccountSvcs, adjust_params(svc, org, space, instanceId, svcMetaId, planMetaId, i))
+		parsedAccountSvcs = append(parsedAccountSvcs, adjust_params(svc, replacements, i))
 	}
 	blueprint.ServiceAcccountJson = parsedAccountSvcs
 
@@ -269,15 +290,14 @@ func GetKubernetesBlueprint(catalogPath, templateDirName, planDirName, templateI
 	return result, nil
 }
 
-func adjust_params(content, org, space, cf_service_id string, svc_meta_id, plan_meta_id string, idx int) string {
+func adjust_params(content string, replacements map[string]string, idx int) string {
 	f := content
-	f = strings.Replace(f, "$org", org, -1)
-	f = strings.Replace(f, "$space", space, -1)
-	f = strings.Replace(f, "$catalog_service_id", svc_meta_id, -1)
-	f = strings.Replace(f, "$catalog_plan_id", plan_meta_id, -1)
-	f = strings.Replace(f, "$service_id", cf_service_id, -1)
-	f = strings.Replace(f, "$domain_name", domain, -1)
 
+	for key, value := range replacements {
+		f = strings.Replace(f, key, value, -1)
+	}
+
+	cf_service_id := replacements["$service_id"]
 	proper_dns_name := cf_id_to_domain_valid_name(cf_service_id + "x" + strconv.Itoa(idx))
 	f = strings.Replace(f, "$idx_and_short_serviceid", proper_dns_name, -1)
 

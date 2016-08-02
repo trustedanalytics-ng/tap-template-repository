@@ -20,7 +20,8 @@ type TemplateApi interface {
 	LoadAvailableTemplates()
 	AddAndRegisterCustomTemplate(template model.Template) error
 	RemoveAndUnregisterCustomTemplate(templateId string) error
-	GetParsedTemplate(templateMetadata *model.TemplateMetadata, catalogPath, instanceId, orgId, spaceId string) (model.Template, error)
+	GetParsedTemplate(templateMetadata *model.TemplateMetadata, catalogPath,
+		instanceId, orgId, spaceId string, additionalReplacements map[string]string) (model.Template, error)
 	GetRawTemplate(templateMetadata *model.TemplateMetadata, catalogPath string) (model.Template, error)
 	GetParsedJobHooks(jobs []string, instanceId, svcMetaId, planMetaId, org, space string) ([]*model.JobHook, error)
 	GetJobHooks(catalogPath string, temp *model.TemplateMetadata) ([]string, error)
@@ -185,9 +186,13 @@ func (t *Template) RemoveAndUnregisterCustomTemplate(templateId string) error {
 	return nil
 }
 
-func (t *Template) GetParsedTemplate(templateMetadata *model.TemplateMetadata, catalogPath, instanceId, orgId, spaceId string) (model.Template, error) {
+func (t *Template) GetParsedTemplate(templateMetadata *model.TemplateMetadata, catalogPath,
+	instanceId, orgId, spaceId string, additionalReplacements map[string]string) (model.Template, error) {
+
 	result := model.Template{Id: templateMetadata.Id}
-	component, err := GetParsedKubernetesComponentByTemplate(catalogPath, instanceId, orgId, spaceId, templateMetadata)
+
+	component, err := GetParsedKubernetesComponentByTemplate(catalogPath,
+		instanceId, orgId, spaceId, templateMetadata, additionalReplacements)
 	if err != nil {
 		return result, err
 	}
@@ -240,8 +245,9 @@ func (t *Template) GetRawTemplate(templateMetadata *model.TemplateMetadata, cata
 
 func (t *Template) GetParsedJobHooks(jobs []string, instanceId, svcMetaId, planMetaId, org, space string) ([]*model.JobHook, error) {
 	parsedJobs := []string{}
+	replacements := buildStdReplacementsMap(org, space, instanceId, svcMetaId, planMetaId)
 	for i, job := range jobs {
-		parsedJobs = append(parsedJobs, adjust_params(job, org, space, instanceId, svcMetaId, planMetaId, i))
+		parsedJobs = append(parsedJobs, adjust_params(job, replacements, i))
 	}
 	return unmarshallJobs(parsedJobs)
 }

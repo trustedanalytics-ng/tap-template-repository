@@ -71,7 +71,13 @@ func (c *Context) GenerateParsedTemplate(rw web.ResponseWriter, req *web.Request
 		return
 	}
 
-	template, err := c.Template.GetParsedTemplate(templateMetadata, catalog.CatalogPath, uuid, "defaultOrg", "defaultSpace")
+	additionalReplacements := make(map[string]string)
+	query := req.URL.Query()
+	for key, _ := range query {
+		additionalReplacements["$"+key] = query.Get(key)
+	}
+	template, err := c.Template.GetParsedTemplate(templateMetadata, catalog.CatalogPath, uuid,
+		"defaultOrg", "defaultSpace", additionalReplacements)
 	if err != nil {
 		util.Respond500(rw, err)
 		return

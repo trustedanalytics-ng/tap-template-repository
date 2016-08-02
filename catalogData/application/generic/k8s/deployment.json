@@ -1,0 +1,68 @@
+{
+  "status": {},
+  "spec": {
+    "strategy": {},
+    "template": {
+      "spec": {
+        "serviceAccountName": "",
+        "dnsPolicy": "ClusterFirst",
+        "restartPolicy": "Always",
+        "containers": [
+          {
+            "imagePullPolicy": "IfNotPresent",
+            "resources": {},
+            "env": [
+              {
+                "value": "1.0",
+                "name": "VERSION"
+              },
+              {
+                "value": "TAP",
+                "name": "MANAGED_BY"
+              }
+            ],
+            "ports": [
+              {
+                "protocol": "TCP",
+                "containerPort": 80
+              }
+            ],
+            "image": "$image",
+            "name": "app"
+          }
+        ],
+        "volumes": null
+      },
+      "metadata": {
+        "labels": {
+          "service_id": "$service_id",
+          "managed_by": "TAP",
+          "idx_and_short_serviceid": "$idx_and_short_serviceid"
+        },
+        "creationTimestamp": null
+      }
+    },
+    "selector": {
+      "matchLabels": {
+        "service_id": "$service_id",
+        "idx_and_short_serviceid": "$idx_and_short_serviceid"
+      }
+    },
+    "replicas": 1
+  },
+  "metadata": {
+    "labels": {
+      "space": "$space",
+      "service_id": "$service_id",
+      "org": "$org",
+      "managed_by": "TAP",
+      "idx_and_short_serviceid": "$idx_and_short_serviceid",
+      "catalog_service_id": "$catalog_service_id",
+      "catalog_plan_id": "$catalog_plan_id"
+    },
+    "creationTimestamp": null,
+    "name": "$idx_and_short_serviceid"
+  },
+  "apiVersion": "extensions/v1beta1",
+  "kind": "Deployment"
+}

@@ -1,0 +1,29 @@
+{
+  "status": {
+    "loadBalancer": {}
+  },
+  "spec": {
+    "rules": [
+      {
+        "http": {
+          "paths": [
+            {
+              "backend": {
+                "servicePort": 80,
+                "serviceName": "$idx_and_short_serviceid"
+              },
+              "path": "/"
+            }
+          ]
+        },
+        "host": "$hostname.$domain_name"
+      }
+    ]
+  },
+  "metadata": {
+    "creationTimestamp": null,
+    "name": "$idx_and_short_serviceid"
+  },
+  "apiVersion": "extensions/v1beta1",
+  "kind": "Ingress"
+}

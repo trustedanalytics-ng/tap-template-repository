@@ -1,0 +1,35 @@
+{
+  "status": {
+    "loadBalancer": {}
+  },
+  "spec": {
+    "selector": {
+      "service_id": "$service_id"
+    },
+    "ports": [
+      {
+        "nodePort": 0,
+        "targetPort": 0,
+        "port": 80,
+        "protocol": "TCP",
+        "name": "rest"
+      }
+    ],
+    "type": "NodePort"
+  },
+  "metadata": {
+    "labels": {
+      "space": "$space",
+      "service_id": "$service_id",
+      "org": "$org",
+      "managed_by": "TAP",
+      "idx_and_short_serviceid": "$idx_and_short_serviceid",
+      "catalog_service_id": "$catalog_service_id",
+      "catalog_plan_id": "$catalog_plan_id"
+    },
+    "creationTimestamp": null,
+    "name": "$idx_and_short_serviceid"
+  },
+  "apiVersion": "v1",
+  "kind": "Service"
+}

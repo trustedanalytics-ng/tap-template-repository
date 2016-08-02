@@ -43,9 +43,6 @@ deps_update_tapng: verify_gopath
 	rm -Rf vendor/github.com/trustedanalytics/tapng-template-repository
 	@echo "Done"
 
-bin/govendor: verify_gopath
-	go get -v -u github.com/kardianos/govendor
-
 bin/gomock: verify_gopath
 	go get -v -u github.com/golang/mock/mockgen
 

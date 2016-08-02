@@ -1,0 +1,9 @@
+{
+  "id": "ae3c72a5-79d9-46a1-a84f-1033e5af2a98",
+  "name": "application",
+  "description": "User-provided application template",
+  "bindable": false,
+  "tags": [
+    "k8s"
+  ]
+}
