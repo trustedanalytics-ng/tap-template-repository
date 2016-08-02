@@ -37,6 +37,7 @@ type KubernetesBlueprint struct {
 	Id                    int
 	SecretsJson           []string
 	DeploymentJson        []string
+	IngressJson           []string
 	ServiceJson           []string
 	ServiceAcccountJson   []string
 	PersistentVolumeClaim []string
@@ -57,6 +58,7 @@ type KubernetesComponent struct {
 	Type                   ComponentType                `json:"componentType"`
 	PersistentVolumeClaims []*api.PersistentVolumeClaim `json:"persistentVolumeClaims"`
 	Deployments            []*extensions.Deployment     `json:"deployments"`
+	Ingresses              []*extensions.Ingress        `json:"ingresses"`
 	Services               []*api.Service               `json:"services"`
 	ServiceAccounts        []*api.ServiceAccount        `json:"serviceAccounts"`
 	Secrets                []*api.Secret                `json:"secrets"`

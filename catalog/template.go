@@ -130,6 +130,12 @@ func (t *Template) AddAndRegisterCustomTemplate(template model.Template) error {
 			return err
 		}
 	}
+	for i, ing := range template.Body.Ingresses {
+		err := save_k8s_file_in_dir(templateDir, fmt.Sprintf("ingress_%d.json", i), ing)
+		if err != nil {
+			return err
+		}
+	}
 	for i, svc := range template.Body.Services {
 		err := save_k8s_file_in_dir(templateDir, fmt.Sprintf("service_%d.json", i), svc)
 		if err != nil {

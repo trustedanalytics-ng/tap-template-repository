@@ -2,9 +2,9 @@
   kind: "ConfigMap"
   apiVersion: "v1"
   metadata:
-    name: "template-repository-credentials"
+    name: "template-repository"
     labels:
-      id: "template-repository-credentials"
+      id: "template-repository"
   data:
     template-repository-port: "80"
     template-repository-user: "admin"
@@ -12,5 +12,6 @@
     template-repository-ssl-cert-file-location: ""
     template-repository-ssl-key-file-location: ""
     template-repository-ssl-ca-file-location: ""
+    domain: "example.com"
     insecure-skip-verify: "true"
     broker-log-level: "DEBUG"

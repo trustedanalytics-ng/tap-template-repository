@@ -33,6 +33,7 @@ import (
 
 var TEMP_DYNAMIC_BLUEPRINTS = map[string]model.KubernetesBlueprint{}
 var possible_rand_chars = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")
+var domain = os.Getenv("DOMAIN")
 
 func GetParsedKubernetesComponentByTemplate(catalogPath, instanceId, org, space string, temp *model.TemplateMetadata) (*model.KubernetesComponent, error) {
 	blueprint, err := GetKubernetesBlueprint(catalogPath, temp.TemplateDirName, temp.TemplatePlanDirName, temp.Id)
@@ -71,6 +72,12 @@ func ParseKubernetesComponent(blueprint model.KubernetesBlueprint, instanceId, s
 		parsedDeployments = append(parsedDeployments, adjust_params(deployment, org, space, instanceId, svcMetaId, planMetaId, i))
 	}
 	blueprint.DeploymentJson = parsedDeployments
+
+	parsedIngresses := []string{}
+	for i, ingress := range blueprint.IngressJson {
+		parsedIngresses = append(parsedIngresses, adjust_params(ingress, org, space, instanceId, svcMetaId, planMetaId, i))
+	}
+	blueprint.IngressJson = parsedIngresses
 
 	parsedSvcs := []string{}
 	for i, svc := range blueprint.ServiceJson {
@@ -121,6 +128,16 @@ func CreateKubernetesComponentFromBlueprint(blueprint model.KubernetesBlueprint,
 			return result, err
 		}
 		result.Deployments = append(result.Deployments, parsedDeployemnt)
+	}
+
+	for _, ingress := range blueprint.IngressJson {
+		parsedIngress := &extensions.Ingress{}
+		err := json.Unmarshal([]byte(ingress), parsedIngress)
+		if err != nil {
+			logger.Error("Unmarshalling ingress error:", err)
+			return result, err
+		}
+		result.Ingresses = append(result.Ingresses, parsedIngress)
 	}
 
 	for _, svc := range blueprint.ServiceJson {
@@ -201,6 +218,12 @@ func GetKubernetesBlueprint(catalogPath, templateDirName, planDirName, templateI
 		return result, err
 	}
 
+	result.IngressJson, err = read_k8s_json_files_with_prefix_from_dir(k8s_plan_path, "ingress")
+	if err != nil {
+		logger.Error("Error reading ingress file", err)
+		return result, err
+	}
+
 	result.ServiceJson, err = read_k8s_json_files_with_prefix_from_dir(k8s_plan_path, "service")
 	if err != nil {
 		logger.Error("Error reading service file", err)
@@ -253,6 +276,7 @@ func adjust_params(content, org, space, cf_service_id string, svc_meta_id, plan_
 	f = strings.Replace(f, "$catalog_service_id", svc_meta_id, -1)
 	f = strings.Replace(f, "$catalog_plan_id", plan_meta_id, -1)
 	f = strings.Replace(f, "$service_id", cf_service_id, -1)
+	f = strings.Replace(f, "$domain_name", domain, -1)
 
 	proper_dns_name := cf_id_to_domain_valid_name(cf_service_id + "x" + strconv.Itoa(idx))
 	f = strings.Replace(f, "$idx_and_short_serviceid", proper_dns_name, -1)
