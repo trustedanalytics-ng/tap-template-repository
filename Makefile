@@ -20,19 +20,27 @@ push_docker: docker_build
 	docker tag tapng-template-repository $(REPOSITORY_URL)/tapng-template-repository:latest
 	docker push $(REPOSITORY_URL)/tapng-template-repository:latest
 
-kubernetes_deploy:
+kubernetes_deploy: docker_build
 	kubectl create -f configmap.yaml
 	kubectl create -f service.yaml
 	kubectl create -f deployment.yaml
 
-deps_fetch_newest:
-	$(GOBIN)/govendor remove +all
-	@echo "Update deps used in project to their newest versions"
-	$(GOBIN)/govendor fetch -v +external, +missing
+kubernetes_update: docker_build
+	kubectl delete -f deployment.yaml
+	kubectl create -f deployment.yaml
 
-deps_update: verify_gopath
-	$(GOBIN)/govendor remove +all
-	$(GOBIN)/govendor add +external
+deps_fetch_specific: bin/govendor
+	@if [ "$(DEP_URL)" = "" ]; then\
+		echo "DEP_URL not set. Run this comand as follow:";\
+		echo " make deps_fetch_specific DEP_URL=github.com/nu7hatch/gouuid";\
+	exit 1 ;\
+	fi
+	@echo "Fetching specific dependency in newest versions"
+	$(GOBIN)/govendor fetch -v $(DEP_URL)
+
+deps_update_tapng: verify_gopath
+	$(GOBIN)/govendor update github.com/trustedanalytics/...
+	rm -Rf vendor/github.com/trustedanalytics/tapng-template-repository
 	@echo "Done"
 
 bin/govendor: verify_gopath
@@ -58,3 +66,4 @@ build_anywhere: prepare_dirs
 	GOPATH=$(GOPATH) CGO_ENABLED=0 go install -tags netgo $(APP_DIR_LIST)
 	rm -Rf application && mkdir application
 	cp $(GOPATH)/bin/tapng-template-repository ./application/tapng-template-repository
+	rm -Rf ./temp
