@@ -17,6 +17,7 @@ package http
 
 import (
 	"bytes"
+	"io"
 	"io/ioutil"
 	"net/http"
 )
@@ -24,6 +25,10 @@ import (
 type BasicAuth struct {
 	User     string
 	Password string
+}
+
+func RestGETWithBody(url string, body string, basicAuth *BasicAuth, client *http.Client) (int, []byte, error) {
+	return makeRequest("GET", url, body, "application/json", basicAuth, client)
 }
 
 func RestGET(url string, basicAuth *BasicAuth, client *http.Client) (int, []byte, error) {
@@ -55,13 +60,8 @@ func makeRequest(reqType, url, body, contentType string, basicAuth *BasicAuth, c
 	} else {
 		req, _ = http.NewRequest(reqType, url, nil)
 	}
-
-	if basicAuth != nil {
-		req.SetBasicAuth(basicAuth.User, basicAuth.Password)
-	}
-	if contentType != "" {
-		req.Header.Set("Content-Type", contentType)
-	}
+	AddBasicAuth(req, basicAuth)
+	SetContentType(req, contentType)
 	resp, err := client.Do(req)
 	if err != nil {
 		logger.Error("ERROR: Make http request "+reqType, err)
@@ -75,6 +75,57 @@ func makeRequest(reqType, url, body, contentType string, basicAuth *BasicAuth, c
 		return -1, nil, err
 	}
 
-	logger.Info("CODE:", ret_code, "BODY:", string(data))
+	if resp.Header.Get("Content-Type") == "application/octet-stream" {
+		logger.Info("CODE:", ret_code, "BODY: [ Binary Data ]", resp.ContentLength)
+	} else {
+		logger.Info("CODE:", ret_code, "BODY:", string(data))
+	}
+
 	return ret_code, data, nil
+}
+
+func AddBasicAuth(req *http.Request, basicAuth *BasicAuth) {
+	if basicAuth != nil {
+		req.SetBasicAuth(basicAuth.User, basicAuth.Password)
+	}
+}
+
+func SetContentType(req *http.Request, contentType string) {
+	if contentType != "" {
+		req.Header.Set("Content-Type", contentType)
+	}
+}
+
+func DownloadBinary(url string, basicAuth *BasicAuth, client *http.Client, dest io.Writer) (int64, error) {
+	return binaryStreamRequest(url, basicAuth, client, dest)
+}
+
+func binaryStreamRequest(url string, basicAuth *BasicAuth, client *http.Client, dest io.Writer) (int64, error) {
+	logger.Info("Doing:  ", url)
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		logger.Error("ERROR: Make http request ", err)
+		return -1, err
+	}
+
+	if basicAuth != nil {
+		req.SetBasicAuth(basicAuth.User, basicAuth.Password)
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		logger.Error("ERROR: Make http request ", err)
+		return -1, err
+	}
+
+	defer resp.Body.Close()
+	_, err = io.CopyN(dest, resp.Body, resp.ContentLength)
+	if err != nil {
+		logger.Error("ERROR: Make http request ", err)
+		return -1, err
+	}
+
+	logger.Info("CODE:", resp.StatusCode, "BODY: [ Binary Data ] Size:", resp.ContentLength)
+	return resp.ContentLength, nil
 }

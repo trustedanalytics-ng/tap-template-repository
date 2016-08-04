@@ -16,9 +16,8 @@
 package logger_wrapper
 
 import (
-	"os"
-
 	"github.com/op/go-logging"
+	"os"
 )
 
 var logLevelStr = os.Getenv("BROKER_LOG_LEVEL")
@@ -50,6 +49,6 @@ func InitLogger(module string) *logging.Logger {
 	backend1Leveled.SetLevel(logLevel, module)
 
 	// Set the backends to be used.
-	logging.SetBackend(backend1Leveled)
+	logger.SetBackend(backend1Leveled)
 	return logger
 }

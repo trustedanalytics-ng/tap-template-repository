@@ -13,30 +13,36 @@ type ApiConnector struct {
 	Url       string
 }
 
+type CallFunc func(url string, requestBody string, basicAuth *BasicAuth, client *http.Client) (int, []byte, error)
+
 func GetModel(apiConnector ApiConnector, expectedStatus int, result interface{}) error {
-	status, body, err := RestGET(apiConnector.Url, apiConnector.BasicAuth, apiConnector.Client)
-	if err != nil {
-		return err
-	}
-
-	err = json.Unmarshal(body, result)
-	if err != nil {
-		return err
-	}
-
-	if status != expectedStatus {
-		return getWrongStatusError(status, expectedStatus, string(body))
-	}
-	return nil
+	return callModelTemplateWithBody(RestGETWithBody, apiConnector, "", expectedStatus, result)
 }
 
 func PatchModel(apiConnector ApiConnector, requestBody interface{}, expectedStatus int, result interface{}) error {
+	return callModelTemplateWithBody(RestPATCH, apiConnector, requestBody, expectedStatus, result)
+
+}
+
+func PostModel(apiConnector ApiConnector, requestBody interface{}, expectedStatus int, result interface{}) error {
+	return callModelTemplateWithBody(RestPOST, apiConnector, requestBody, expectedStatus, result)
+}
+
+func PutModel(apiConnector ApiConnector, requestBody interface{}, expectedStatus int, result interface{}) error {
+	return callModelTemplateWithBody(RestPUT, apiConnector, requestBody, expectedStatus, result)
+}
+
+func DeleteModel(apiConnector ApiConnector, expectedStatus int) error {
+	return callModelTemplateWithBody(RestDELETE, apiConnector, "", expectedStatus, "")
+}
+
+func callModelTemplateWithBody(callFunc CallFunc, apiConnector ApiConnector, requestBody interface{}, expectedStatus int, result interface{}) error {
 	requestBodyByte, err := json.Marshal(requestBody)
 	if err != nil {
 		return err
 	}
+	status, body, err := callFunc(apiConnector.Url, string(requestBodyByte), apiConnector.BasicAuth, apiConnector.Client)
 
-	status, body, err := RestPATCH(apiConnector.Url, string(requestBodyByte), apiConnector.BasicAuth, apiConnector.Client)
 	if err != nil {
 		return err
 	}
@@ -52,27 +58,6 @@ func PatchModel(apiConnector ApiConnector, requestBody interface{}, expectedStat
 	return nil
 }
 
-func AddModel(apiConnector ApiConnector, requestBody interface{}, expectedStatus int, result interface{}) error {
-	requestBodyByte, err := json.Marshal(requestBody)
-	if err != nil {
-		return err
-	}
-
-	status, body, err := RestPOST(apiConnector.Url, string(requestBodyByte), apiConnector.BasicAuth, apiConnector.Client)
-	if err != nil {
-		return err
-	}
-
-	err = json.Unmarshal(body, result)
-	if err != nil {
-		return err
-	}
-
-	if status != expectedStatus {
-		return getWrongStatusError(status, expectedStatus, string(body))
-	}
-	return nil
-}
 
 func getWrongStatusError(status, expectedStatus int, body string) error {
 	return errors.New(fmt.Sprintf("Bad response status: %d, expected status was: % d. Resposne body: %s", status, expectedStatus, body))

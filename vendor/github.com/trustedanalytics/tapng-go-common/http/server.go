@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 package http
+
 import (
 	"fmt"
+	"github.com/gocraft/web"
 	"log"
 	"net/http"
 	"os"
-	"github.com/gocraft/web"
 )
 
 func GetListenAddress() string {
 	address := os.Getenv("BIND_ADDRESS")
 	if address == "" {
-		address= "0.0.0.0"
+		address = "0.0.0.0"
 	}
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -34,7 +35,7 @@ func GetListenAddress() string {
 	return fmt.Sprintf("%v:%v", address, port)
 }
 
-func StartServer(r *web.Router){
+func StartServer(r *web.Router) {
 	listenOn := GetListenAddress()
 	log.Println("Will listen on:", listenOn)
 	err := http.ListenAndServe(listenOn, r)
@@ -43,7 +44,7 @@ func StartServer(r *web.Router){
 	}
 }
 
-func StartServerTLS(sslCertLocation, sslKeyLocation string, r *web.Router){
+func StartServerTLS(sslCertLocation, sslKeyLocation string, r *web.Router) {
 	listenOn := GetListenAddress()
 	log.Println("TLS Will listen on:", listenOn)
 	err := http.ListenAndServeTLS(listenOn, sslCertLocation, sslKeyLocation, r)
