@@ -11,9 +11,7 @@ verify_gopath:
 		exit 1 ;\
 	fi
 
-docker_build: build
-	rm -Rf application && mkdir application
-	cp -Rf $(GOBIN)/tapng-template-repository application/
+docker_build: build_anywhere
 	docker build -t tapng-template-repository .
 
 push_docker: docker_build
