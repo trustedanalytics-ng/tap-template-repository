@@ -3,3 +3,5 @@
 application/*
 *mock_test.go
 *mock.go
+/temp/
+tapng-template-repository

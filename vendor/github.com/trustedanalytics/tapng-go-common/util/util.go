@@ -101,3 +101,9 @@ func GenericRespond(code int, rw web.ResponseWriter, err error) {
 	logger.Error(fmt.Sprintf("Respond %d, reason: %v", code, err))
 	WriteJson(rw, MessageResponse{err.Error()}, code)
 }
+
+func RespondUnauthorized(rw web.ResponseWriter) {
+	rw.Header().Set("WWW-Authenticate", `Basic realm=""`)
+	rw.WriteHeader(401)
+	rw.Write([]byte("401 Unauthorized\n"))
+}

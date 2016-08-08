@@ -37,19 +37,27 @@ func DeleteModel(apiConnector ApiConnector, expectedStatus int) error {
 }
 
 func callModelTemplateWithBody(callFunc CallFunc, apiConnector ApiConnector, requestBody interface{}, expectedStatus int, result interface{}) error {
-	requestBodyByte, err := json.Marshal(requestBody)
-	if err != nil {
-		return err
+
+	requestBodyByte := []byte{}
+	var err error
+
+	if requestBody != "" {
+		requestBodyByte, err = json.Marshal(requestBody)
+		if err != nil {
+			return err
+		}
 	}
+
 	status, body, err := callFunc(apiConnector.Url, string(requestBodyByte), apiConnector.BasicAuth, apiConnector.Client)
-
 	if err != nil {
 		return err
 	}
 
-	err = json.Unmarshal(body, result)
-	if err != nil {
-		return err
+	if result != "" {
+		err = json.Unmarshal(body, result)
+		if err != nil {
+			return err
+		}
 	}
 
 	if status != expectedStatus {
