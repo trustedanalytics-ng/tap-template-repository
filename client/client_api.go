@@ -29,8 +29,7 @@ import (
 )
 
 type TemplateRepository interface {
-	GenerateParsedTemplate(templateId, uuid string) (model.Template, error)
-	GenerateParsedTemplateWithAddReplacements(templateId, uuid string, additionalReplacements map[string]string) (model.Template, error)
+	GenerateParsedTemplate(templateId, uuid string, replacements map[string]string) (model.Template, error)
 	CreateTemplate(template model.Template) error
 	GetTemplateRepositoryHealth() error
 }
@@ -58,33 +57,15 @@ func NewTemplateRepositoryCa(address, username, password, certPemFile, keyPemFil
 	return &TemplateRepositoryConnector{address, username, password, client}, nil
 }
 
-func (t *TemplateRepositoryConnector) GenerateParsedTemplate(templateId, uuid string) (model.Template, error) {
-	template := model.Template{}
-
-	url := fmt.Sprintf("%s/api/v1/parsed_template/%s?serviceId=%s", t.Address, templateId, uuid)
-	status, body, err := brokerHttp.RestGET(url, &brokerHttp.BasicAuth{t.Username, t.Password}, t.Client)
-	if err != nil {
-		return template, err
-	}
-	err = json.Unmarshal(body, &template)
-	if err != nil {
-		return template, err
-	}
-	if status != http.StatusOK {
-		return template, errors.New("Bad response status: " + strconv.Itoa(status) + ". Body: " + string(body))
-	}
-	return template, nil
-}
-
-func (t *TemplateRepositoryConnector) GenerateParsedTemplateWithAddReplacements(templateId, uuid string,
-	additionalReplacements map[string]string) (model.Template, error) {
+func (t *TemplateRepositoryConnector) GenerateParsedTemplate(templateId, uuid string,
+	replacements map[string]string) (model.Template, error) {
 
 	template := model.Template{}
 
 	address := fmt.Sprintf("%s/api/v1/parsed_template/%s?serviceId=%s", t.Address, templateId, uuid)
-	if len(additionalReplacements) > 0 {
+	if len(replacements) > 0 {
 		params := url.Values{}
-		for key, value := range additionalReplacements {
+		for key, value := range replacements {
 			params.Add(key, value)
 		}
 		address = fmt.Sprintf("%s&%s", address, params.Encode())
