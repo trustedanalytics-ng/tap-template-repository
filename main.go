@@ -44,6 +44,8 @@ func main() {
 	r := web.New(context)
 	r.Middleware(web.LoggerMiddleware)
 
+	r.Get("/healthz", context.GetTemplateRepositoryHealth)
+
 	basicAuthRouter := r.Subrouter(context, "/api/v1")
 	route(basicAuthRouter, &context)
 	v1AliasRouter := r.Subrouter(context, "/api/v1.0")
@@ -68,5 +70,4 @@ func route(router *web.Router, context *api.Context) {
 	router.Post("/templates", (*context).CreateCustomTemplate)
 	router.Delete("/templates/:templateId", (*context).DeleteCustomTemplate)
 
-	router.Get("/healthz", (*api.Context).GetTemplateRepositoryHealth)
 }
