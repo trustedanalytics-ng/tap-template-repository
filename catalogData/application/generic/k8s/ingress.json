@@ -22,7 +22,12 @@
   },
   "metadata": {
     "creationTimestamp": null,
-    "name": "$idx_and_short_serviceid"
+    "name": "$idx_and_short_serviceid",
+    "labels": {
+      "service_id": "$service_id",
+      "managed_by": "TAP",
+      "idx_and_short_serviceid": "$idx_and_short_serviceid"
+    }
   },
   "apiVersion": "extensions/v1beta1",
   "kind": "Ingress"
