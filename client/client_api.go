@@ -105,7 +105,7 @@ func (t *TemplateRepositoryConnector) CreateTemplate(template model.Template) er
 }
 
 func (t *TemplateRepositoryConnector) GetTemplateRepositoryHealth() error {
-	url := fmt.Sprintf("%s/api/v1/healthz", t.Address)
+	url := fmt.Sprintf("%s/healthz", t.Address)
 
 	status, _, err := brokerHttp.RestGET(url, &brokerHttp.BasicAuth{t.Username, t.Password}, t.Client)
 	if status != http.StatusOK {
