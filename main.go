@@ -64,7 +64,7 @@ func route(router *web.Router, context *api.Context) {
 	router.Middleware((*context).BasicAuthorizeMiddleware)
 	router.Get("/templates", (*context).Templates)
 	router.Get("/templates/:templateId", (*context).GetCustomTemplate)
-	router.Get("/parsed_template/:templateId/", (*context).GenerateParsedTemplate)
+	router.Get("/parsed_template/:templateId", (*context).GenerateParsedTemplate)
 
 	//TODO: change to jwtRouter after UAA integration
 	router.Post("/templates", (*context).CreateCustomTemplate)

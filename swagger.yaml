@@ -8,7 +8,7 @@ paths:
       summary: Get list of all templates
       responses:
         200:
-          description: List with all templates
+          description: List all templates available, that were posted to service.
           schema:
             type: array
             items:
@@ -34,7 +34,7 @@ paths:
           description: Unexpected error
   /api/v1/templates/{templateId}:
     get:
-      summary: Get specific template by ID
+      summary: Get specific template by ID.
       parameters:
         - name: templateId
           description: Template ID
@@ -47,7 +47,7 @@ paths:
           schema:
             $ref: '#/definitions/Template'
         400:
-          description: TemplateId is missing
+          description: TemplateId is missing or UUID is invalid
         404:
           description: Template not found
           schema:
@@ -74,7 +74,7 @@ paths:
   /api/v1/parsed_template/{templateId}:
     get:
       summary: Fetch parsed template
-      description: Used to get filled template with data (ids, randoms etc.)
+      description: Used to get filled template with data (ids, randoms etc). Each $foo will be replaced with bar if provided foo=bar as query param
       parameters:
         - name: templateId
           in: path
@@ -92,7 +92,7 @@ paths:
           schema:
             $ref: '#/definitions/Template'
         400:
-          description: ServiceId is shorter than 15 chars or templateId is empty
+          description: ServiceId is shorter than 15 chars or templateId is empty. UUID is invalid.
         404:
           description: Couldn't find template with id specified
         500:
