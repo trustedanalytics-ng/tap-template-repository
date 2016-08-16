@@ -49,11 +49,15 @@ To display all templates:
   curl -v  admin:password@localhost:8082/api/v1/templates
 ```
 
+#### Displaying created template
+
 To display just one provide id:
 
 ```
   curl -v  admin:password@localhost:8082/api/v1/templates/test1
 ```
+
+#### Parsing created template
 
 You can also validate that parsing template will work if you provide query parameters.
 Each `$foo` will be replaced with `bar` if query param will have format `/parsed_template/:templateId?foo=bar`
@@ -70,6 +74,8 @@ As an output you should see something similar to:
 ```
 
 Please bear in mind that in order to have name compliant with kubernetes UUID will be truncated to proper dns label
+
+#### Removing template
 
 Finaly you can remove template with
 
