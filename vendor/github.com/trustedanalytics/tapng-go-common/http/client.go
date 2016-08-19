@@ -106,7 +106,7 @@ func GetHttpClientWithCa(caPem string) (*http.Client, *http.Transport, error) {
 	return client, transport, nil
 }
 
-func GetHttpClientWithBasicAuth() (*http.Client, *http.Transport, error) {
+func GetHttpClient() (*http.Client, *http.Transport, error) {
 	tlsConfig := &tls.Config{
 		InsecureSkipVerify: IsInsecureSkipVerifyEnabled(),
 	}

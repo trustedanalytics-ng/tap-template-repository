@@ -17,6 +17,8 @@ package http
 
 import (
 	"bytes"
+	"encoding/base64"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -27,31 +29,40 @@ type BasicAuth struct {
 	Password string
 }
 
-func RestGETWithBody(url string, body string, basicAuth *BasicAuth, client *http.Client) (int, []byte, error) {
-	return makeRequest("GET", url, body, "application/json", basicAuth, client)
+type OAuth2 struct {
+	TokenType string
+	Token     string
 }
 
-func RestGET(url string, basicAuth *BasicAuth, client *http.Client) (int, []byte, error) {
-	return makeRequest("GET", url, "", "application/json", basicAuth, client)
+func RestGETWithBody(url string, body, authHeader string, client *http.Client) (int, []byte, error) {
+	return makeRequest("GET", url, body, "application/json", authHeader, client)
 }
 
-func RestPUT(url, body string, basicAuth *BasicAuth, client *http.Client) (int, []byte, error) {
-	return makeRequest("PUT", url, body, "application/json", basicAuth, client)
+func RestGET(url, authHeader string, client *http.Client) (int, []byte, error) {
+	return makeRequest("GET", url, "", "application/json", authHeader, client)
 }
 
-func RestPOST(url, body string, basicAuth *BasicAuth, client *http.Client) (int, []byte, error) {
-	return makeRequest("POST", url, body, "application/json", basicAuth, client)
+func RestPUT(url, body, authHeader string, client *http.Client) (int, []byte, error) {
+	return makeRequest("PUT", url, body, "application/json", authHeader, client)
 }
 
-func RestDELETE(url, body string, basicAuth *BasicAuth, client *http.Client) (int, []byte, error) {
-	return makeRequest("DELETE", url, body, "", basicAuth, client)
+func RestUrlEncodedPOST(url, body, authHeader string, client *http.Client) (int, []byte, error) {
+	return makeRequest("POST", url, body, "application/x-www-form-urlencoded", authHeader, client)
 }
 
-func RestPATCH(url, body string, basicAuth *BasicAuth, client *http.Client) (int, []byte, error) {
-	return makeRequest("PATCH", url, body, "application/json-patch+json", basicAuth, client)
+func RestPOST(url, body, authHeader string, client *http.Client) (int, []byte, error) {
+	return makeRequest("POST", url, body, "application/json", authHeader, client)
 }
 
-func makeRequest(reqType, url, body, contentType string, basicAuth *BasicAuth, client *http.Client) (int, []byte, error) {
+func RestDELETE(url, body, authHeader string, client *http.Client) (int, []byte, error) {
+	return makeRequest("DELETE", url, body, "", authHeader, client)
+}
+
+func RestPATCH(url, body, authHeader string, client *http.Client) (int, []byte, error) {
+	return makeRequest("PATCH", url, body, "application/json-patch+json", authHeader, client)
+}
+
+func makeRequest(reqType, url, body, contentType, authHeader string, client *http.Client) (int, []byte, error) {
 	logger.Info("Doing:  ", reqType, url)
 
 	var req *http.Request
@@ -60,8 +71,10 @@ func makeRequest(reqType, url, body, contentType string, basicAuth *BasicAuth, c
 	} else {
 		req, _ = http.NewRequest(reqType, url, nil)
 	}
-	AddBasicAuth(req, basicAuth)
+
+	req.Header.Add("Authorization", authHeader)
 	SetContentType(req, contentType)
+
 	resp, err := client.Do(req)
 	if err != nil {
 		logger.Error("ERROR: Make http request "+reqType, err)
@@ -84,10 +97,19 @@ func makeRequest(reqType, url, body, contentType string, basicAuth *BasicAuth, c
 	return ret_code, data, nil
 }
 
-func AddBasicAuth(req *http.Request, basicAuth *BasicAuth) {
-	if basicAuth != nil {
-		req.SetBasicAuth(basicAuth.User, basicAuth.Password)
+func GetBasicAuthHeader(basicAuth *BasicAuth) string {
+	if basicAuth == nil {
+		return ""
 	}
+	auth := basicAuth.User + ":" + basicAuth.Password
+	return fmt.Sprintf("Basic %s", base64.StdEncoding.EncodeToString([]byte(auth)))
+}
+
+func GetOAuth2Header(oauth2 *OAuth2) string {
+	if oauth2 == nil {
+		return ""
+	}
+	return fmt.Sprintf("%s %s", oauth2.TokenType, oauth2.Token)
 }
 
 func SetContentType(req *http.Request, contentType string) {
@@ -96,11 +118,11 @@ func SetContentType(req *http.Request, contentType string) {
 	}
 }
 
-func DownloadBinary(url string, basicAuth *BasicAuth, client *http.Client, dest io.Writer) (int64, error) {
-	return binaryStreamRequest(url, basicAuth, client, dest)
+func DownloadBinary(url, authHeader string, client *http.Client, dest io.Writer) (int64, error) {
+	return binaryStreamRequest(url, authHeader, client, dest)
 }
 
-func binaryStreamRequest(url string, basicAuth *BasicAuth, client *http.Client, dest io.Writer) (int64, error) {
+func binaryStreamRequest(url, authHeader string, client *http.Client, dest io.Writer) (int64, error) {
 	logger.Info("Doing:  ", url)
 
 	req, err := http.NewRequest("GET", url, nil)
@@ -109,9 +131,7 @@ func binaryStreamRequest(url string, basicAuth *BasicAuth, client *http.Client, 
 		return -1, err
 	}
 
-	if basicAuth != nil {
-		req.SetBasicAuth(basicAuth.User, basicAuth.Password)
-	}
+	req.Header.Add("Authorization", authHeader)
 
 	resp, err := client.Do(req)
 	if err != nil {

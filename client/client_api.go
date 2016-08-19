@@ -42,7 +42,7 @@ type TemplateRepositoryConnector struct {
 }
 
 func NewTemplateRepositoryBasicAuth(address, username, password string) (*TemplateRepositoryConnector, error) {
-	client, _, err := brokerHttp.GetHttpClientWithBasicAuth()
+	client, _, err := brokerHttp.GetHttpClient()
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,8 @@ func (t *TemplateRepositoryConnector) GenerateParsedTemplate(templateId, uuid st
 		address = fmt.Sprintf("%s&%s", address, params.Encode())
 	}
 
-	status, body, err := brokerHttp.RestGET(address, &brokerHttp.BasicAuth{t.Username, t.Password}, t.Client)
+	auth := brokerHttp.BasicAuth{t.Username, t.Password}
+	status, body, err := brokerHttp.RestGET(address, brokerHttp.GetBasicAuthHeader(&auth), t.Client)
 	if err != nil {
 		return template, err
 	}
@@ -94,7 +95,8 @@ func (t *TemplateRepositoryConnector) CreateTemplate(template model.Template) er
 		return err
 	}
 
-	status, _, err := brokerHttp.RestPOST(url, string(b), &brokerHttp.BasicAuth{t.Username, t.Password}, t.Client)
+	auth := brokerHttp.BasicAuth{t.Username, t.Password}
+	status, _, err := brokerHttp.RestPOST(url, string(b), brokerHttp.GetBasicAuthHeader(&auth), t.Client)
 	if err != nil {
 		return err
 	}
@@ -107,7 +109,8 @@ func (t *TemplateRepositoryConnector) CreateTemplate(template model.Template) er
 func (t *TemplateRepositoryConnector) GetTemplateRepositoryHealth() error {
 	url := fmt.Sprintf("%s/healthz", t.Address)
 
-	status, _, err := brokerHttp.RestGET(url, &brokerHttp.BasicAuth{t.Username, t.Password}, t.Client)
+	auth := brokerHttp.BasicAuth{t.Username, t.Password}
+	status, _, err := brokerHttp.RestGET(url, brokerHttp.GetBasicAuthHeader(&auth), t.Client)
 	if status != http.StatusOK {
 		err = errors.New("Invalid health status: " + string(status))
 	}

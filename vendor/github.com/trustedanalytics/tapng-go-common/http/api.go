@@ -9,64 +9,70 @@ import (
 
 type ApiConnector struct {
 	BasicAuth *BasicAuth
+	OAuth2    *OAuth2
 	Client    *http.Client
 	Url       string
 }
 
-type CallFunc func(url string, requestBody string, basicAuth *BasicAuth, client *http.Client) (int, []byte, error)
+type CallFunc func(url string, requestBody, authHeader string, client *http.Client) (int, []byte, error)
 
-func GetModel(apiConnector ApiConnector, expectedStatus int, result interface{}) error {
+func GetModel(apiConnector ApiConnector, expectedStatus int, result interface{}) (int, error) {
 	return callModelTemplateWithBody(RestGETWithBody, apiConnector, "", expectedStatus, result)
 }
 
-func PatchModel(apiConnector ApiConnector, requestBody interface{}, expectedStatus int, result interface{}) error {
+func PatchModel(apiConnector ApiConnector, requestBody interface{}, expectedStatus int, result interface{}) (int, error) {
 	return callModelTemplateWithBody(RestPATCH, apiConnector, requestBody, expectedStatus, result)
 
 }
 
-func PostModel(apiConnector ApiConnector, requestBody interface{}, expectedStatus int, result interface{}) error {
+func PostModel(apiConnector ApiConnector, requestBody interface{}, expectedStatus int, result interface{}) (int, error) {
 	return callModelTemplateWithBody(RestPOST, apiConnector, requestBody, expectedStatus, result)
 }
 
-func PutModel(apiConnector ApiConnector, requestBody interface{}, expectedStatus int, result interface{}) error {
+func PutModel(apiConnector ApiConnector, requestBody interface{}, expectedStatus int, result interface{}) (int, error) {
 	return callModelTemplateWithBody(RestPUT, apiConnector, requestBody, expectedStatus, result)
 }
 
-func DeleteModel(apiConnector ApiConnector, expectedStatus int) error {
+func DeleteModel(apiConnector ApiConnector, expectedStatus int) (int, error) {
 	return callModelTemplateWithBody(RestDELETE, apiConnector, "", expectedStatus, "")
 }
 
-func callModelTemplateWithBody(callFunc CallFunc, apiConnector ApiConnector, requestBody interface{}, expectedStatus int, result interface{}) error {
-
+func callModelTemplateWithBody(callFunc CallFunc, apiConnector ApiConnector, requestBody interface{}, expectedStatus int, result interface{}) (status int, err error) {
 	requestBodyByte := []byte{}
-	var err error
 
 	if requestBody != "" {
 		requestBodyByte, err = json.Marshal(requestBody)
 		if err != nil {
-			return err
+			return http.StatusBadRequest, err
 		}
 	}
 
-	status, body, err := callFunc(apiConnector.Url, string(requestBodyByte), apiConnector.BasicAuth, apiConnector.Client)
+	authHeader := ""
+	if apiConnector.OAuth2 != nil {
+		authHeader = GetOAuth2Header(apiConnector.OAuth2)
+	}
+	if apiConnector.BasicAuth != nil {
+		authHeader = GetBasicAuthHeader(apiConnector.BasicAuth)
+	}
+
+	status, body, err := callFunc(apiConnector.Url, string(requestBodyByte), authHeader, apiConnector.Client)
 	if err != nil {
-		return err
+		return status, err
 	}
 
 	if result != "" {
 		err = json.Unmarshal(body, result)
 		if err != nil {
-			return err
+			return status, err
 		}
 	}
 
 	if status != expectedStatus {
-		return getWrongStatusError(status, expectedStatus, string(body))
+		return status, getWrongStatusError(status, expectedStatus, string(body))
 	}
-	return nil
+	return status, nil
 }
 
-
 func getWrongStatusError(status, expectedStatus int, body string) error {
-	return errors.New(fmt.Sprintf("Bad response status: %d, expected status was: % d. Resposne body: %s", status, expectedStatus, body))
+	return errors.New(fmt.Sprintf("Bad response status: %d, expected status was: % d. Response body: %s", status, expectedStatus, body))
 }
