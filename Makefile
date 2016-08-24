@@ -11,11 +11,17 @@ verify_gopath:
 		exit 1 ;\
 	fi
 
+run: build_anywhere
+	./application/tapng-template-repository
+
+run-local: build
+	PORT=8083 TEMPLATE_REPOSITORY_USER=admin TEMPLATE_REPOSITORY_PASS=password ${GOPATH}/bin/tapng-template-repository
+
 docker_build: build_anywhere
 	docker build -t tapng-template-repository .
 
 push_docker: docker_build
-	docker tag tapng-template-repository $(REPOSITORY_URL)/tapng-template-repository:latest
+	docker tag -f tapng-template-repository $(REPOSITORY_URL)/tapng-template-repository:latest
 	docker push $(REPOSITORY_URL)/tapng-template-repository:latest
 
 kubernetes_deploy: docker_build

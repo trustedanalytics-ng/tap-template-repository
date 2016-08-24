@@ -4,15 +4,19 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/trustedanalytics/tapng-template-repository/model"
 	"io/ioutil"
 	"os"
 	"strings"
+
+	"github.com/trustedanalytics/tapng-go-common/logger"
+	"github.com/trustedanalytics/tapng-template-repository/model"
 )
 
 var TEMPLATES map[string]*model.TemplateMetadata
 var TemplatesPath string = "./catalogData/"
 var CustomTemplatesDir string = TemplatesPath + "custom/"
+
+var logger = logger_wrapper.InitLogger("catalog")
 
 type TemplateApi interface {
 	GetTemplateMetadataById(id string) *model.TemplateMetadata
@@ -23,8 +27,6 @@ type TemplateApi interface {
 	GetParsedTemplate(templateMetadata *model.TemplateMetadata, catalogPath,
 		instanceId, orgId, spaceId string, additionalReplacements map[string]string) (model.Template, error)
 	GetRawTemplate(templateMetadata *model.TemplateMetadata, catalogPath string) (model.Template, error)
-	GetParsedJobHooks(jobs []string, instanceId, svcMetaId, planMetaId, org, space string) ([]*model.JobHook, error)
-	GetJobHooks(catalogPath string, temp *model.TemplateMetadata) ([]string, error)
 }
 
 type Template struct{}
@@ -155,15 +157,19 @@ func (t *Template) AddAndRegisterCustomTemplate(template model.Template) error {
 			return err
 		}
 	}
-	for i, job := range template.Hooks {
-		err := save_k8s_file_in_dir(templateDir, fmt.Sprintf("job_%d.json", i), job)
-		if err != nil {
-			return err
-		}
+
+	err := save_k8s_file_in_dir(templateDir, "hooks.json", template.Hooks)
+	if err != nil {
+		return err
+	}
+
+	err = save_k8s_file_in_dir(templatePlanDir, "component.json", model.KubernetesComponent{Type: template.Body.Type})
+	if err != nil {
+		return err
 	}
 
 	plan := model.PlanMetadata{Id: template.Id}
-	err := save_k8s_file_in_dir(templatePlanDir, "plan.json", plan)
+	err = save_k8s_file_in_dir(templatePlanDir, "plan.json", plan)
 	if err != nil {
 		return err
 	}
@@ -189,84 +195,26 @@ func (t *Template) RemoveAndUnregisterCustomTemplate(templateId string) error {
 func (t *Template) GetParsedTemplate(templateMetadata *model.TemplateMetadata, catalogPath,
 	instanceId, orgId, spaceId string, additionalReplacements map[string]string) (model.Template, error) {
 
-	result := model.Template{Id: templateMetadata.Id}
-
-	component, err := GetParsedKubernetesComponentByTemplate(catalogPath,
-		instanceId, orgId, spaceId, templateMetadata, additionalReplacements)
+	result, err := GetParsedTemplate(catalogPath, instanceId, orgId, spaceId, templateMetadata, additionalReplacements)
 	if err != nil {
-		return result, err
+		return *result, err
 	}
+	result.Id = templateMetadata.Id
 
-	jobsHooksRaw, err := t.GetJobHooks(catalogPath, templateMetadata)
-	if err != nil {
-		return result, err
-	}
-
-	jobHooks, err := t.GetParsedJobHooks(jobsHooksRaw, instanceId, templateMetadata.Id, templateMetadata.Id, orgId, spaceId)
-	if err != nil {
-		return result, err
-	}
-
-	result.Body = *component
-	for _, job := range jobHooks {
-		result.Hooks[job.Type] = &job.Job
-	}
-	return result, nil
+	return *result, nil
 }
 
 func (t *Template) GetRawTemplate(templateMetadata *model.TemplateMetadata, catalogPath string) (model.Template, error) {
-	result := model.Template{Id: templateMetadata.Id}
-	blueprint, err := GetKubernetesBlueprint(catalogPath, templateMetadata.TemplateDirName, templateMetadata.TemplatePlanDirName, templateMetadata.Id)
+	blueprint, err := GetKubernetesBlueprint(catalogPath, templateMetadata.TemplateDirName, templateMetadata.TemplatePlanDirName)
 	if err != nil {
-		return result, err
+		return model.Template{}, err
 	}
 
-	component, err := CreateKubernetesComponentFromBlueprint(blueprint, true)
+	result, err := CreateTemplateFromBlueprint(blueprint, true)
 	if err != nil {
-		return result, err
+		return *result, err
 	}
+	result.Id = templateMetadata.Id
 
-	jobsHooksRaw, err := t.GetJobHooks(catalogPath, templateMetadata)
-	if err != nil {
-		return result, err
-	}
-
-	jobHooks, err := unmarshallJobs(jobsHooksRaw)
-	if err != nil {
-		return result, err
-	}
-
-	result.Body = *component
-	for _, job := range jobHooks {
-		result.Hooks[job.Type] = &job.Job
-	}
-	return result, nil
-}
-
-func (t *Template) GetParsedJobHooks(jobs []string, instanceId, svcMetaId, planMetaId, org, space string) ([]*model.JobHook, error) {
-	parsedJobs := []string{}
-	replacements := buildStdReplacementsMap(org, space, instanceId, svcMetaId, planMetaId)
-	for i, job := range jobs {
-		parsedJobs = append(parsedJobs, adjust_params(job, replacements, i))
-	}
-	return unmarshallJobs(parsedJobs)
-}
-
-func unmarshallJobs(jobs []string) ([]*model.JobHook, error) {
-	result := []*model.JobHook{}
-	for _, job := range jobs {
-		jobHook := &model.JobHook{}
-		err := json.Unmarshal([]byte(job), jobHook)
-		if err != nil {
-			logger.Error("Unmarshalling JobHook error:", err)
-			return result, err
-		}
-		result = append(result, jobHook)
-	}
-	return result, nil
-}
-
-func (t *Template) GetJobHooks(catalogPath string, temp *model.TemplateMetadata) ([]string, error) {
-	_, _, k8sPlanPath := GetCatalogFilesPath(catalogPath, temp.TemplateDirName, temp.TemplatePlanDirName)
-	return read_k8s_json_files_with_prefix_from_dir(k8sPlanPath, "job")
+	return *result, nil
 }

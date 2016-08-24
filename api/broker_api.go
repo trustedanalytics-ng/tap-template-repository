@@ -39,7 +39,7 @@ func (c *Context) Templates(rw web.ResponseWriter, req *web.Request) {
 	result := []model.Template{}
 	templatesMetadata := c.Template.GetAvailableTemplates()
 	for _, templateMetadata := range templatesMetadata {
-		template, err := c.Template.GetRawTemplate(templateMetadata, catalog.CatalogPath)
+		template, err := c.Template.GetRawTemplate(templateMetadata, catalog.TemplatesPath)
 		if err != nil {
 			util.Respond500(rw, err)
 			return
@@ -76,7 +76,7 @@ func (c *Context) GenerateParsedTemplate(rw web.ResponseWriter, req *web.Request
 	for key, _ := range query {
 		additionalReplacements["$"+key] = query.Get(key)
 	}
-	template, err := c.Template.GetParsedTemplate(templateMetadata, catalog.CatalogPath, uuid,
+	template, err := c.Template.GetParsedTemplate(templateMetadata, catalog.TemplatesPath, uuid,
 		"defaultOrg", "defaultSpace", additionalReplacements)
 	if err != nil {
 		util.Respond500(rw, err)
@@ -128,7 +128,7 @@ func (c *Context) GetCustomTemplate(rw web.ResponseWriter, req *web.Request) {
 		return
 	}
 
-	template, err := c.Template.GetRawTemplate(templateMetadata, catalog.CatalogPath)
+	template, err := c.Template.GetRawTemplate(templateMetadata, catalog.TemplatesPath)
 	if err != nil {
 		util.Respond500(rw, err)
 		return

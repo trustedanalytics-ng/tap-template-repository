@@ -31,38 +31,20 @@ import (
 	"github.com/trustedanalytics/tapng-template-repository/model"
 )
 
-var TEMP_DYNAMIC_BLUEPRINTS = map[string]model.KubernetesBlueprint{}
 var possible_rand_chars = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")
 var domain = os.Getenv("DOMAIN")
 
-func GetParsedKubernetesComponentByTemplate(catalogPath, instanceId, org, space string, temp *model.TemplateMetadata,
-	additionalReplacements map[string]string) (*model.KubernetesComponent, error) {
-
-	blueprint, err := GetKubernetesBlueprint(catalogPath, temp.TemplateDirName, temp.TemplatePlanDirName, temp.Id)
+func GetParsedTemplate(catalogPath, instanceId, org, space string, temp *model.TemplateMetadata, additionalReplacements map[string]string) (*model.Template, error) {
+	blueprint, err := GetKubernetesBlueprint(catalogPath, temp.TemplateDirName, temp.TemplatePlanDirName)
 	if err != nil {
 		return nil, err
 	}
 
-	replacements := buildStdReplacementsMap(org, space, instanceId, temp.Id, temp.Id)
-	for key, value := range additionalReplacements {
-		replacements[key] = value
-	}
-
-	return ParseKubernetesComponent(blueprint, replacements)
+	replacements := buildStdReplacementsMap(org, space, instanceId, temp.Id, temp.Id, additionalReplacements)
+	return ParseTemplate(blueprint, replacements)
 }
 
-func GetParsedKubernetesComponentByServiceAndPlan(catalogPath, instanceId, org, space string,
-	svcMeta model.ServiceMetadata, planMeta model.PlanMetadata) (*model.KubernetesComponent, error) {
-
-	blueprint, err := GetKubernetesBlueprint(catalogPath, svcMeta.InternalId, planMeta.InternalId, svcMeta.Id)
-	if err != nil {
-		return nil, err
-	}
-	replacements := buildStdReplacementsMap(org, space, instanceId, svcMeta.Id, planMeta.Id)
-	return ParseKubernetesComponent(blueprint, replacements)
-}
-
-func buildStdReplacementsMap(org, space, cf_service_id string, svc_meta_id, plan_meta_id string) map[string]string {
+func buildStdReplacementsMap(org, space, cf_service_id string, svc_meta_id, plan_meta_id string, additionalReplacements map[string]string) map[string]string {
 	replacements := make(map[string]string)
 	replacements["$org"] = org
 	replacements["$space"] = space
@@ -70,11 +52,13 @@ func buildStdReplacementsMap(org, space, cf_service_id string, svc_meta_id, plan
 	replacements["$catalog_service_id"] = svc_meta_id
 	replacements["$catalog_plan_id"] = plan_meta_id
 	replacements["$domain_name"] = domain
-
+	for key, value := range additionalReplacements {
+		replacements[key] = value
+	}
 	return replacements
 }
 
-func ParseKubernetesComponent(blueprint model.KubernetesBlueprint, replacements map[string]string) (*model.KubernetesComponent, error) {
+func ParseTemplate(blueprint model.KubernetesBlueprint, replacements map[string]string) (*model.Template, error) {
 	parsedPVC := []string{}
 	for i, pvc := range blueprint.PersistentVolumeClaim {
 		parsedPVC = append(parsedPVC, adjust_params(pvc, replacements, i))
@@ -111,12 +95,24 @@ func ParseKubernetesComponent(blueprint model.KubernetesBlueprint, replacements 
 		parsedAccountSvcs = append(parsedAccountSvcs, adjust_params(svc, replacements, i))
 	}
 	blueprint.ServiceAcccountJson = parsedAccountSvcs
+	blueprint.Hooks = adjust_params(blueprint.Hooks, replacements, 0)
 
-	return CreateKubernetesComponentFromBlueprint(blueprint, false)
+	return CreateTemplateFromBlueprint(blueprint, false)
 }
 
-func CreateKubernetesComponentFromBlueprint(blueprint model.KubernetesBlueprint, encodeSecrets bool) (*model.KubernetesComponent, error) {
-	result := &model.KubernetesComponent{}
+func CreateTemplateFromBlueprint(blueprint model.KubernetesBlueprint, encodeSecrets bool) (*model.Template, error) {
+	result := &model.Template{}
+	kubernetesComponent := &model.KubernetesComponent{}
+
+	err := json.Unmarshal([]byte(blueprint.Component), kubernetesComponent)
+	if err != nil {
+		logger.Error("Unmarshalling Component error:", err)
+		return result, err
+	}
+
+	if kubernetesComponent.Type == "" {
+		kubernetesComponent.Type = model.ComponentTypeInstance
+	}
 
 	for _, pvc := range blueprint.PersistentVolumeClaim {
 		parsedPVC := &api.PersistentVolumeClaim{}
@@ -125,7 +121,7 @@ func CreateKubernetesComponentFromBlueprint(blueprint model.KubernetesBlueprint,
 			logger.Error("Unmarshalling PersistentVolumeClaim error:", err)
 			return result, err
 		}
-		result.PersistentVolumeClaims = append(result.PersistentVolumeClaims, parsedPVC)
+		kubernetesComponent.PersistentVolumeClaims = append(kubernetesComponent.PersistentVolumeClaims, parsedPVC)
 	}
 
 	for _, secret := range blueprint.SecretsJson {
@@ -138,7 +134,7 @@ func CreateKubernetesComponentFromBlueprint(blueprint model.KubernetesBlueprint,
 			logger.Error("Unmarshalling secret error:", err)
 			return result, err
 		}
-		result.Secrets = append(result.Secrets, parsedSecret)
+		kubernetesComponent.Secrets = append(kubernetesComponent.Secrets, parsedSecret)
 	}
 
 	for _, deployment := range blueprint.DeploymentJson {
@@ -148,7 +144,7 @@ func CreateKubernetesComponentFromBlueprint(blueprint model.KubernetesBlueprint,
 			logger.Error("Unmarshalling deployment error:", err)
 			return result, err
 		}
-		result.Deployments = append(result.Deployments, parsedDeployemnt)
+		kubernetesComponent.Deployments = append(kubernetesComponent.Deployments, parsedDeployemnt)
 	}
 
 	for _, ingress := range blueprint.IngressJson {
@@ -158,7 +154,7 @@ func CreateKubernetesComponentFromBlueprint(blueprint model.KubernetesBlueprint,
 			logger.Error("Unmarshalling ingress error:", err)
 			return result, err
 		}
-		result.Ingresses = append(result.Ingresses, parsedIngress)
+		kubernetesComponent.Ingresses = append(kubernetesComponent.Ingresses, parsedIngress)
 	}
 
 	for _, svc := range blueprint.ServiceJson {
@@ -168,7 +164,7 @@ func CreateKubernetesComponentFromBlueprint(blueprint model.KubernetesBlueprint,
 			logger.Error("Unmarshalling service error:", err)
 			return result, err
 		}
-		result.Services = append(result.Services, parsedSvc)
+		kubernetesComponent.Services = append(kubernetesComponent.Services, parsedSvc)
 	}
 
 	for _, Accsvc := range blueprint.ServiceAcccountJson {
@@ -178,8 +174,20 @@ func CreateKubernetesComponentFromBlueprint(blueprint model.KubernetesBlueprint,
 			logger.Error("Unmarshalling service account error:", err)
 			return result, err
 		}
-		result.ServiceAccounts = append(result.ServiceAccounts, parsedAccSvc)
+		kubernetesComponent.ServiceAccounts = append(kubernetesComponent.ServiceAccounts, parsedAccSvc)
 	}
+
+	if blueprint.Hooks != "" {
+		parsedHooks := map[model.HookType]*api.Pod{}
+		err := json.Unmarshal([]byte(blueprint.Hooks), &parsedHooks)
+		if err != nil {
+			logger.Error("Unmarshalling Hook error:", err)
+			return result, err
+		}
+		result.Hooks = parsedHooks
+	}
+
+	result.Body = *kubernetesComponent
 	return result, nil
 }
 
@@ -191,16 +199,10 @@ func GetCatalogFilesPath(catalogPath, templateDirName, planDirName string) (plan
 	return
 }
 
-func GetKubernetesBlueprint(catalogPath, templateDirName, planDirName, templateId string) (model.KubernetesBlueprint, error) {
+func GetKubernetesBlueprint(catalogPath, templateDirName, planDirName string) (model.KubernetesBlueprint, error) {
 	result := model.KubernetesBlueprint{}
 	var err error
 	var secretTemplatesExists bool
-
-	//todo replace it by psotgres!
-	// first check in registred dynamic templates:
-	if blueprint, ok := TEMP_DYNAMIC_BLUEPRINTS[templateId]; ok {
-		return blueprint, nil
-	}
 
 	plan_path, secrets_path, k8s_plan_path := GetCatalogFilesPath(catalogPath, templateDirName, planDirName)
 
@@ -275,6 +277,18 @@ func GetKubernetesBlueprint(catalogPath, templateDirName, planDirName, templateI
 		return result, err
 	}
 
+	components, err := read_k8s_json_files_with_prefix_from_dir(plan_path, "component")
+	if err != nil {
+		logger.Error("Error reading component file", err)
+		return result, err
+	}
+
+	hooks, err := read_k8s_json_files_with_prefix_from_dir(k8s_plan_path, "hooks")
+	if err != nil {
+		logger.Error("Error reading hook file", err)
+		return result, err
+	}
+
 	if len(credentialMappings) > 1 || len(replicas) > 1 {
 		logger.Error("WARNING: Multiple env mappings or replica templates files found... looks like a problem with catalog structure. Will use only the first one.")
 	}
@@ -286,6 +300,12 @@ func GetKubernetesBlueprint(catalogPath, templateDirName, planDirName, templateI
 	}
 	if len(uriTemplate) > 0 {
 		result.UriTemplate = string(uriTemplate[0])
+	}
+	if len(components) > 0 {
+		result.Component = string(components[0])
+	}
+	if len(hooks) > 0 {
+		result.Hooks = string(hooks[0])
 	}
 	return result, nil
 }

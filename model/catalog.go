@@ -5,32 +5,28 @@ import (
 	"k8s.io/kubernetes/pkg/apis/extensions"
 )
 
-type JobType string
+type HookType string
 
 const (
-	JobTypeDeployment  JobType = "deployment"
-	JobTypeProvision   JobType = "provision"
-	JobTypeDeprovision JobType = "deprovision"
-	JobTypeBind        JobType = "bind"
-	JobTypeUnbind      JobType = "unbind"
-	JobTypeRemoval     JobType = "removal"
+	HookTypeDeployment  HookType = "deployment"
+	HookTypeProvision   HookType = "provision"
+	HookTypeDeprovision HookType = "deprovision"
+	HookTypeBind        HookType = "bind"
+	HookTypeUnbind      HookType = "unbind"
+	HookTypeRemoval     HookType = "removal"
+	HookTypeCatalog     HookType = "catalog"
 )
 
 type Template struct {
-	Id    string                      `json:"id"`
-	Body  KubernetesComponent         `json:"body"`
-	Hooks map[JobType]*extensions.Job `json:"hooks"`
+	Id    string                `json:"id"`
+	Body  KubernetesComponent   `json:"body"`
+	Hooks map[HookType]*api.Pod `json:"hooks"`
 }
 
 type TemplateMetadata struct {
 	Id                  string `json:"id"`
 	TemplateDirName     string `json:"templateDirName"`
 	TemplatePlanDirName string `json:"templatePlanDirName"`
-}
-
-type JobHook struct {
-	Type JobType        `json:"type"`
-	Job  extensions.Job `json:"job"`
 }
 
 type KubernetesBlueprint struct {
@@ -44,14 +40,16 @@ type KubernetesBlueprint struct {
 	CredentialsMapping    string
 	ReplicaTemplate       string
 	UriTemplate           string
+	Component             string
+	Hooks                 string
 }
 
 type ComponentType string
 
 const (
 	ComponentTypeBroker   ComponentType = "broker"
-	ComponentTypeInstance JobType       = "instance"
-	ComponentTypeBoth     JobType       = "both"
+	ComponentTypeInstance ComponentType = "instance"
+	ComponentTypeBoth     ComponentType = "both"
 )
 
 type KubernetesComponent struct {
