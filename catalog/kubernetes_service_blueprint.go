@@ -104,10 +104,12 @@ func CreateTemplateFromBlueprint(blueprint model.KubernetesBlueprint, encodeSecr
 	result := &model.Template{}
 	kubernetesComponent := &model.KubernetesComponent{}
 
-	err := json.Unmarshal([]byte(blueprint.Component), kubernetesComponent)
-	if err != nil {
-		logger.Error("Unmarshalling Component error:", err)
-		return result, err
+	if len(blueprint.Component) > 0 {
+		err := json.Unmarshal([]byte(blueprint.Component), kubernetesComponent)
+		if err != nil {
+			logger.Error("Unmarshalling Component error:", err)
+			return result, err
+		}
 	}
 
 	if kubernetesComponent.Type == "" {
