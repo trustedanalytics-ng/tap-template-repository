@@ -32,6 +32,7 @@ import (
 )
 
 var possible_rand_chars = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")
+var possible_rand_dns_chars = []rune("abcdefghijklmnopqrstuvwxyz1234567890")
 var domain = os.Getenv("DOMAIN")
 
 func GetParsedTemplate(catalogPath, instanceId, org, space string, temp *model.TemplateMetadata, additionalReplacements map[string]string) (*model.Template, error) {
@@ -327,7 +328,8 @@ func adjust_params(content string, replacements map[string]string, idx int) stri
 	f = strings.Replace(f, "$short_serviceid", proper_short_dns_name, -1)
 
 	for i := 0; i < 9; i++ {
-		f = strings.Replace(f, "$random"+strconv.Itoa(i), get_random_string(10), -1)
+		f = strings.Replace(f, "$random"+strconv.Itoa(i), get_random_string(10, possible_rand_chars), -1)
+		f = strings.Replace(f, "$random_dns"+strconv.Itoa(i), get_random_string(6, possible_rand_dns_chars), -1)
 	}
 	f = encodeByte64ToString(f)
 	return f
@@ -353,10 +355,10 @@ func cf_id_to_domain_valid_name(cf_id string) string {
 	return "x" + strings.Replace(cf_id[0:15], "-", "", -1)
 }
 
-func get_random_string(n int) string {
-	b := make([]rune, n)
+func get_random_string(length int, possibleChars []rune) string {
+	b := make([]rune, length)
 	for i := range b {
-		b[i] = possible_rand_chars[rand.Intn(len(possible_rand_chars))]
+		b[i] = possibleChars[rand.Intn(len(possibleChars))]
 	}
 	return string(b)
 }
