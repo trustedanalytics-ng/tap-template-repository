@@ -28,6 +28,7 @@ import (
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 
+	"github.com/trustedanalytics/tapng-go-common/util"
 	"github.com/trustedanalytics/tapng-template-repository/model"
 )
 
@@ -321,10 +322,10 @@ func adjust_params(content string, replacements map[string]string, idx int) stri
 	}
 
 	cf_service_id := replacements["$service_id"]
-	proper_dns_name := cf_id_to_domain_valid_name(cf_service_id + "x" + strconv.Itoa(idx))
+	proper_dns_name := util.UuidToShortDnsName(cf_service_id + "x" + strconv.Itoa(idx))
 	f = strings.Replace(f, "$idx_and_short_serviceid", proper_dns_name, -1)
 
-	proper_short_dns_name := cf_id_to_domain_valid_name(cf_service_id)
+	proper_short_dns_name := util.UuidToShortDnsName(cf_service_id)
 	f = strings.Replace(f, "$short_serviceid", proper_short_dns_name, -1)
 
 	for i := 0; i < 9; i++ {
@@ -345,14 +346,6 @@ func encodeByte64ToString(content string) string {
 	}
 
 	return content
-}
-
-/*
- * x, as "Service \"181864c5711445\" is invalid: metadata.name: invalid value '181864c5711445',
- Details: must be a DNS 952 label (at most 24 characters, matching regex [a-z]([-a-z0-9]*[a-z0-9])?): e.g. \"my-name\"",
-*/
-func cf_id_to_domain_valid_name(cf_id string) string {
-	return "x" + strings.Replace(cf_id[0:15], "-", "", -1)
 }
 
 func get_random_string(length int, possibleChars []rune) string {

@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 
 	"github.com/gocraft/web"
 
@@ -32,6 +33,10 @@ var logger = logger_wrapper.InitLogger("api")
 
 type MessageResponse struct {
 	Message string `json:"message"`
+}
+
+func UuidToShortDnsName(uuid string) string {
+	return "x" + strings.Replace(uuid[0:15], "-", "", -1)
 }
 
 func ReadJsonFromByte(content []byte, retstruct interface{}) error {
