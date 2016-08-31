@@ -14,7 +14,6 @@ const (
 	HookTypeBind        HookType = "bind"
 	HookTypeUnbind      HookType = "unbind"
 	HookTypeRemoval     HookType = "removal"
-	HookTypeCatalog     HookType = "catalog"
 )
 
 type Template struct {
