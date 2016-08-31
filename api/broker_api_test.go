@@ -25,9 +25,9 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/signalfx/golib/errors"
 	"github.com/smartystreets/goconvey/convey"
-	"github.com/trustedanalytics/tapng-template-repository/catalog"
-	"github.com/trustedanalytics/tapng-template-repository/model"
-	TestUtils "github.com/trustedanalytics/tapng-template-repository/test"
+	"github.com/trustedanalytics/tap-template-repository/catalog"
+	"github.com/trustedanalytics/tap-template-repository/model"
+	TestUtils "github.com/trustedanalytics/tap-template-repository/test"
 )
 
 func prepareMocksAndRouter(t *testing.T) (router *web.Router, c Context, templateMock *catalog.MockTemplateApi) {

@@ -28,7 +28,7 @@ import (
 	jwtRsa "github.com/dvsekhvalnov/jose2go/keys/rsa"
 	"github.com/gocraft/web"
 
-	"github.com/trustedanalytics/tapng-go-common/util"
+	"github.com/trustedanalytics/tap-go-common/util"
 )
 
 type TapJWTToken struct {

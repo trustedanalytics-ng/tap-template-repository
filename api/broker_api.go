@@ -23,10 +23,10 @@ import (
 
 	"github.com/gocraft/web"
 
-	"github.com/trustedanalytics/tapng-go-common/logger"
-	"github.com/trustedanalytics/tapng-go-common/util"
-	"github.com/trustedanalytics/tapng-template-repository/catalog"
-	"github.com/trustedanalytics/tapng-template-repository/model"
+	"github.com/trustedanalytics/tap-go-common/logger"
+	"github.com/trustedanalytics/tap-go-common/util"
+	"github.com/trustedanalytics/tap-template-repository/catalog"
+	"github.com/trustedanalytics/tap-template-repository/model"
 )
 
 type Context struct {

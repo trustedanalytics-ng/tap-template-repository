@@ -25,7 +25,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/trustedanalytics/tapng-go-common/logger"
+	"github.com/trustedanalytics/tap-go-common/logger"
 )
 
 const MaxIdleconnetionPerHost int = 20

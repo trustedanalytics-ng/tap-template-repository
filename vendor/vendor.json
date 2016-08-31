@@ -214,55 +214,55 @@
 		},
 		{
 			"checksumSHA1": "FHH5vvuyglwKP3h05rYJdf29KQg=",
-			"path": "github.com/trustedanalytics/tapng-go-common/http",
+			"path": "github.com/trustedanalytics/tap-go-common/http",
 			"revision": "41d02842a2973d6d9468e16213c604ff2d839c04",
 			"revisionTime": "2016-08-31T08:07:17Z"
 		},
 		{
 			"checksumSHA1": "RVbaAnp5aHoeOAwEiyyd7EHax+w=",
-			"path": "github.com/trustedanalytics/tapng-go-common/logger",
+			"path": "github.com/trustedanalytics/tap-go-common/logger",
 			"revision": "41d02842a2973d6d9468e16213c604ff2d839c04",
 			"revisionTime": "2016-08-31T08:07:17Z"
 		},
 		{
 			"checksumSHA1": "KR5i8q5EO31c0aSlcvuP0BrJDcY=",
-			"path": "github.com/trustedanalytics/tapng-go-common/util",
+			"path": "github.com/trustedanalytics/tap-go-common/util",
 			"revision": "41d02842a2973d6d9468e16213c604ff2d839c04",
 			"revisionTime": "2016-08-31T08:07:17Z"
 		},
 		{
 			"checksumSHA1": "4/Dds7TDT5+scItFfGuP3rLuUck=",
-			"path": "github.com/trustedanalytics/tapng-template-repository",
+			"path": "github.com/trustedanalytics/tap-template-repository",
 			"revision": "4139590da952f48ee853c11ae7b6a02b79171300",
 			"revisionTime": "2016-08-30T12:12:46Z"
 		},
 		{
 			"checksumSHA1": "iPboNofTPT978ZPtOE2VI6ZsBG8=",
-			"path": "github.com/trustedanalytics/tapng-template-repository/api",
+			"path": "github.com/trustedanalytics/tap-template-repository/api",
 			"revision": "4139590da952f48ee853c11ae7b6a02b79171300",
 			"revisionTime": "2016-08-30T12:12:46Z"
 		},
 		{
 			"checksumSHA1": "pmIRDJY7Q4ONeFidEVaHEnaij/c=",
-			"path": "github.com/trustedanalytics/tapng-template-repository/catalog",
+			"path": "github.com/trustedanalytics/tap-template-repository/catalog",
 			"revision": "4139590da952f48ee853c11ae7b6a02b79171300",
 			"revisionTime": "2016-08-30T12:12:46Z"
 		},
 		{
 			"checksumSHA1": "Nlz9gaFCYYp0Yy0Os1Psgo8c6q0=",
-			"path": "github.com/trustedanalytics/tapng-template-repository/client",
+			"path": "github.com/trustedanalytics/tap-template-repository/client",
 			"revision": "4139590da952f48ee853c11ae7b6a02b79171300",
 			"revisionTime": "2016-08-30T12:12:46Z"
 		},
 		{
 			"checksumSHA1": "RsbNWexhHAyBt2sw971LOqfIBrM=",
-			"path": "github.com/trustedanalytics/tapng-template-repository/model",
+			"path": "github.com/trustedanalytics/tap-template-repository/model",
 			"revision": "4139590da952f48ee853c11ae7b6a02b79171300",
 			"revisionTime": "2016-08-30T12:12:46Z"
 		},
 		{
 			"checksumSHA1": "ljh/OTsLSvGavsYlFpoP5xUsG9c=",
-			"path": "github.com/trustedanalytics/tapng-template-repository/test",
+			"path": "github.com/trustedanalytics/tap-template-repository/test",
 			"revision": "4139590da952f48ee853c11ae7b6a02b79171300",
 			"revisionTime": "2016-08-30T12:12:46Z"
 		},
@@ -273,7 +273,7 @@
 			"revisionTime": "2016-03-28T06:07:40Z"
 		},
 		{
-			"path": "github.com:intel-data/tapng-go-common",
+			"path": "github.com:intel-data/tap-go-common",
 			"revision": "ng0.8",
 			"version": "ng0.8"
 		},
@@ -470,5 +470,5 @@
 			"revisionTime": "2014-04-17T13:40:36Z"
 		}
 	],
-	"rootPath": "github.com/trustedanalytics/tapng-template-repository"
+	"rootPath": "github.com/trustedanalytics/tap-template-repository"
 }

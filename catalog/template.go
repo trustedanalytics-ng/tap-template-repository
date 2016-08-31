@@ -8,8 +8,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/trustedanalytics/tapng-go-common/logger"
-	"github.com/trustedanalytics/tapng-template-repository/model"
+	"github.com/trustedanalytics/tap-go-common/logger"
+	"github.com/trustedanalytics/tap-template-repository/model"
 )
 
 var TEMPLATES map[string]*model.TemplateMetadata

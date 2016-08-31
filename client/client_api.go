@@ -24,8 +24,8 @@ import (
 	"net/url"
 	"strconv"
 
-	brokerHttp "github.com/trustedanalytics/tapng-go-common/http"
-	"github.com/trustedanalytics/tapng-template-repository/model"
+	brokerHttp "github.com/trustedanalytics/tap-go-common/http"
+	"github.com/trustedanalytics/tap-template-repository/model"
 )
 
 type TemplateRepository interface {

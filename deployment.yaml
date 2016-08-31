@@ -16,7 +16,7 @@
         containers: 
           - 
             name: "template-repository"
-            image: "tapng-template-repository"
+            image: "tap-template-repository"
             ports: 
               - 
                 containerPort: 80

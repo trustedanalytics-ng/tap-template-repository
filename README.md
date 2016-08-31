@@ -30,7 +30,7 @@ To build and run project:
   git clone https://github.com/intel-data/tap-template-repository    
   cd tap-template-repository
   make build_anywhere
-  TEMPLATE_REPOSITORY_USER=admin TEMPLATE_REPOSITORY_PASS=password PORT=8082 ./application/tapng-template-repository
+  TEMPLATE_REPOSITORY_USER=admin TEMPLATE_REPOSITORY_PASS=password PORT=8082 ./application/tap-template-repository
 ```
 
 Template repository provides few endponts
