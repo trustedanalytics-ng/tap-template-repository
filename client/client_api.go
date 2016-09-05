@@ -30,7 +30,7 @@ import (
 
 type TemplateRepository interface {
 	GenerateParsedTemplate(templateId, uuid string, replacements map[string]string) (model.Template, error)
-	CreateTemplate(template model.Template) error
+	CreateTemplate(template model.Template) (int, error)
 	GetTemplateRepositoryHealth() error
 }
 
@@ -86,24 +86,24 @@ func (t *TemplateRepositoryConnector) GenerateParsedTemplate(templateId, uuid st
 	return template, nil
 }
 
-func (t *TemplateRepositoryConnector) CreateTemplate(template model.Template) error {
+func (t *TemplateRepositoryConnector) CreateTemplate(template model.Template) (int, error) {
 
 	url := fmt.Sprintf("%s/api/v1/templates", t.Address)
 
 	b, err := json.Marshal(&template)
 	if err != nil {
-		return err
+		return 400, err
 	}
 
 	auth := brokerHttp.BasicAuth{t.Username, t.Password}
 	status, _, err := brokerHttp.RestPOST(url, string(b), brokerHttp.GetBasicAuthHeader(&auth), t.Client)
 	if err != nil {
-		return err
+		return status, err
 	}
 	if status != http.StatusCreated {
-		return errors.New("Bad response status: " + strconv.Itoa(status))
+		return status, errors.New("Bad response status: " + strconv.Itoa(status))
 	}
-	return nil
+	return status, nil
 }
 
 func (t *TemplateRepositoryConnector) GetTemplateRepositoryHealth() error {
