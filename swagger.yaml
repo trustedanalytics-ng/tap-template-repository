@@ -73,7 +73,7 @@ paths:
           description: Unexpected error
   /api/v1/parsed_template/{templateId}:
     get:
-      summary: Fetch parsed template
+      summary: Get template with filled placeholders from query
       description: Used to get filled template with data (ids, randoms etc). Each $foo will be replaced with bar if provided foo=bar as query param
       parameters:
         - name: templateId
@@ -106,7 +106,10 @@ definitions:
       body:
         $ref: '#/definitions/KubernetesComponent'
       hooks:
-        $ref: '#/definitions/v1beta1.JobList'
+        type: string
+        type: object
+        additionalProperties:
+          $ref: '#/definitions/v1beta1.JobList'
   KubernetesComponent:
     type: object
     properties:
@@ -120,6 +123,68 @@ definitions:
         $ref: '#/definitions/v1.ServiceAccountList'
       Secrets:
         $ref: '#/definitions/v1.SecretList'
+  v1.Pod:
+    type: object
+    properties:
+      apiVersion:
+        type: string
+      kind:
+        type: string
+      metadata:
+        $ref: "#/definitions/v1.ObjectMeta"
+      spec:
+        $ref: "#/definitions/v1.PodSpec"
+      status:
+        $ref: "#/definitions/v1.Status"
+  v1.Status:
+    phase: string
+    conditions:
+    - type: string
+      status: string
+      lastProbeTime: string
+      lastTransitionTime: string
+      reason: string
+      message: string
+    message: string
+    reason: string
+    hostIP: string
+    podIP: string
+    startTime: string
+    containerStatuses:
+    - name: string
+      state:
+        waiting:
+          reason: string
+          message: string
+        running:
+          startedAt: string
+        terminated:
+          exitCode: 0
+          signal: 0
+          reason: string
+          message: string
+          startedAt: string
+          finishedAt: string
+          containerID: string
+      lastState:
+        waiting:
+          reason: string
+          message: string
+        running:
+          startedAt: string
+        terminated:
+          exitCode: 0
+          signal: 0
+          reason: string
+          message: string
+          startedAt: string
+          finishedAt: string
+          containerID: string
+      ready: true
+      restartCount: 0
+      image: string
+      imageID: string
+      containerID: string
   v1.ObjectMeta:
     type: object
     properties:
