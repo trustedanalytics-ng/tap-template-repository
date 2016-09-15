@@ -107,9 +107,8 @@ definitions:
         $ref: '#/definitions/KubernetesComponent'
       hooks:
         type: string
-        type: object
         additionalProperties:
-          $ref: '#/definitions/v1beta1.JobList'
+          $ref: '#/definitions/v1.Pod'
   KubernetesComponent:
     type: object
     properties:
@@ -135,56 +134,105 @@ definitions:
       spec:
         $ref: "#/definitions/v1.PodSpec"
       status:
-        $ref: "#/definitions/v1.Status"
-  v1.Status:
-    phase: string
-    conditions:
-    - type: string
-      status: string
-      lastProbeTime: string
-      lastTransitionTime: string
-      reason: string
-      message: string
-    message: string
-    reason: string
-    hostIP: string
-    podIP: string
-    startTime: string
-    containerStatuses:
-    - name: string
+        $ref: "#/definitions/v1.PodStatus"
+  v1.PodCondition:
+    type: object
+    properties:
+      type:
+        type: string
+      status:
+        type: string
+      lastProbeTime:
+        type: string
+      lastTransitionTime:
+        type: string
+      reason:
+        type: string
+      message:
+        type: string
+  v1.ContainerStateRunning:
+    type: object
+    properties:
+      startedAt:
+        type: string
+  v1.ContainerStateWaiting:
+    type: object
+    properties:
+      reason:
+        type: string
+      message:
+        type: string
+  v1.ContainerStateTerminated:
+    type: object
+    properties:
+      exitCode:
+        type: integer
+        format: int64
+      signal:
+        type: integer
+        format: int64
+      reason:
+        type: string
+      message:
+        type: string
+      startedAt:
+        type: string
+      finishedAt:
+        type: string
+      containerID:
+        type: string
+  v1.ContainerState:
+    type: object
+    properties:
+      waiting:
+        $ref: "#/definitions/v1.ContainerStateWaiting"
+      running:
+        $ref: "#/definitions/v1.ContainerStateRunning"
+      terminated:
+        $ref: "#/definitions/v1.ContainerStateTerminated"
+  v1.ContainerStatus:
+    type: object
+    properties:
+      name:
+        type: string
       state:
-        waiting:
-          reason: string
-          message: string
-        running:
-          startedAt: string
-        terminated:
-          exitCode: 0
-          signal: 0
-          reason: string
-          message: string
-          startedAt: string
-          finishedAt: string
-          containerID: string
+        $ref: "#/definitions/v1.ContainerState"
       lastState:
-        waiting:
-          reason: string
-          message: string
-        running:
-          startedAt: string
-        terminated:
-          exitCode: 0
-          signal: 0
-          reason: string
-          message: string
-          startedAt: string
-          finishedAt: string
-          containerID: string
-      ready: true
-      restartCount: 0
-      image: string
-      imageID: string
-      containerID: string
+         $ref: "#/definitions/v1.ContainerState"
+      ready:
+        type: boolean
+      restartCount:
+        type: integer
+        format: int64
+      image:
+        type: boolean
+      imageID:
+        type: string
+      containerID:
+        type: string
+  v1.PodStatus:
+    type: object
+    properties:
+      phase:
+        type: string
+      conditions:
+        type: array
+        items:
+          $ref: "#/definitions/v1.PodCondition"
+      message:
+        type: string
+      reason:
+        type: string
+      hostIP:
+        type: string
+      podIP:
+        type: string
+      startTime:
+        type: string
+      containerStatuses:
+        type: array
+        items:
+         $ref: "#/definitions/v1.ContainerStatus"
   v1.ObjectMeta:
     type: object
     properties:
