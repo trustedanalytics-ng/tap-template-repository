@@ -17,13 +17,13 @@
 package api
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/gocraft/web"
 
 	"encoding/json"
 	"github.com/golang/mock/gomock"
-	"github.com/signalfx/golib/errors"
 	"github.com/smartystreets/goconvey/convey"
 	"github.com/trustedanalytics/tap-template-repository/catalog"
 	"github.com/trustedanalytics/tap-template-repository/model"
@@ -84,10 +84,10 @@ func TestGenerateParsedTemplate(t *testing.T) {
 
 	convey.Convey("Test Generate Parsed Template", t, func() {
 		convey.Convey("No templateId provided", func() {
-			response := TestUtils.SendRequest("GET", "/api/v1/parsed_template//?serviceId=a5740d8a-9f4b-4711-a1a0-eae62db54474", nil, router)
+			response := TestUtils.SendRequest("GET", "/api/v1/parsed_template//?instanceId=a5740d8a-9f4b-4711-a1a0-eae62db54474", nil, router)
 			TestUtils.AssertResponse(response, "templateId can't be empty!", 400)
 		})
-		convey.Convey("No serviceId provided", func() {
+		convey.Convey("No instanceId provided", func() {
 			response := TestUtils.SendRequest("GET", "/api/v1/parsed_template/1", nil, router)
 			TestUtils.AssertResponse(response, "uuid can't be empty!", 400)
 		})
@@ -95,7 +95,7 @@ func TestGenerateParsedTemplate(t *testing.T) {
 			gomock.InOrder(
 				templateMock.EXPECT().GetTemplateMetadataById("templateId").Return(nil),
 			)
-			response := TestUtils.SendRequest("GET", "/api/v1/parsed_template/templateId?serviceId=a5740d8a-9f4b-4711-a1a0-eae62db54474", nil, router)
+			response := TestUtils.SendRequest("GET", "/api/v1/parsed_template/templateId?instanceId=a5740d8a-9f4b-4711-a1a0-eae62db54474", nil, router)
 			TestUtils.AssertResponse(response, "Can't find template by id: templateId", 404)
 		})
 		convey.Convey("Getting parsed component failed", func() {
@@ -105,9 +105,9 @@ func TestGenerateParsedTemplate(t *testing.T) {
 					TemplateDirName:     "dir",
 					TemplatePlanDirName: "planDir",
 				}),
-				templateMock.EXPECT().GetParsedTemplate(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(model.Template{Id: "templateId"}, errors.New("failed")),
+				templateMock.EXPECT().GetParsedTemplate(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(model.Template{Id: "templateId"}, errors.New("failed")),
 			)
-			response := TestUtils.SendRequest("GET", "/api/v1/parsed_template/templateId?serviceId=a5740d8a-9f4b-4711-a1a0-eae62db54474", nil, router)
+			response := TestUtils.SendRequest("GET", "/api/v1/parsed_template/templateId?instanceId=a5740d8a-9f4b-4711-a1a0-eae62db54474", nil, router)
 			TestUtils.AssertResponse(response, "failed", 500)
 		})
 		convey.Convey("Existing templateId provided", func() {
@@ -117,9 +117,9 @@ func TestGenerateParsedTemplate(t *testing.T) {
 					TemplateDirName:     "dir",
 					TemplatePlanDirName: "planDir",
 				}),
-				templateMock.EXPECT().GetParsedTemplate(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(model.Template{Id: "templateId"}, nil),
+				templateMock.EXPECT().GetParsedTemplate(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(model.Template{Id: "templateId"}, nil),
 			)
-			response := TestUtils.SendRequest("GET", "/api/v1/parsed_template/templateId?serviceId=a5740d8a-9f4b-4711-a1a0-eae62db54474", nil, router)
+			response := TestUtils.SendRequest("GET", "/api/v1/parsed_template/templateId?instanceId=a5740d8a-9f4b-4711-a1a0-eae62db54474", nil, router)
 			var template model.Template
 			json.Unmarshal(response.Body.Bytes(), &template)
 			convey.So(template.Id, convey.ShouldEqual, "templateId")

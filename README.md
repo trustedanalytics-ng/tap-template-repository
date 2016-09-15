@@ -61,10 +61,10 @@ To display just one provide id:
 
 You can also validate that parsing template will work if you provide query parameters.
 Each `$foo` will be replaced with `bar` if query param will have format `/parsed_template/:templateId?foo=bar`
-Template to be parsed requires serviceId in query param to be valid UUID
+Template to be parsed requires instanceId in query param to be valid UUID
 
 ```
-  curl -v  admin:password@localhost:8082/api/v1/parsed_template/test1?idx_and_short_serviceid=NewValue&serviceId=27523a96-63a1-11e6-bc3a-00155d3d8807
+  curl -v  admin:password@localhost:8082/api/v1/parsed_template/test1?idx_and_short_instance_id=NewValue&instanceId=27523a96-63a1-11e6-bc3a-00155d3d8807
 ```
 
 As an output you should see something similar to:

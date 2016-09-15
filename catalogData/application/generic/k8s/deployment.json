@@ -35,17 +35,17 @@
       },
       "metadata": {
         "labels": {
-          "service_id": "$service_id",
+          "instance_id": "$instance_id",
           "managed_by": "TAP",
-          "idx_and_short_serviceid": "$idx_and_short_serviceid"
+          "idx_and_short_instance_id": "$idx_and_short_instance_id"
         },
         "creationTimestamp": null
       }
     },
     "selector": {
       "matchLabels": {
-        "service_id": "$service_id",
-        "idx_and_short_serviceid": "$idx_and_short_serviceid"
+        "instance_id": "$instance_id",
+        "idx_and_short_instance_id": "$idx_and_short_instance_id"
       }
     },
     "replicas": 1
@@ -53,15 +53,13 @@
   "metadata": {
     "labels": {
       "space": "$space",
-      "service_id": "$service_id",
+      "instance_id": "$instance_id",
       "org": "$org",
       "managed_by": "TAP",
-      "idx_and_short_serviceid": "$idx_and_short_serviceid",
-      "catalog_service_id": "$catalog_service_id",
-      "catalog_plan_id": "$catalog_plan_id"
+      "idx_and_short_instance_id": "$idx_and_short_instance_id"
     },
     "creationTimestamp": null,
-    "name": "$idx_and_short_serviceid"
+    "name": "$idx_and_short_instance_id"
   },
   "apiVersion": "extensions/v1beta1",
   "kind": "Deployment"

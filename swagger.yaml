@@ -81,9 +81,9 @@ paths:
           description: Template ID
           required: true
           type: string
-        - name: serviceId
+        - name: instanceId
           in: query
-          description: Service ID (used to replace fields in template; has to be > 14 chars)
+          description: Instance ID (used to replace fields in template; has to be > 14 chars)
           required: true
           type: string
       responses:
@@ -92,7 +92,7 @@ paths:
           schema:
             $ref: '#/definitions/Template'
         400:
-          description: ServiceId is shorter than 15 chars or templateId is empty. UUID is invalid.
+          description: InstnaceId is shorter than 15 chars or templateId is empty. UUID is invalid.
         404:
           description: Couldn't find template with id specified
         500:

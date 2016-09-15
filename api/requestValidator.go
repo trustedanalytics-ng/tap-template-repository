@@ -16,7 +16,7 @@ func validateUuid(uuid string) error {
 		return errors.New("uuid can't be empty!")
 	}
 	if len(uuid) < 15 {
-		return errors.New("serviceId has to be longer than 15 characters!")
+		return errors.New("instanceId has to be longer than 15 characters!")
 	}
 	return nil
 }

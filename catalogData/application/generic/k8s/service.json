@@ -4,7 +4,7 @@
   },
   "spec": {
     "selector": {
-      "service_id": "$service_id"
+      "instance_id": "$instance_id"
     },
     "ports": [
       {
@@ -20,15 +20,13 @@
   "metadata": {
     "labels": {
       "space": "$space",
-      "service_id": "$service_id",
+      "instance_id": "$instance_id",
       "org": "$org",
       "managed_by": "TAP",
-      "idx_and_short_serviceid": "$idx_and_short_serviceid",
-      "catalog_service_id": "$catalog_service_id",
-      "catalog_plan_id": "$catalog_plan_id"
+      "idx_and_short_instance_id": "$idx_and_short_instance_id"
     },
     "creationTimestamp": null,
-    "name": "$idx_and_short_serviceid"
+    "name": "$idx_and_short_instance_id"
   },
   "apiVersion": "v1",
   "kind": "Service"

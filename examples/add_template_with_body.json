@@ -7,9 +7,9 @@
         "kind": "Deployment",
         "apiVersion": "extensions/v1beta1",
         "metadata": {
-          "name": "$idx_and_short_serviceid",
+          "name": "$idx_and_short_instance_id",
           "labels": {
-            "service_id": "$service_id",
+            "instance_id": "$instance_id",
             "managed_by": "TAP"
           }
         },
@@ -17,14 +17,14 @@
           "replicas": 1,
           "selector": {
             "matchLabels" : {
-              "service_id": "$service_id",
+              "instance_id": "$instance_id",
               "managed_by": "TAP"
             }
           },
           "template": {
             "metadata": {
               "labels": {
-                "service_id": "$service_id",
+                "instance_id": "$instance_id",
                 "managed_by": "TAP"
               }
             },

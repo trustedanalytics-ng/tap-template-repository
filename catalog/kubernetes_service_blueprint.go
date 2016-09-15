@@ -42,18 +42,16 @@ func GetParsedTemplate(catalogPath, instanceId, org, space string, temp *model.T
 		return nil, err
 	}
 
-	replacements := buildStdReplacementsMap(org, space, instanceId, temp.Id, temp.Id, additionalReplacements)
+	replacements := buildStdReplacementsMap(org, space, instanceId, additionalReplacements)
 	return ParseTemplate(blueprint, replacements)
 }
 
-func buildStdReplacementsMap(org, space, cf_service_id string, svc_meta_id, plan_meta_id string, additionalReplacements map[string]string) map[string]string {
+func buildStdReplacementsMap(org, space, instanceId string, additionalReplacements map[string]string) map[string]string {
 	replacements := make(map[string]string)
-	replacements["$org"] = org
-	replacements["$space"] = space
-	replacements["$service_id"] = cf_service_id
-	replacements["$catalog_service_id"] = svc_meta_id
-	replacements["$catalog_plan_id"] = plan_meta_id
-	replacements["$domain_name"] = domain
+	replacements[model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_ORG)] = org
+	replacements[model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_SPACE)] = space
+	replacements[model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_INSTANCE_ID)] = instanceId
+	replacements[model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_DOMAIN_NAME)] = domain
 	for key, value := range additionalReplacements {
 		replacements[key] = value
 	}
@@ -321,16 +319,16 @@ func adjust_params(content string, replacements map[string]string, idx int) stri
 		f = strings.Replace(f, key, value, -1)
 	}
 
-	cf_service_id := replacements["$service_id"]
-	proper_dns_name := util.UuidToShortDnsName(cf_service_id + "x" + strconv.Itoa(idx))
-	f = strings.Replace(f, "$idx_and_short_serviceid", proper_dns_name, -1)
+	instanceId := replacements[model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_INSTANCE_ID)]
+	proper_dns_name := util.UuidToShortDnsName(instanceId + "x" + strconv.Itoa(idx))
+	f = strings.Replace(f, model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_IDX_AND_SHORT_INSTANCE_ID), proper_dns_name, -1)
 
-	proper_short_dns_name := util.UuidToShortDnsName(cf_service_id)
-	f = strings.Replace(f, "$short_serviceid", proper_short_dns_name, -1)
+	proper_short_dns_name := util.UuidToShortDnsName(instanceId)
+	f = strings.Replace(f, model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_SHORT_INSTANCE_ID), proper_short_dns_name, -1)
 
 	for i := 0; i < 9; i++ {
-		f = strings.Replace(f, "$random"+strconv.Itoa(i), get_random_string(10, possible_rand_chars), -1)
-		f = strings.Replace(f, "$random_dns"+strconv.Itoa(i), get_random_string(6, possible_rand_dns_chars), -1)
+		f = strings.Replace(f, model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_RANDOM)+strconv.Itoa(i), get_random_string(10, possible_rand_chars), -1)
+		f = strings.Replace(f, model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_RANDOM_DNS)+strconv.Itoa(i), get_random_string(6, possible_rand_dns_chars), -1)
 	}
 	f = encodeByte64ToString(f)
 	return f

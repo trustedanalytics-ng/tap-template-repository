@@ -51,7 +51,7 @@ func (c *Context) Templates(rw web.ResponseWriter, req *web.Request) {
 
 func (c *Context) GenerateParsedTemplate(rw web.ResponseWriter, req *web.Request) {
 	templateId := req.PathParams["templateId"]
-	uuid := req.URL.Query().Get("serviceId")
+	uuid := req.URL.Query().Get("instanceId")
 
 	err := validateTemplateId(templateId)
 	if err != nil {

@@ -1,7 +1,0 @@
-{
-  "nodeName": "$nodeName",
-  "host": "$hostname",
-  "ports": {
-    "5432/tcp": "$port_5432"
-  }
-}

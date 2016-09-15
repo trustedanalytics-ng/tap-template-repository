@@ -1,51 +1,37 @@
 {
   "Id": "test2",
   "hooks": {
-    "onBindInstance": {
-      "kind": "Job",
-      "apiVersion": "batch/v1",
+    "provision": {
+      "kind": "Pod",
+      "apiVersion": "v1",
       "metadata": {
-        "name": "pi-1",
+        "name": "$short_instance_id-provision-$random_dns",
         "creationTimestamp": null,
         "labels": {
           "managed_by": "TAP",
-          "service_id": "service-pi"
-        },
-        "annotations": {
-          "createConfigMap": "true"
+          "instance_id": "$instance_id"
         }
       },
       "spec": {
-        "template": {
-          "metadata": {
-            "creationTimestamp": null,
-            "labels": {
-              "managed_by": "TAP",
-              "service_id": "service-pi"
-            }
-          },
-          "spec": {
-            "volumes": null,
-            "containers": [
-              {
-                "name": "pi",
-                "image": "tutum/curl:latest",
-                "command": [
-                  "/bin/bash"
-                ],
-                "args": [
-                  "-c",
-                  "curl 172.17.0.2:8081/v2/catalog --user admin:password"
-                ],
-                "resources": {},
-                "imagePullPolicy": "IfNotPresent"
-              }
+        "volumes": null,
+        "containers": [
+          {
+            "name": "pi",
+            "image": "tutum/curl:latest",
+            "command": [
+              "/bin/bash"
             ],
-            "restartPolicy": "Never",
-            "dnsPolicy": "ClusterFirst",
-            "serviceAccountName": ""
+            "args": [
+              "-c",
+              "curl 172.17.0.2:8081/v2/catalog --user admin:password"
+            ],
+            "resources": {},
+            "imagePullPolicy": "IfNotPresent"
           }
-        }
+        ],
+        "restartPolicy": "Never",
+        "dnsPolicy": "ClusterFirst",
+        "serviceAccountName": ""
       }
     }
   }

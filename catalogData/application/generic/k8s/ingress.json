@@ -10,7 +10,7 @@
             {
               "backend": {
                 "servicePort": 80,
-                "serviceName": "$idx_and_short_serviceid"
+                "serviceName": "$idx_and_short_instance_id"
               },
               "path": "/"
             }
@@ -22,11 +22,11 @@
   },
   "metadata": {
     "creationTimestamp": null,
-    "name": "$idx_and_short_serviceid",
+    "name": "$idx_and_short_instance_id",
     "labels": {
-      "service_id": "$service_id",
+      "instance_id": "$instance_id",
       "managed_by": "TAP",
-      "idx_and_short_serviceid": "$idx_and_short_serviceid"
+      "idx_and_short_instance_id": "$idx_and_short_instance_id"
     }
   },
   "apiVersion": "extensions/v1beta1",

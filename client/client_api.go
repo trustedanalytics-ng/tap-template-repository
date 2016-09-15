@@ -62,7 +62,7 @@ func (t *TemplateRepositoryConnector) GenerateParsedTemplate(templateId, uuid st
 
 	template := model.Template{}
 
-	address := fmt.Sprintf("%s/api/v1/parsed_template/%s?serviceId=%s", t.Address, templateId, uuid)
+	address := fmt.Sprintf("%s/api/v1/parsed_template/%s?instanceId=%s", t.Address, templateId, uuid)
 	if len(replacements) > 0 {
 		params := url.Values{}
 		for key, value := range replacements {
