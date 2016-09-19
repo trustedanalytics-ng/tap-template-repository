@@ -5,7 +5,7 @@
       "kind": "Pod",
       "apiVersion": "v1",
       "metadata": {
-        "name": "$short_instance_id-provision-$random_dns",
+        "name": "$short_instance_id-provision-$random_dns1",
         "creationTimestamp": null,
         "labels": {
           "managed_by": "TAP",
