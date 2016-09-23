@@ -115,14 +115,14 @@ func (c *Context) CreateCustomTemplate(rw web.ResponseWriter, req *web.Request) 
 }
 
 func (c *Context) GetCustomTemplate(rw web.ResponseWriter, req *web.Request) {
-	templateId := req.PathParams["templateId"]
-	err := validateTemplateId(templateId)
+	templateID := req.PathParams["templateId"]
+	err := validateTemplateId(templateID)
 	if err != nil {
 		util.Respond400(rw, err)
 		return
 	}
 
-	templateMetadata := c.Template.GetTemplateMetadataById(templateId)
+	templateMetadata := c.Template.GetTemplateMetadataById(templateID)
 	if templateMetadata == nil {
 		util.Respond404(rw, errors.New("Template doesn't exist!"))
 		return
@@ -137,14 +137,14 @@ func (c *Context) GetCustomTemplate(rw web.ResponseWriter, req *web.Request) {
 }
 
 func (c *Context) DeleteCustomTemplate(rw web.ResponseWriter, req *web.Request) {
-	templateId := req.PathParams["templateId"]
-	err := validateTemplateId(templateId)
+	templateID := req.PathParams["templateId"]
+	err := validateTemplateId(templateID)
 	if err != nil {
 		util.Respond400(rw, err)
 		return
 	}
 
-	err = c.Template.RemoveAndUnregisterCustomTemplate(templateId)
+	err = c.Template.RemoveAndUnregisterCustomTemplate(templateID)
 	if err != nil {
 		util.Respond500(rw, err)
 		return

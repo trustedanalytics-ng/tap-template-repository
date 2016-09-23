@@ -47,15 +47,6 @@ deps_update_tap: verify_gopath
 	rm -Rf vendor/github.com/trustedanalytics/tap-template-repository
 	@echo "Done"
 
-bin/gomock: verify_gopath
-	go get -v -u github.com/golang/mock/mockgen
-
-mock_update: bin/gomock
-	$(GOBIN)/mockgen -source=catalog/template.go -package=catalog -destination=catalog/template_mock.go
-
-tests: verify_gopath mock_update
-	go test --cover $(APP_DIR_LIST)
-
 prepare_dirs:
 	mkdir -p ./temp/src/github.com/trustedanalytics/tap-template-repository
 	$(eval REPOFILES=$(shell pwd)/*)
@@ -68,3 +59,12 @@ build_anywhere: prepare_dirs
 	rm -Rf application && mkdir application
 	cp -RL ./tap-template-repository ./application/tap-template-repository
 	rm -Rf ./temp
+
+install_mockgen:
+	scripts/install_mockgen.sh
+
+mock_update: install_mockgen
+	$(GOBIN)/mockgen -source=catalog/template.go -package=catalog -destination=catalog/template_mock.go
+
+test: verify_gopath  mock_update
+	go test --cover $(APP_DIR_LIST)
