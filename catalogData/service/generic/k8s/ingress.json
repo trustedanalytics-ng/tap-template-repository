@@ -1,0 +1,34 @@
+{
+  "status": {
+    "loadBalancer": {}
+  },
+  "spec": {
+    "rules": [
+      {
+        "http": {
+          "paths": [
+            {
+              "backend": {
+                "servicePort": 80,
+                "serviceName": "$idx_and_short_instance_id"
+              },
+              "path": "/"
+            }
+          ]
+        },
+        "host": "$hostname.$domain_name"
+      }
+    ]
+  },
+  "metadata": {
+    "creationTimestamp": null,
+    "name": "$idx_and_short_instance_id",
+    "labels": {
+      "instance_id": "$instance_id",
+      "managed_by": "TAP",
+      "idx_and_short_instance_id": "$idx_and_short_instance_id"
+    }
+  },
+  "apiVersion": "extensions/v1beta1",
+  "kind": "Ingress"
+}
