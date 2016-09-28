@@ -26,7 +26,7 @@ const (
 	PLACEHOLDER_INSTANCE_ID               = "instance_id"
 	PLACEHOLDER_IDX_AND_SHORT_INSTANCE_ID = "idx_and_short_instance_id"
 	PLACEHOLDER_SHORT_INSTANCE_ID         = "short_instance_id"
-	PLACEHOLDER_BINDED_INSTANCE_ID        = "binded_instance_id"
+	PLACEHOLDER_BOUND_INSTANCE_ID         = "bound_instance_id"
 
 	PLACEHOLDER_BROKER_SHORT_INSTANCE_ID = "broker_short_instance_id"
 	PLACEHOLDER_BROKER_INSTANCE_ID       = "broker_instance_id"
