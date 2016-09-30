@@ -22,6 +22,7 @@ const (
 	PLACEHOLDER_DOMAIN_NAME = "domain_name"
 	PLACEHOLDER_IMAGE       = "image"
 	PLACEHOLDER_HOSTNAME    = "hostname"
+	PLACEHOLDER_EXTRA_ENVS  = "extra_envs"
 
 	PLACEHOLDER_INSTANCE_ID               = "instance_id"
 	PLACEHOLDER_IDX_AND_SHORT_INSTANCE_ID = "idx_and_short_instance_id"

@@ -316,6 +316,10 @@ func adjust_params(content string, replacements map[string]string, idx int) stri
 	f := content
 
 	for key, value := range replacements {
+		if key == model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_EXTRA_ENVS) {
+			rawEscapedValue, _ := json.Marshal(value)
+			value = strings.Trim(string(rawEscapedValue), `"`)
+		}
 		f = strings.Replace(f, key, value, -1)
 	}
 
