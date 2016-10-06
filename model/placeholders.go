@@ -39,6 +39,12 @@ const (
 	PLACEHOLDER_PLAN_ID               = "plan_id"
 	PLACEHOLDER_SOURCE_OFFERING_ID    = "source_offering_id"
 	PLACEHOLDER_SOURCE_PLAN_ID_PREFIX = "source_plan_id-"
+
+	PLACEHOLDER_CEPH_USER        = "ceph_user"
+	PLACEHOLDER_CEPH_SECRET_NAME = "ceph_secret_name"
+	PLACEHOLDER_CEPH_MONITORS    = "ceph_monitors"
+	PLACEHOLDER_CEPH_POOL        = "ceph_pool"
+	PLACEHOLDER_CEPH_FS_TYPE     = "ceph_fs_type"
 )
 
 func GetPlaceholderWithDollarPrefix(placeholder string) string {
