@@ -24,8 +24,7 @@ type TemplateApi interface {
 	LoadAvailableTemplates()
 	AddAndRegisterCustomTemplate(template model.Template) error
 	RemoveAndUnregisterCustomTemplate(templateId string) error
-	GetParsedTemplate(templateMetadata *model.TemplateMetadata, catalogPath,
-		instanceId, orgId, spaceId string, additionalReplacements map[string]string) (model.Template, error)
+	GetParsedTemplate(templateMetadata *model.TemplateMetadata, catalogPath string, additionalReplacements map[string]string) (model.Template, error)
 	GetRawTemplate(templateMetadata *model.TemplateMetadata, catalogPath string) (model.Template, error)
 }
 
@@ -192,10 +191,8 @@ func (t *Template) RemoveAndUnregisterCustomTemplate(templateId string) error {
 	return nil
 }
 
-func (t *Template) GetParsedTemplate(templateMetadata *model.TemplateMetadata, catalogPath,
-	instanceId, orgId, spaceId string, additionalReplacements map[string]string) (model.Template, error) {
-
-	result, err := GetParsedTemplate(catalogPath, instanceId, orgId, spaceId, templateMetadata, additionalReplacements)
+func (t *Template) GetParsedTemplate(templateMetadata *model.TemplateMetadata, catalogPath string, additionalReplacements map[string]string) (model.Template, error) {
+	result, err := GetParsedTemplate(catalogPath, templateMetadata, additionalReplacements)
 	if err != nil {
 		return *result, err
 	}

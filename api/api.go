@@ -20,6 +20,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
+	"os"
 
 	"github.com/gocraft/web"
 
@@ -51,7 +53,7 @@ func (c *Context) Templates(rw web.ResponseWriter, req *web.Request) {
 
 func (c *Context) GenerateParsedTemplate(rw web.ResponseWriter, req *web.Request) {
 	templateId := req.PathParams["templateId"]
-	uuid := req.URL.Query().Get("instanceId")
+	instanceId := req.URL.Query().Get("instanceId")
 
 	err := validateTemplateId(templateId)
 	if err != nil {
@@ -59,7 +61,7 @@ func (c *Context) GenerateParsedTemplate(rw web.ResponseWriter, req *web.Request
 		return
 	}
 
-	err = validateUuid(uuid)
+	err = validateUuid(instanceId)
 	if err != nil {
 		util.Respond400(rw, err)
 		return
@@ -71,18 +73,25 @@ func (c *Context) GenerateParsedTemplate(rw web.ResponseWriter, req *web.Request
 		return
 	}
 
-	additionalReplacements := make(map[string]string)
-	query := req.URL.Query()
-	for key, _ := range query {
-		additionalReplacements["$"+key] = query.Get(key)
-	}
-	template, err := c.Template.GetParsedTemplate(templateMetadata, catalog.TemplatesPath, uuid,
-		"defaultOrg", "defaultSpace", additionalReplacements)
+	template, err := c.Template.GetParsedTemplate(templateMetadata, catalog.TemplatesPath, prepareReplacements(req.URL.Query(), instanceId))
 	if err != nil {
 		util.Respond500(rw, err)
 		return
 	}
 	util.WriteJson(rw, template, http.StatusOK)
+}
+
+func prepareReplacements(query url.Values, instanceId string) map[string]string {
+	additionalReplacements := make(map[string]string)
+	additionalReplacements[model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_INSTANCE_ID)] = instanceId
+	additionalReplacements[model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_DOMAIN_NAME)] = os.Getenv("DOMAIN")
+	additionalReplacements[model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_ORG)] = "defaultOrg"
+	additionalReplacements[model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_SPACE)] = "defaultSpace"
+
+	for key, _ := range query {
+		additionalReplacements["$"+key] = query.Get(key)
+	}
+	return additionalReplacements
 }
 
 func (c *Context) CreateCustomTemplate(rw web.ResponseWriter, req *web.Request) {

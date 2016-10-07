@@ -34,28 +34,14 @@ import (
 
 var possible_rand_chars = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")
 var possible_rand_dns_chars = []rune("abcdefghijklmnopqrstuvwxyz1234567890")
-var domain = os.Getenv("DOMAIN")
 
-func GetParsedTemplate(catalogPath, instanceId, org, space string, temp *model.TemplateMetadata, additionalReplacements map[string]string) (*model.Template, error) {
+func GetParsedTemplate(catalogPath string, temp *model.TemplateMetadata, additionalReplacements map[string]string) (*model.Template, error) {
 	blueprint, err := GetKubernetesBlueprint(catalogPath, temp.TemplateDirName, temp.TemplatePlanDirName)
 	if err != nil {
 		return nil, err
 	}
 
-	replacements := buildStdReplacementsMap(org, space, instanceId, additionalReplacements)
-	return ParseTemplate(blueprint, replacements)
-}
-
-func buildStdReplacementsMap(org, space, instanceId string, additionalReplacements map[string]string) map[string]string {
-	replacements := make(map[string]string)
-	replacements[model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_ORG)] = org
-	replacements[model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_SPACE)] = space
-	replacements[model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_INSTANCE_ID)] = instanceId
-	replacements[model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_DOMAIN_NAME)] = domain
-	for key, value := range additionalReplacements {
-		replacements[key] = value
-	}
-	return replacements
+	return ParseTemplate(blueprint, additionalReplacements)
 }
 
 func ParseTemplate(blueprint model.KubernetesBlueprint, replacements map[string]string) (*model.Template, error) {
