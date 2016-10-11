@@ -153,9 +153,9 @@ func (c *Context) DeleteCustomTemplate(rw web.ResponseWriter, req *web.Request) 
 		return
 	}
 
-	err = c.Template.RemoveAndUnregisterCustomTemplate(templateID)
+	status, err := c.Template.RemoveAndUnregisterCustomTemplate(templateID)
 	if err != nil {
-		util.Respond500(rw, err)
+		util.GenericRespond(status, rw, err)
 		return
 	}
 	util.WriteJson(rw, "", http.StatusNoContent)

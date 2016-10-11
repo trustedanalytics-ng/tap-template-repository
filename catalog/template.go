@@ -5,16 +5,24 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"strings"
+
+	"sync"
 
 	"github.com/trustedanalytics/tap-go-common/logger"
 	"github.com/trustedanalytics/tap-template-repository/model"
 )
 
-var TEMPLATES map[string]*model.TemplateMetadata
-var TemplatesPath string = "./catalogData/"
-var CustomTemplatesDir string = TemplatesPath + "custom/"
+var Templates map[string]*model.TemplateMetadata
+var TemplatesMutex sync.RWMutex
+
+const (
+	TemplatesPath         = "./catalogData/"
+	CustomTemplateDirName = "custom"
+	CustomTemplatesDir    = TemplatesPath + "custom" + "/"
+)
 
 var logger = logger_wrapper.InitLogger("catalog")
 
@@ -23,30 +31,46 @@ type TemplateApi interface {
 	GetAvailableTemplates() map[string]*model.TemplateMetadata
 	LoadAvailableTemplates()
 	AddAndRegisterCustomTemplate(template model.Template) error
-	RemoveAndUnregisterCustomTemplate(templateId string) error
+	RemoveAndUnregisterCustomTemplate(templateId string) (int, error)
 	GetParsedTemplate(templateMetadata *model.TemplateMetadata, catalogPath string, additionalReplacements map[string]string) (model.Template, error)
 	GetRawTemplate(templateMetadata *model.TemplateMetadata, catalogPath string) (model.Template, error)
 }
 
 type Template struct{}
 
+func copyTemplate(template map[string]*model.TemplateMetadata) map[string]*model.TemplateMetadata {
+	res := map[string]*model.TemplateMetadata{}
+	for k, v := range template {
+		res[k] = v
+	}
+	return res
+}
+
 func (t *Template) GetTemplateMetadataById(id string) *model.TemplateMetadata {
-	if TEMPLATES != nil {
-		return TEMPLATES[id]
+	TemplatesMutex.RLock()
+	defer TemplatesMutex.RUnlock()
+	if Templates != nil {
+		return Templates[id]
 	} else {
 		return nil
 	}
 }
 
 func (t *Template) GetAvailableTemplates() map[string]*model.TemplateMetadata {
-	if TEMPLATES != nil {
+	TemplatesMutex.RLock()
+	if Templates == nil {
+		TemplatesMutex.RUnlock()
 		t.LoadAvailableTemplates()
 	}
-	return TEMPLATES
+	defer TemplatesMutex.RUnlock()
+	return copyTemplate(Templates)
 }
 
 func (t *Template) LoadAvailableTemplates() {
-	TEMPLATES = make(map[string]*model.TemplateMetadata)
+	TemplatesMutex.Lock()
+	defer TemplatesMutex.Unlock()
+	Templates = make(map[string]*model.TemplateMetadata)
+
 	logger.Debug("GetAvailableTemplates - need to parse catalog/ directory.")
 	template_file_info, err := ioutil.ReadDir(TemplatesPath)
 	if err != nil {
@@ -106,7 +130,7 @@ func (t *Template) loadPlan(plan_details os.FileInfo, planDirPath, planDirName, 
 			logger.Fatal("Error parsing json from file: ", plan_details_dir_full_name, err)
 		}
 
-		TEMPLATES[plan_meta.Id] = &model.TemplateMetadata{
+		Templates[plan_meta.Id] = &model.TemplateMetadata{
 			Id:                  plan_meta.Id,
 			TemplateDirName:     templateDirName,
 			TemplatePlanDirName: planDirName,
@@ -177,18 +201,23 @@ func (t *Template) AddAndRegisterCustomTemplate(template model.Template) error {
 	return nil
 }
 
-func (t *Template) RemoveAndUnregisterCustomTemplate(templateId string) error {
+func (t *Template) RemoveAndUnregisterCustomTemplate(templateId string) (int, error) {
 	if strings.Contains(templateId, "..") {
-		return errors.New("Illegal templateId")
+		return http.StatusBadRequest, errors.New("Illegal templateId")
 	}
-	templateDir := CustomTemplatesDir + templateId
-	err := os.RemoveAll(templateDir)
+	templateFile := CustomTemplatesDir + templateId
+	if templateMeta := t.GetTemplateMetadataById(templateId); templateMeta != nil {
+		if templateMeta.TemplateDirName != CustomTemplateDirName {
+			return http.StatusForbidden, fmt.Errorf("removing template %s is forbidden", templateId)
+		}
+	}
+	err := os.RemoveAll(templateFile)
 	if err != nil {
-		return err
+		return http.StatusInternalServerError, err
 	}
 
 	t.LoadAvailableTemplates()
-	return nil
+	return http.StatusNoContent, nil
 }
 
 func (t *Template) GetParsedTemplate(templateMetadata *model.TemplateMetadata, catalogPath string, additionalReplacements map[string]string) (model.Template, error) {

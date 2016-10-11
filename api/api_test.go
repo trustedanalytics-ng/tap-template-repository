@@ -18,11 +18,13 @@ package api
 
 import (
 	"errors"
+	"net/http"
 	"testing"
 
 	"github.com/gocraft/web"
 
 	"encoding/json"
+
 	"github.com/golang/mock/gomock"
 	"github.com/smartystreets/goconvey/convey"
 	"github.com/trustedanalytics/tap-template-repository/catalog"
@@ -105,7 +107,7 @@ func TestGenerateParsedTemplate(t *testing.T) {
 					TemplateDirName:     "dir",
 					TemplatePlanDirName: "planDir",
 				}),
-				templateMock.EXPECT().GetParsedTemplate(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(model.Template{Id: "templateId"}, errors.New("failed")),
+				templateMock.EXPECT().GetParsedTemplate(gomock.Any(), gomock.Any(), gomock.Any()).Return(model.Template{Id: "templateId"}, errors.New("failed")),
 			)
 			response := TestUtils.SendRequest("GET", "/api/v1/parsed_template/templateId?instanceId=a5740d8a-9f4b-4711-a1a0-eae62db54474", nil, router)
 			TestUtils.AssertResponse(response, "failed", 500)
@@ -117,7 +119,7 @@ func TestGenerateParsedTemplate(t *testing.T) {
 					TemplateDirName:     "dir",
 					TemplatePlanDirName: "planDir",
 				}),
-				templateMock.EXPECT().GetParsedTemplate(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(model.Template{Id: "templateId"}, nil),
+				templateMock.EXPECT().GetParsedTemplate(gomock.Any(), gomock.Any(), gomock.Any()).Return(model.Template{Id: "templateId"}, nil),
 			)
 			response := TestUtils.SendRequest("GET", "/api/v1/parsed_template/templateId?instanceId=a5740d8a-9f4b-4711-a1a0-eae62db54474", nil, router)
 			var template model.Template
@@ -241,17 +243,17 @@ func TestDeleteCustomTemplate(t *testing.T) {
 		})
 		convey.Convey("Deletion failed", func() {
 			gomock.InOrder(
-				templateMock.EXPECT().RemoveAndUnregisterCustomTemplate("templateId").Return(errors.New("failed")),
+				templateMock.EXPECT().RemoveAndUnregisterCustomTemplate("templateId").Return(http.StatusInternalServerError, errors.New("failed")),
 			)
 			response := TestUtils.SendRequest("DELETE", "/api/v1/templates/templateId", nil, router)
 			TestUtils.AssertResponse(response, "failed", 500)
 		})
 		convey.Convey("Successfully removed", func() {
 			gomock.InOrder(
-				templateMock.EXPECT().RemoveAndUnregisterCustomTemplate("templateId").Return(nil),
+				templateMock.EXPECT().RemoveAndUnregisterCustomTemplate("templateId").Return(http.StatusNoContent, nil),
 			)
 			response := TestUtils.SendRequest("DELETE", "/api/v1/templates/templateId", nil, router)
-			convey.So(response.Code, convey.ShouldEqual, 204)
+			convey.So(response.Code, convey.ShouldEqual, http.StatusNoContent)
 		})
 	})
 }
