@@ -1,3 +1,4 @@
+#!/bin/bash
 # Copyright (c) 2016 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,21 +14,5 @@
 # limitations under the License.
 #
 
-FROM tapimages.us.enableiot.com:8080/tap-base-binary:binary-jessie
-MAINTAINER Jakub Wierzbowski <jakub.a.wierzbowski@intel.com>
-
-RUN mkdir -p /opt/app /opt/app/catalogData/
-RUN mkdir -p /opt/app /opt/app/basicCatalogData/
-ADD entrypoint.sh /sbin
-ADD application/tap-template-repository /opt/app
-ADD catalogData/ /opt/app/basicCatalogData/
-
-RUN chmod +x /sbin/entrypoint.sh
-RUN chmod +x /opt/app/tap-template-repository
-
-WORKDIR /opt/app/
-
-EXPOSE 80
-
-ENTRYPOINT ["/sbin/entrypoint.sh"]
-CMD [""]
+cp -Rv /opt/app/basicCatalogData/* /opt/app/catalogData/
+exec /opt/app/tap-template-repository
