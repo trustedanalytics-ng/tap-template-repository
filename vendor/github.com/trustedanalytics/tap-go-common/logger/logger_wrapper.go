@@ -16,8 +16,9 @@
 package logger_wrapper
 
 import (
-	"github.com/op/go-logging"
 	"os"
+
+	"github.com/op/go-logging"
 )
 
 var logLevelStr = os.Getenv("BROKER_LOG_LEVEL")
