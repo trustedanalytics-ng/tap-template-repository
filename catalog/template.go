@@ -203,13 +203,15 @@ func (t *Template) AddAndRegisterCustomTemplate(template model.Template) error {
 
 func (t *Template) RemoveAndUnregisterCustomTemplate(templateId string) (int, error) {
 	if strings.Contains(templateId, "..") {
-		return http.StatusBadRequest, errors.New("Illegal templateId")
+		return http.StatusBadRequest, errors.New("illegal templateId")
 	}
 	templateFile := CustomTemplatesDir + templateId
 	if templateMeta := t.GetTemplateMetadataById(templateId); templateMeta != nil {
 		if templateMeta.TemplateDirName != CustomTemplateDirName {
 			return http.StatusForbidden, fmt.Errorf("removing template %s is forbidden", templateId)
 		}
+	} else {
+		return http.StatusNotFound, fmt.Errorf("there is no template %q", templateId)
 	}
 	err := os.RemoveAll(templateFile)
 	if err != nil {
