@@ -46,6 +46,8 @@ const (
 	PLACEHOLDER_CEPH_MONITORS    = "ceph_monitors"
 	PLACEHOLDER_CEPH_POOL        = "ceph_pool"
 	PLACEHOLDER_CEPH_FS_TYPE     = "ceph_fs_type"
+
+	PLACEHOLDER_CREATED_BY	= "created_by"
 )
 
 func GetPlaceholderWithDollarPrefix(placeholder string) string {
