@@ -10,7 +10,11 @@
         "containers": [
           {
             "imagePullPolicy": "IfNotPresent",
-            "resources": {},
+            "resources": {
+                "limits": {
+                    "memory": "$memory_limit"
+                }
+            },
             "env": [
               {
                 "value": "1.0",

@@ -19,10 +19,11 @@ const (
 	PLACEHOLDER_ORG   = "org"
 	PLACEHOLDER_SPACE = "space"
 
-	PLACEHOLDER_DOMAIN_NAME = "domain_name"
-	PLACEHOLDER_IMAGE       = "image"
-	PLACEHOLDER_HOSTNAME    = "hostname"
-	PLACEHOLDER_EXTRA_ENVS  = "extra_envs"
+	PLACEHOLDER_DOMAIN_NAME  = "domain_name"
+	PLACEHOLDER_IMAGE        = "image"
+	PLACEHOLDER_HOSTNAME     = "hostname"
+	PLACEHOLDER_EXTRA_ENVS   = "extra_envs"
+	PLACEHOLDER_MEMORY_LIMIT = "memory_limit"
 
 	PLACEHOLDER_INSTANCE_NAME             = "instance_name"
 	PLACEHOLDER_INSTANCE_ID               = "instance_id"
