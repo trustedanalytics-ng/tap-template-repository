@@ -25,7 +25,7 @@
                 "name": "MANAGED_BY"
               },
               {
-                "value": 80,
+                "value": "80",
                 "name": "PORT"
               }
             ],
