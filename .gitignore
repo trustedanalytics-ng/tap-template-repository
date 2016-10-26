@@ -1,8 +1,6 @@
 .idea
 *.iml
 application/*
-*mock_test.go
-*mock.go
 /temp/
 tap-template-repository
 /catalogData/custom

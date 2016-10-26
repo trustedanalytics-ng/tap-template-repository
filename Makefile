@@ -60,11 +60,9 @@ build_anywhere: prepare_dirs
 	cp -RL ./tap-template-repository ./application/tap-template-repository
 	rm -Rf ./temp
 
-install_mockgen:
-	scripts/install_mockgen.sh
-
-mock_update: install_mockgen
+mock_update:
 	$(GOBIN)/mockgen -source=catalog/template.go -package=catalog -destination=catalog/template_mock.go
+	./add_license.sh
 
-test: verify_gopath  mock_update
+test: verify_gopath
 	go test --cover $(APP_DIR_LIST)
