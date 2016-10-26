@@ -17,20 +17,31 @@
 package api
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"testing"
 
 	"github.com/gocraft/web"
-
-	"encoding/json"
-
 	"github.com/golang/mock/gomock"
 	"github.com/smartystreets/goconvey/convey"
+
 	"github.com/trustedanalytics/tap-template-repository/catalog"
 	"github.com/trustedanalytics/tap-template-repository/model"
 	TestUtils "github.com/trustedanalytics/tap-template-repository/test"
 )
+
+const (
+	templateId   string = "test"
+	templatePath string = "path"
+	instanceId   string = "a5740d8a-9f4b-4711-a1a0-eae62db54474"
+)
+
+var rawTemplate = model.RawTemplate{model.RAW_TEMPLATE_ID_FIELD: templateId}
+var template = model.Template{
+	Id: templateId,
+}
 
 func prepareMocksAndRouter(t *testing.T) (router *web.Router, c Context, templateMock *catalog.MockTemplateApi) {
 	mockCtrl := gomock.NewController(t)
@@ -48,34 +59,30 @@ func TestTemplates(t *testing.T) {
 	convey.Convey("Test Templates", t, func() {
 		convey.Convey("No templates available", func() {
 			gomock.InOrder(
-				templateMock.EXPECT().GetAvailableTemplates().Return(make(map[string]*model.TemplateMetadata)),
+				templateMock.EXPECT().GetAvailableTemplates().Return(make(map[string]string)),
 			)
 			response := TestUtils.SendRequest("GET", "/api/v1/templates", nil, router)
 			TestUtils.AssertResponse(response, "[]", 200)
 		})
 		convey.Convey("Template retrieval failed", func() {
-			availableTemplates := make(map[string]*model.TemplateMetadata)
-			availableTemplates["test"] = &model.TemplateMetadata{Id: "templateId"}
+			availableTemplates := make(map[string]string)
+			availableTemplates[templateId] = templatePath
 			gomock.InOrder(
 				templateMock.EXPECT().GetAvailableTemplates().Return(availableTemplates),
-				templateMock.EXPECT().GetRawTemplate(availableTemplates["test"], gomock.Any()).Return(model.Template{}, errors.New("failed")),
+				templateMock.EXPECT().GetRawTemplate(availableTemplates[templateId]).Return(rawTemplate, errors.New("failed")),
 			)
 			response := TestUtils.SendRequest("GET", "/api/v1/templates", nil, router)
 			TestUtils.AssertResponse(response, "failed", 500)
 		})
 		convey.Convey("All avialable templates successfully retrieved", func() {
-			availableTemplates := make(map[string]*model.TemplateMetadata)
-			availableTemplates["test"] = &model.TemplateMetadata{Id: "templateId"}
+			availableTemplates := make(map[string]string)
+			availableTemplates[templateId] = templatePath
 			gomock.InOrder(
 				templateMock.EXPECT().GetAvailableTemplates().Return(availableTemplates),
-				templateMock.EXPECT().GetRawTemplate(availableTemplates["test"], gomock.Any()).Return(model.Template{Id: "templateId"}, nil),
+				templateMock.EXPECT().GetRawTemplate(availableTemplates[templateId]).Return(rawTemplate, nil),
 			)
 			response := TestUtils.SendRequest("GET", "/api/v1/templates", nil, router)
-			var templates []model.Template
-			json.Unmarshal(response.Body.Bytes(), &templates)
-			convey.So(len(templates), convey.ShouldEqual, 1)
-			convey.So(templates[0].Id, convey.ShouldEqual, "templateId")
-			convey.So(response.Code, convey.ShouldEqual, 200)
+			TestUtils.AssertResponse(response, templateId, 200)
 		})
 	})
 }
@@ -86,7 +93,7 @@ func TestGenerateParsedTemplate(t *testing.T) {
 
 	convey.Convey("Test Generate Parsed Template", t, func() {
 		convey.Convey("No templateId provided", func() {
-			response := TestUtils.SendRequest("GET", "/api/v1/parsed_template//?instanceId=a5740d8a-9f4b-4711-a1a0-eae62db54474", nil, router)
+			response := TestUtils.SendRequest("GET", fmt.Sprintf("/api/v1/parsed_template//?instanceId=%s", instanceId), nil, router)
 			TestUtils.AssertResponse(response, "templateId can't be empty!", 400)
 		})
 		convey.Convey("No instanceId provided", func() {
@@ -95,36 +102,30 @@ func TestGenerateParsedTemplate(t *testing.T) {
 		})
 		convey.Convey("Template with templateId not found", func() {
 			gomock.InOrder(
-				templateMock.EXPECT().GetTemplateMetadataById("templateId").Return(nil),
+				templateMock.EXPECT().GetTemplatePath(templateId).Return(""),
 			)
-			response := TestUtils.SendRequest("GET", "/api/v1/parsed_template/templateId?instanceId=a5740d8a-9f4b-4711-a1a0-eae62db54474", nil, router)
-			TestUtils.AssertResponse(response, "Can't find template by id: templateId", 404)
+			response := TestUtils.SendRequest("GET", fmt.Sprintf("/api/v1/parsed_template/%s?instanceId=%s", templateId, instanceId), nil, router)
+			TestUtils.AssertResponse(response, "can't find template by id: "+templateId, 404)
 		})
 		convey.Convey("Getting parsed component failed", func() {
 			gomock.InOrder(
-				templateMock.EXPECT().GetTemplateMetadataById("templateId").Return(&model.TemplateMetadata{
-					Id:                  "templateId",
-					TemplateDirName:     "dir",
-					TemplatePlanDirName: "planDir",
-				}),
-				templateMock.EXPECT().GetParsedTemplate(gomock.Any(), gomock.Any(), gomock.Any()).Return(model.Template{Id: "templateId"}, errors.New("failed")),
+				templateMock.EXPECT().GetTemplatePath(templateId).Return(templatePath),
+				templateMock.EXPECT().GetRawTemplate(templatePath).Return(rawTemplate, nil),
+				templateMock.EXPECT().GetParsedTemplate(rawTemplate, gomock.Any()).Return(&model.Template{}, errors.New("failed")),
 			)
-			response := TestUtils.SendRequest("GET", "/api/v1/parsed_template/templateId?instanceId=a5740d8a-9f4b-4711-a1a0-eae62db54474", nil, router)
+			response := TestUtils.SendRequest("GET", fmt.Sprintf("/api/v1/parsed_template/%s?instanceId=%s", templateId, instanceId), nil, router)
 			TestUtils.AssertResponse(response, "failed", 500)
 		})
 		convey.Convey("Existing templateId provided", func() {
 			gomock.InOrder(
-				templateMock.EXPECT().GetTemplateMetadataById("templateId").Return(&model.TemplateMetadata{
-					Id:                  "templateId",
-					TemplateDirName:     "dir",
-					TemplatePlanDirName: "planDir",
-				}),
-				templateMock.EXPECT().GetParsedTemplate(gomock.Any(), gomock.Any(), gomock.Any()).Return(model.Template{Id: "templateId"}, nil),
+				templateMock.EXPECT().GetTemplatePath(templateId).Return(templatePath),
+				templateMock.EXPECT().GetRawTemplate(templatePath).Return(rawTemplate, nil),
+				templateMock.EXPECT().GetParsedTemplate(rawTemplate, gomock.Any()).Return(&model.Template{Id: templateId}, nil),
 			)
-			response := TestUtils.SendRequest("GET", "/api/v1/parsed_template/templateId?instanceId=a5740d8a-9f4b-4711-a1a0-eae62db54474", nil, router)
+			response := TestUtils.SendRequest("GET", fmt.Sprintf("/api/v1/parsed_template/%s?instanceId=%s", templateId, instanceId), nil, router)
 			var template model.Template
 			json.Unmarshal(response.Body.Bytes(), &template)
-			convey.So(template.Id, convey.ShouldEqual, "templateId")
+			convey.So(template.Id, convey.ShouldEqual, templateId)
 			convey.So(response.Code, convey.ShouldEqual, 200)
 		})
 
@@ -141,44 +142,38 @@ func TestCreateCustomTemplate(t *testing.T) {
 			TestUtils.AssertResponse(response, "invalid character", 500)
 		})
 		convey.Convey("Template without id", func() {
-			body := model.Template{}
-			body_bytes, _ := json.Marshal(body)
-			response := TestUtils.SendRequest("POST", "/api/v1/templates", body_bytes, router)
+			reqBody, _ := json.Marshal(model.RawTemplate{})
+			gomock.InOrder(
+				templateMock.EXPECT().GetParsedTemplate(gomock.Any(), gomock.Any()).Return(&model.Template{}, nil),
+			)
+			response := TestUtils.SendRequest("POST", "/api/v1/templates", reqBody, router)
 			TestUtils.AssertResponse(response, "templateId can't be empty!", 400)
 		})
 		convey.Convey("Template with id exists", func() {
-			body := model.Template{
-				Id: "templateId",
-			}
-			body_bytes, _ := json.Marshal(body)
+			body_bytes, _ := json.Marshal(template)
 			gomock.InOrder(
-				templateMock.EXPECT().GetTemplateMetadataById("templateId").Return(&model.TemplateMetadata{
-					Id: "templateId",
-				}),
+				templateMock.EXPECT().GetParsedTemplate(gomock.Any(), gomock.Any()).Return(&template, nil),
+				templateMock.EXPECT().GetAvailableTemplates().Return(map[string]string{templateId: "path to existing template"}),
 			)
 			response := TestUtils.SendRequest("POST", "/api/v1/templates", body_bytes, router)
 			convey.So(response.Code, convey.ShouldEqual, 409)
 		})
 		convey.Convey("Adding template fails", func() {
-			body := model.Template{
-				Id: "templateId",
-			}
-			body_bytes, _ := json.Marshal(body)
+			body_bytes, _ := json.Marshal(template)
 			gomock.InOrder(
-				templateMock.EXPECT().GetTemplateMetadataById("templateId").Return(nil),
-				templateMock.EXPECT().AddAndRegisterCustomTemplate(body).Return(errors.New("failed")),
+				templateMock.EXPECT().GetParsedTemplate(gomock.Any(), gomock.Any()).Return(&template, nil),
+				templateMock.EXPECT().GetAvailableTemplates().Return(make(map[string]string)),
+				templateMock.EXPECT().AddCustomTemplate(gomock.Any(), templateId).Return(errors.New("failed")),
 			)
 			response := TestUtils.SendRequest("POST", "/api/v1/templates", body_bytes, router)
 			TestUtils.AssertResponse(response, "failed", 500)
 		})
 		convey.Convey("Successfully added", func() {
-			body := model.Template{
-				Id: "templateId",
-			}
-			body_bytes, _ := json.Marshal(body)
+			body_bytes, _ := json.Marshal(template)
 			gomock.InOrder(
-				templateMock.EXPECT().GetTemplateMetadataById("templateId").Return(nil),
-				templateMock.EXPECT().AddAndRegisterCustomTemplate(body).Return(nil),
+				templateMock.EXPECT().GetParsedTemplate(gomock.Any(), gomock.Any()).Return(&template, nil),
+				templateMock.EXPECT().GetAvailableTemplates().Return(make(map[string]string)),
+				templateMock.EXPECT().AddCustomTemplate(gomock.Any(), templateId).Return(nil),
 			)
 			response := TestUtils.SendRequest("POST", "/api/v1/templates", body_bytes, router)
 			convey.So(response.Code, convey.ShouldEqual, 201)
@@ -186,48 +181,37 @@ func TestCreateCustomTemplate(t *testing.T) {
 	})
 }
 
-func TestGetCustomTemplate(t *testing.T) {
+func TestGetRawTemplate(t *testing.T) {
 	router, context, templateMock := prepareMocksAndRouter(t)
-	router.Get("/api/v1/templates/:templateId", context.GetCustomTemplate)
+	router.Get("/api/v1/templates/:templateId", context.GetRawTemplate)
 
-	convey.Convey("Test Get Custom Template", t, func() {
+	convey.Convey("Test Get Raw Template", t, func() {
 		convey.Convey("No template id provided", func() {
 			response := TestUtils.SendRequest("GET", "/api/v1/templates//", nil, router)
 			TestUtils.AssertResponse(response, "templateId can't be empty!", 400)
 		})
 		convey.Convey("Template does not exist", func() {
 			gomock.InOrder(
-				templateMock.EXPECT().GetTemplateMetadataById("templateId").Return(nil),
+				templateMock.EXPECT().GetTemplatePath(templateId).Return(""),
 			)
-			response := TestUtils.SendRequest("GET", "/api/v1/templates/templateId", nil, router)
-			TestUtils.AssertResponse(response, "Template doesn't exist!", 404)
+			response := TestUtils.SendRequest("GET", fmt.Sprintf("/api/v1/templates/%s", templateId), nil, router)
+			TestUtils.AssertResponse(response, "template doesn't exist!", 404)
 		})
 		convey.Convey("Error gettting template", func() {
-			templateMeta := model.TemplateMetadata{
-				Id: "templateId",
-			}
 			gomock.InOrder(
-				templateMock.EXPECT().GetTemplateMetadataById("templateId").Return(&templateMeta),
-				templateMock.EXPECT().GetRawTemplate(&templateMeta, gomock.Any()).Return(model.Template{}, errors.New("failed")),
+				templateMock.EXPECT().GetTemplatePath(templateId).Return(templatePath),
+				templateMock.EXPECT().GetRawTemplate(templatePath).Return(rawTemplate, errors.New("failed")),
 			)
-			response := TestUtils.SendRequest("GET", "/api/v1/templates/templateId", nil, router)
+			response := TestUtils.SendRequest("GET", fmt.Sprintf("/api/v1/templates/%s", templateId), nil, router)
 			TestUtils.AssertResponse(response, "failed", 500)
 		})
 		convey.Convey("Successfully retrieved template", func() {
-			templateMeta := model.TemplateMetadata{
-				Id: "templateId",
-			}
 			gomock.InOrder(
-				templateMock.EXPECT().GetTemplateMetadataById("templateId").Return(&templateMeta),
-				templateMock.EXPECT().GetRawTemplate(&templateMeta, gomock.Any()).Return(model.Template{
-					Id: "templateId",
-				}, nil),
+				templateMock.EXPECT().GetTemplatePath(templateId).Return(templatePath),
+				templateMock.EXPECT().GetRawTemplate(templatePath).Return(rawTemplate, nil),
 			)
-			response := TestUtils.SendRequest("GET", "/api/v1/templates/templateId", nil, router)
-			template := model.Template{}
-			json.Unmarshal(response.Body.Bytes(), &template)
-			convey.So(template.Id, convey.ShouldEqual, "templateId")
-			convey.So(response.Code, convey.ShouldEqual, 200)
+			response := TestUtils.SendRequest("GET", fmt.Sprintf("/api/v1/templates/%s", templateId), nil, router)
+			TestUtils.AssertResponse(response, templateId, 200)
 		})
 	})
 }
@@ -243,16 +227,16 @@ func TestDeleteCustomTemplate(t *testing.T) {
 		})
 		convey.Convey("Deletion failed", func() {
 			gomock.InOrder(
-				templateMock.EXPECT().RemoveAndUnregisterCustomTemplate("templateId").Return(http.StatusInternalServerError, errors.New("failed")),
+				templateMock.EXPECT().RemoveAndUnregisterCustomTemplate(templateId).Return(http.StatusInternalServerError, errors.New("failed")),
 			)
-			response := TestUtils.SendRequest("DELETE", "/api/v1/templates/templateId", nil, router)
+			response := TestUtils.SendRequest("DELETE", fmt.Sprintf("/api/v1/templates/%s", templateId), nil, router)
 			TestUtils.AssertResponse(response, "failed", 500)
 		})
 		convey.Convey("Successfully removed", func() {
 			gomock.InOrder(
-				templateMock.EXPECT().RemoveAndUnregisterCustomTemplate("templateId").Return(http.StatusNoContent, nil),
+				templateMock.EXPECT().RemoveAndUnregisterCustomTemplate(templateId).Return(http.StatusNoContent, nil),
 			)
-			response := TestUtils.SendRequest("DELETE", "/api/v1/templates/templateId", nil, router)
+			response := TestUtils.SendRequest("DELETE", fmt.Sprintf("/api/v1/templates/%s", templateId), nil, router)
 			convey.So(response.Code, convey.ShouldEqual, http.StatusNoContent)
 		})
 	})

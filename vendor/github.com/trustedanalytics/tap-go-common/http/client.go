@@ -25,12 +25,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/trustedanalytics/tap-go-common/logger"
+	commonLogger "github.com/trustedanalytics/tap-go-common/logger"
 )
 
 const MaxIdleconnetionPerHost int = 20
 
-var logger = logger_wrapper.InitLogger("http")
+var logger, _ = commonLogger.InitLogger("http")
+
+func SetLoggerLevel(level string) error {
+	return commonLogger.SetLoggerLevel(logger, level)
+}
 
 func GetHttpClientWithCertAndCa(certPem, keyPem, caPem string) (*http.Client, *http.Transport, error) {
 	cert, ca, err := getCertKeyAndCa(certPem, keyPem, caPem)

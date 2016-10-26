@@ -25,21 +25,18 @@ import (
 	"github.com/gocraft/web"
 
 	httpGoCommon "github.com/trustedanalytics/tap-go-common/http"
-	"github.com/trustedanalytics/tap-go-common/logger"
 	"github.com/trustedanalytics/tap-template-repository/api"
 	"github.com/trustedanalytics/tap-template-repository/catalog"
 )
 
 type appHandler func(web.ResponseWriter, *web.Request) error
 
-var logger = logger_wrapper.InitLogger("main")
-
 func main() {
 	rand.Seed(time.Now().UnixNano())
 	context := api.Context{
-		Template: &catalog.Template{},
+		TemplateApi: &catalog.TemplateApiConnector{},
 	}
-	context.Template.LoadAvailableTemplates()
+	context.TemplateApi.GetTemplatesPaths()
 
 	r := web.New(context)
 	r.Middleware(web.LoggerMiddleware)
@@ -63,7 +60,7 @@ func main() {
 func route(router *web.Router, context *api.Context) {
 	router.Middleware((*context).BasicAuthorizeMiddleware)
 	router.Get("/templates", (*context).Templates)
-	router.Get("/templates/:templateId", (*context).GetCustomTemplate)
+	router.Get("/templates/:templateId", (*context).GetRawTemplate)
 	router.Get("/parsed_template/:templateId", (*context).GenerateParsedTemplate)
 
 	//TODO: change to jwtRouter after UAA integration

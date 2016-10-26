@@ -15,7 +15,7 @@ run: build_anywhere
 	./application/tap-template-repository
 
 run-local: build
-	PORT=8083 TEMPLATE_REPOSITORY_USER=admin TEMPLATE_REPOSITORY_PASS=password ${GOPATH}/bin/tap-template-repository
+	BROKER_LOG_LEVEL=DEBUG PORT=8083 TEMPLATE_REPOSITORY_USER=admin TEMPLATE_REPOSITORY_PASS=password ${GOPATH}/bin/tap-template-repository
 
 docker_build: build_anywhere
 	docker build -t tap-template-repository .

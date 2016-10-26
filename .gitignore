@@ -5,3 +5,4 @@ application/*
 *mock.go
 /temp/
 tap-template-repository
+/catalogData/custom

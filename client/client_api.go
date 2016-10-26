@@ -30,8 +30,8 @@ import (
 
 type TemplateRepository interface {
 	GenerateParsedTemplate(templateId, uuid string, replacements map[string]string) (model.Template, error)
-	CreateTemplate(template model.Template) (int, error)
-	GetTemplate(templateId string) (model.Template, int, error)
+	CreateTemplate(template model.RawTemplate) (int, error)
+	GetRawTemplate(templateId string) (model.RawTemplate, int, error)
 	DeleteTemplate(templateId string) (int, error)
 	GetTemplateRepositoryHealth() error
 }
@@ -88,7 +88,7 @@ func (t *TemplateRepositoryConnector) GenerateParsedTemplate(templateId, uuid st
 	return template, nil
 }
 
-func (t *TemplateRepositoryConnector) CreateTemplate(template model.Template) (int, error) {
+func (t *TemplateRepositoryConnector) CreateTemplate(template model.RawTemplate) (int, error) {
 	url := fmt.Sprintf("%s/api/v1/templates", t.Address)
 
 	b, err := json.Marshal(&template)
@@ -107,23 +107,23 @@ func (t *TemplateRepositoryConnector) CreateTemplate(template model.Template) (i
 	return status, nil
 }
 
-func (t *TemplateRepositoryConnector) GetTemplate(templateId string) (model.Template, int, error) {
-	template := model.Template{}
+func (t *TemplateRepositoryConnector) GetRawTemplate(templateId string) (model.RawTemplate, int, error) {
+	rawTemplate := model.RawTemplate{}
 
 	url := fmt.Sprintf("%s/api/v1/templates/%s", t.Address, templateId)
 	auth := brokerHttp.BasicAuth{t.Username, t.Password}
 	status, body, err := brokerHttp.RestGET(url, brokerHttp.GetBasicAuthHeader(&auth), t.Client)
 	if err != nil {
-		return template, status, err
+		return rawTemplate, status, err
 	} else if status != http.StatusOK {
-		return template, status, errors.New("Bad response status: " + strconv.Itoa(status))
+		return rawTemplate, status, errors.New("Bad response status: " + strconv.Itoa(status))
 	}
 
-	if err = json.Unmarshal(body, &template); err != nil {
-		return template, http.StatusInternalServerError, err
+	if err = json.Unmarshal(body, &rawTemplate); err != nil {
+		return rawTemplate, http.StatusInternalServerError, err
 	}
 
-	return template, http.StatusOK, nil
+	return rawTemplate, http.StatusOK, nil
 }
 
 func (t *TemplateRepositoryConnector) DeleteTemplate(templateId string) (int, error) {

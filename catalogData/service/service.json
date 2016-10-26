@@ -1,9 +1,0 @@
-{
-  "id": "2a7f03b2-e1b1-4ca7-a049-c9b183bb5f15",
-  "name": "service",
-  "description": "User-provided service template",
-  "bindable": false,
-  "tags": [
-    "k8s"
-  ]
-}

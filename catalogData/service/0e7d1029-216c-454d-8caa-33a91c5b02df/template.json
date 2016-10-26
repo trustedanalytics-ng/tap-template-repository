@@ -1,0 +1,153 @@
+{
+  "id": "0e7d1029-216c-454d-8caa-33a91c5b02df",
+  "body": {
+    "componentType": "instance",
+    "persistentVolumeClaims": null,
+    "deployments": [
+      {
+        "kind": "Deployment",
+        "apiVersion": "extensions/v1beta1",
+        "metadata": {
+          "name": "$idx_and_short_instance_id",
+          "creationTimestamp": null,
+          "labels": {
+            "idx_and_short_instance_id": "$idx_and_short_instance_id",
+            "instance_id": "$instance_id",
+            "managed_by": "TAP",
+            "org": "$org",
+            "space": "$space"
+          }
+        },
+        "spec": {
+          "replicas": 1,
+          "selector": {
+            "matchLabels": {
+              "idx_and_short_instance_id": "$idx_and_short_instance_id",
+              "instance_id": "$instance_id"
+            }
+          },
+          "template": {
+            "metadata": {
+              "creationTimestamp": null,
+              "labels": {
+                "idx_and_short_instance_id": "$idx_and_short_instance_id",
+                "instance_id": "$instance_id",
+                "managed_by": "TAP"
+              }
+            },
+            "spec": {
+              "volumes": null,
+              "containers": [
+                {
+                  "name": "app",
+                  "image": "$image",
+                  "ports": [
+                    {
+                      "containerPort": 80,
+                      "protocol": "TCP"
+                    }
+                  ],
+                  "env": [
+                    {
+                      "name": "VERSION",
+                      "value": "1.0"
+                    },
+                    {
+                      "name": "MANAGED_BY",
+                      "value": "TAP"
+                    },
+                    {
+                      "value": "80",
+                      "name": "PORT"
+                    }
+                  ],
+                  "resources": {},
+                  "imagePullPolicy": "IfNotPresent"
+                }
+              ],
+              "restartPolicy": "Always",
+              "dnsPolicy": "ClusterFirst",
+              "serviceAccountName": ""
+            }
+          },
+          "strategy": {}
+        },
+        "status": {}
+      }
+    ],
+    "ingresses": [
+      {
+        "kind": "Ingress",
+        "apiVersion": "extensions/v1beta1",
+        "metadata": {
+          "name": "$idx_and_short_instance_id",
+          "creationTimestamp": null,
+          "labels": {
+            "idx_and_short_instance_id": "$idx_and_short_instance_id",
+            "instance_id": "$instance_id",
+            "managed_by": "TAP"
+          }
+        },
+        "spec": {
+          "rules": [
+            {
+              "host": "$hostname.$domain_name",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "backend": {
+                      "serviceName": "$idx_and_short_instance_id",
+                      "servicePort": 80
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      }
+    ],
+    "services": [
+      {
+        "kind": "Service",
+        "apiVersion": "v1",
+        "metadata": {
+          "name": "$idx_and_short_instance_id",
+          "creationTimestamp": null,
+          "labels": {
+            "idx_and_short_instance_id": "$idx_and_short_instance_id",
+            "instance_id": "$instance_id",
+            "managed_by": "TAP",
+            "org": "$org",
+            "space": "$space"
+          }
+        },
+        "spec": {
+          "type": "NodePort",
+          "ports": [
+            {
+              "name": "rest",
+              "protocol": "TCP",
+              "port": 80,
+              "targetPort": 0,
+              "nodePort": 0
+            }
+          ],
+          "selector": {
+            "instance_id": "$instance_id"
+          }
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      }
+    ],
+    "serviceAccounts": null,
+    "secrets": null
+  },
+  "hooks": null
+}
