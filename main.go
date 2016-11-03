@@ -18,8 +18,6 @@ package main
 
 import (
 	"math/rand"
-
-	"os"
 	"time"
 
 	"github.com/gocraft/web"
@@ -48,13 +46,7 @@ func main() {
 	v1AliasRouter := r.Subrouter(context, "/api/v1.0")
 	route(v1AliasRouter, &context)
 
-	if os.Getenv("TEMPLATE_REPOSITORY_SSL_CERT_FILE_LOCATION") != "" {
-		httpGoCommon.StartServerTLS(os.Getenv("TEMPLATE_REPOSITORY_SSL_CERT_FILE_LOCATION"),
-			os.Getenv("TEMPLATE_REPOSITORY_SSL_KEY_FILE_LOCATION"), r)
-	} else {
-		httpGoCommon.StartServer(r)
-	}
-
+	httpGoCommon.StartServer(r)
 }
 
 func route(router *web.Router, context *api.Context) {
