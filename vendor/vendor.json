@@ -3,60 +3,6 @@
 	"ignore": "test",
 	"package": [
 		{
-			"checksumSHA1": "3TujGA+BBh89yCW+88qGNWXxIAU=",
-			"path": "github.com/dvsekhvalnov/jose2go",
-			"revision": "6387d3c1f5abd8443b223577d5a7e0f4e0e5731f",
-			"revisionTime": "2015-08-16T20:43:22Z"
-		},
-		{
-			"checksumSHA1": "X38qrRzL+rPyO4xZhm16ftyLkXs=",
-			"path": "github.com/dvsekhvalnov/jose2go/aes",
-			"revision": "6387d3c1f5abd8443b223577d5a7e0f4e0e5731f",
-			"revisionTime": "2015-08-16T20:43:22Z"
-		},
-		{
-			"checksumSHA1": "RbRzJ9jDZJnCUKbJJy7e2OSTUro=",
-			"path": "github.com/dvsekhvalnov/jose2go/arrays",
-			"revision": "6387d3c1f5abd8443b223577d5a7e0f4e0e5731f",
-			"revisionTime": "2015-08-16T20:43:22Z"
-		},
-		{
-			"checksumSHA1": "uQqU76qm0Q57HnnCEp56r43jGaU=",
-			"path": "github.com/dvsekhvalnov/jose2go/base64url",
-			"revision": "6387d3c1f5abd8443b223577d5a7e0f4e0e5731f",
-			"revisionTime": "2015-08-16T20:43:22Z"
-		},
-		{
-			"checksumSHA1": "h/QQYYL/tuXhe8ELZvyk1wKrZz4=",
-			"path": "github.com/dvsekhvalnov/jose2go/compact",
-			"revision": "6387d3c1f5abd8443b223577d5a7e0f4e0e5731f",
-			"revisionTime": "2015-08-16T20:43:22Z"
-		},
-		{
-			"checksumSHA1": "gjXFjcEV/LZG4U/lgm/CVYvvWOg=",
-			"path": "github.com/dvsekhvalnov/jose2go/kdf",
-			"revision": "6387d3c1f5abd8443b223577d5a7e0f4e0e5731f",
-			"revisionTime": "2015-08-16T20:43:22Z"
-		},
-		{
-			"checksumSHA1": "o1OtVBn2DVAG07K6teBpkUNjqkM=",
-			"path": "github.com/dvsekhvalnov/jose2go/keys/ecc",
-			"revision": "6387d3c1f5abd8443b223577d5a7e0f4e0e5731f",
-			"revisionTime": "2015-08-16T20:43:22Z"
-		},
-		{
-			"checksumSHA1": "AhnyKaCixeAWWKH+UWFP/4S6zNI=",
-			"path": "github.com/dvsekhvalnov/jose2go/keys/rsa",
-			"revision": "6387d3c1f5abd8443b223577d5a7e0f4e0e5731f",
-			"revisionTime": "2015-08-16T20:43:22Z"
-		},
-		{
-			"checksumSHA1": "gAEKTUiQk9JoMonf1G508SXpLw4=",
-			"path": "github.com/dvsekhvalnov/jose2go/padding",
-			"revision": "6387d3c1f5abd8443b223577d5a7e0f4e0e5731f",
-			"revisionTime": "2015-08-16T20:43:22Z"
-		},
-		{
 			"checksumSHA1": "XZ/RQf9rdLpFHKhstEckOpGqsOU=",
 			"path": "github.com/gocraft/web",
 			"revision": "054fd625232f8041af2c88320633047eb0574dc0",
