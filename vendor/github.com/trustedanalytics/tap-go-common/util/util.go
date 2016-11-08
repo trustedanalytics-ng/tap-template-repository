@@ -89,6 +89,14 @@ func WriteJson(rw web.ResponseWriter, response interface{}, status_code int) err
 	return nil
 }
 
+func WriteJsonOrError(rw web.ResponseWriter, response interface{}, status int, err error) error {
+	if status >= 400  {
+		GenericRespond(status, rw, err)
+		return err
+	}
+	return WriteJson(rw, response, status)
+}
+
 func Respond500(rw web.ResponseWriter, err error) {
 	GenericRespond(http.StatusInternalServerError, rw, err)
 }

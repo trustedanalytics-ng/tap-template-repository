@@ -51,14 +51,6 @@ func NewTemplateRepositoryBasicAuth(address, username, password string) (*Templa
 	return &TemplateRepositoryConnector{address, username, password, client}, nil
 }
 
-func NewTemplateRepositoryCa(address, username, password, certPemFile, keyPemFile, caPemFile string) (*TemplateRepositoryConnector, error) {
-	client, _, err := brokerHttp.GetHttpClientWithCertAndCaFromFile(certPemFile, keyPemFile, caPemFile)
-	if err != nil {
-		return nil, err
-	}
-	return &TemplateRepositoryConnector{address, username, password, client}, nil
-}
-
 func (t *TemplateRepositoryConnector) GenerateParsedTemplate(templateId, uuid string,
 	replacements map[string]string) (model.Template, error) {
 
