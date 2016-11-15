@@ -138,7 +138,7 @@ func (t *TemplateRepositoryConnector) GetTemplateRepositoryHealth() error {
 	auth := brokerHttp.BasicAuth{t.Username, t.Password}
 	status, _, err := brokerHttp.RestGET(url, brokerHttp.GetBasicAuthHeader(&auth), t.Client)
 	if status != http.StatusOK {
-		err = errors.New("Invalid health status: " + string(status))
+		err = errors.New("Invalid health status: " + strconv.Itoa(status))
 	}
 	return err
 }
