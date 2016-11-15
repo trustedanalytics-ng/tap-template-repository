@@ -93,15 +93,15 @@ func (_mr *_MockTemplateApiRecorder) RemoveAndUnregisterCustomTemplate(arg0 inte
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "RemoveAndUnregisterCustomTemplate", arg0)
 }
 
-func (_m *MockTemplateApi) GetParsedTemplate(rawTemplate model.RawTemplate, additionalReplacements map[string]string) (*model.Template, error) {
-	ret := _m.ctrl.Call(_m, "GetParsedTemplate", rawTemplate, additionalReplacements)
+func (_m *MockTemplateApi) GetParsedTemplate(rawTemplate model.RawTemplate, additionalReplacements map[string]string, planName string) (*model.Template, error) {
+	ret := _m.ctrl.Call(_m, "GetParsedTemplate", rawTemplate, additionalReplacements, planName)
 	ret0, _ := ret[0].(*model.Template)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-func (_mr *_MockTemplateApiRecorder) GetParsedTemplate(arg0, arg1 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetParsedTemplate", arg0, arg1)
+func (_mr *_MockTemplateApiRecorder) GetParsedTemplate(arg0, arg1, arg2 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetParsedTemplate", arg0, arg1, arg2)
 }
 
 func (_m *MockTemplateApi) GetRawTemplate(templatePath string) (model.RawTemplate, error) {

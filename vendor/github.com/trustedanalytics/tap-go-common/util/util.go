@@ -90,7 +90,7 @@ func WriteJson(rw web.ResponseWriter, response interface{}, status_code int) err
 }
 
 func WriteJsonOrError(rw web.ResponseWriter, response interface{}, status int, err error) error {
-	if status >= 400  {
+	if status >= 400 {
 		GenericRespond(status, rw, err)
 		return err
 	}

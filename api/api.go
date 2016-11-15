@@ -53,6 +53,7 @@ func (c *Context) Templates(rw web.ResponseWriter, req *web.Request) {
 func (c *Context) GenerateParsedTemplate(rw web.ResponseWriter, req *web.Request) {
 	templateId := req.PathParams["templateId"]
 	instanceId := req.URL.Query().Get("instanceId")
+	planName := req.URL.Query().Get("planName")
 
 	err := validateTemplateId(templateId)
 	if err != nil {
@@ -78,7 +79,7 @@ func (c *Context) GenerateParsedTemplate(rw web.ResponseWriter, req *web.Request
 		return
 	}
 
-	template, err := c.TemplateApi.GetParsedTemplate(rawTemplate, prepareReplacements(req.URL.Query(), instanceId))
+	template, err := c.TemplateApi.GetParsedTemplate(rawTemplate, prepareReplacements(req.URL.Query(), instanceId), planName)
 	if err != nil {
 		util.Respond500(rw, err)
 		return
@@ -106,7 +107,7 @@ func (c *Context) CreateCustomTemplate(rw web.ResponseWriter, req *web.Request) 
 		return
 	}
 
-	template, err := c.TemplateApi.GetParsedTemplate(rawTemplate, prepareReplacements(req.URL.Query(), "fake-test-instance-id"))
+	template, err := c.TemplateApi.GetParsedTemplate(rawTemplate, prepareReplacements(req.URL.Query(), "fake-test-instance-id"), model.EMPTY_PLAN_NAME)
 	if err != nil {
 		util.Respond400(rw, err)
 		return

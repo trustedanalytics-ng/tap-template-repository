@@ -16,9 +16,12 @@
 package catalog
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/smartystreets/goconvey/convey"
+	"k8s.io/kubernetes/pkg/api"
+	"k8s.io/kubernetes/pkg/apis/extensions"
 
 	"github.com/trustedanalytics/tap-go-common/util"
 	"github.com/trustedanalytics/tap-template-repository/model"
@@ -72,4 +75,45 @@ func TestAdjustParams(t *testing.T) {
 			convey.So(response, convey.ShouldEqual, `{"pass": "cGFzc3dvcmQ="}`)
 		})
 	})
+}
+
+func TestFilterByPlanName(t *testing.T) {
+	const planA = "plan-a"
+	const planB = "plan-b"
+	const notExistingPlan = "not-exist"
+
+	template := model.Template{
+		Body: model.KubernetesComponent{
+			Deployments: []*extensions.Deployment{
+				{ObjectMeta: getObjectMetaWithPlanNamesInAnnotation([]string{planA, planB})},
+				{ObjectMeta: getObjectMetaWithPlanNamesInAnnotation([]string{planA})},
+				{ObjectMeta: getObjectMetaWithPlanNamesInAnnotation([]string{model.EMPTY_PLAN_NAME})},
+				{},
+			},
+		},
+	}
+
+	convey.Convey("Test filterByPlanName method", t, func() {
+		convey.Convey("Should returns all plans with specific name", func() {
+			response := filterByPlanName(template, planA)
+			convey.So(len(response.Body.Deployments), convey.ShouldEqual, 4)
+
+			response = filterByPlanName(template, planB)
+			convey.So(len(response.Body.Deployments), convey.ShouldEqual, 3)
+
+			response = filterByPlanName(template, model.EMPTY_PLAN_NAME)
+			convey.So(len(response.Body.Deployments), convey.ShouldEqual, 4)
+
+			response = filterByPlanName(template, notExistingPlan)
+			convey.So(len(response.Body.Deployments), convey.ShouldEqual, 2)
+		})
+	})
+}
+
+func getObjectMetaWithPlanNamesInAnnotation(planNames []string) api.ObjectMeta {
+	meta := api.ObjectMeta{
+		Annotations: make(map[string]string),
+	}
+	meta.Annotations[model.PLAN_NAMES_ANNOTATION] = strings.Join(planNames, ",")
+	return meta
 }

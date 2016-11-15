@@ -46,7 +46,7 @@ type TemplateApi interface {
 	GetTemplatesPaths()
 	AddCustomTemplate(rawTemplate model.RawTemplate, templateId string) error
 	RemoveAndUnregisterCustomTemplate(templateId string) (int, error)
-	GetParsedTemplate(rawTemplate model.RawTemplate, additionalReplacements map[string]string) (*model.Template, error)
+	GetParsedTemplate(rawTemplate model.RawTemplate, additionalReplacements map[string]string, planName string) (*model.Template, error)
 	GetRawTemplate(templatePath string) (model.RawTemplate, error)
 }
 
@@ -168,11 +168,12 @@ func (t *TemplateApiConnector) RemoveAndUnregisterCustomTemplate(templateId stri
 	return http.StatusNoContent, nil
 }
 
-func (t *TemplateApiConnector) GetParsedTemplate(rawTemplate model.RawTemplate, additionalReplacements map[string]string) (*model.Template, error) {
+func (t *TemplateApiConnector) GetParsedTemplate(rawTemplate model.RawTemplate, additionalReplacements map[string]string, planName string) (*model.Template, error) {
 	result := &model.Template{}
 
 	rawTemplateByte, err := json.Marshal(&rawTemplate)
 	if err != nil {
+		logger.Error("Marshal rawTemplate error:", err)
 		return result, err
 	}
 
@@ -187,7 +188,7 @@ func (t *TemplateApiConnector) GetParsedTemplate(rawTemplate model.RawTemplate, 
 		result.Body.Type = model.ComponentTypeInstance
 	}
 
-	return result, nil
+	return filterByPlanName(*result, planName), nil
 }
 
 func (t *TemplateApiConnector) GetRawTemplate(templatePath string) (model.RawTemplate, error) {

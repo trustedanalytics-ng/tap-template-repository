@@ -17,14 +17,14 @@
 package util
 
 import (
-	"os"
-	"fmt"
 	"errors"
+	"fmt"
+	"os"
 )
 
 func GetConnectionAddressFromEnvs(componentName string) (address string, err error) {
-	hostEnvName := componentName+"_HOST"
-	portEnvName := componentName+"_PORT"
+	hostEnvName := componentName + "_HOST"
+	portEnvName := componentName + "_PORT"
 
 	var errorArray []error
 
@@ -47,8 +47,8 @@ func GetConnectionAddressFromEnvs(componentName string) (address string, err err
 }
 
 func GetConnectionCredentialsFromEnvs(componentName string) (username, password string, err error) {
-	userEnvName := componentName+"_USER"
-	passEnvName := componentName+"_PASS"
+	userEnvName := componentName + "_USER"
+	passEnvName := componentName + "_PASS"
 
 	var errorArray []error
 
@@ -87,10 +87,10 @@ func GetConnectionParametersFromEnv(componentName string) (address, username, pa
 	return
 }
 
-func GetEnvOrError(envName string) (string, error){
+func GetEnvOrError(envName string) (string, error) {
 	value := os.Getenv(envName)
 	if value == "" {
-		return value, errors.New(envName+" not set!")
+		return value, errors.New(envName + " not set!")
 	}
 	return value, nil
 }

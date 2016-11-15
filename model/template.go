@@ -31,7 +31,12 @@ const (
 	HookTypeRemoval     HookType = "removal"
 )
 
-const RAW_TEMPLATE_ID_FIELD = "id"
+const (
+	RAW_TEMPLATE_ID_FIELD = "id"
+
+	PLAN_NAMES_ANNOTATION = "plan_names"
+	EMPTY_PLAN_NAME       = ""
+)
 
 type RawTemplate map[string]interface{}
 

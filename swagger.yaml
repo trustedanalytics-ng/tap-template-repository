@@ -86,6 +86,11 @@ paths:
           description: Instance ID (used to replace fields in template; has to be > 14 chars)
           required: true
           type: string
+        - name: planName
+          in: query
+          description: PlanName is used to filter KubernetesComponents in Template
+          required: false
+          type: string
       responses:
         200:
           description: Returned parsed template successfully

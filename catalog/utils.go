@@ -25,6 +25,9 @@ import (
 	"strconv"
 	"strings"
 
+	"k8s.io/kubernetes/pkg/api"
+	"k8s.io/kubernetes/pkg/apis/extensions"
+
 	"github.com/trustedanalytics/tap-go-common/util"
 	"github.com/trustedanalytics/tap-template-repository/model"
 )
@@ -87,4 +90,77 @@ func saveTemplateInFile(path, fileName string, file []byte) error {
 		return err
 	}
 	return nil
+}
+
+func filterByPlanName(template model.Template, planName string) *model.Template {
+	deployments := []*extensions.Deployment{}
+	for _, deployment := range template.Body.Deployments {
+		if shouldComponentBeAttached(deployment.ObjectMeta, planName) {
+			deployments = append(deployments, deployment)
+		}
+	}
+	template.Body.Deployments = deployments
+
+	ingresses := []*extensions.Ingress{}
+	for _, ingress := range template.Body.Ingresses {
+		if shouldComponentBeAttached(ingress.ObjectMeta, planName) {
+			ingresses = append(ingresses, ingress)
+		}
+	}
+	template.Body.Ingresses = ingresses
+
+	services := []*api.Service{}
+	for _, service := range template.Body.Services {
+		if shouldComponentBeAttached(service.ObjectMeta, planName) {
+			services = append(services, service)
+		}
+	}
+	template.Body.Services = services
+
+	serviceAccounts := []*api.ServiceAccount{}
+	for _, serviceAccount := range template.Body.ServiceAccounts {
+		if shouldComponentBeAttached(serviceAccount.ObjectMeta, planName) {
+			serviceAccounts = append(serviceAccounts, serviceAccount)
+		}
+	}
+	template.Body.ServiceAccounts = serviceAccounts
+
+	secrets := []*api.Secret{}
+	for _, secret := range template.Body.Secrets {
+		if shouldComponentBeAttached(secret.ObjectMeta, planName) {
+			secrets = append(secrets, secret)
+		}
+	}
+	template.Body.Secrets = secrets
+
+	claims := []*api.PersistentVolumeClaim{}
+	for _, pvc := range template.Body.PersistentVolumeClaims {
+		if shouldComponentBeAttached(pvc.ObjectMeta, planName) {
+			claims = append(claims, pvc)
+		}
+	}
+	template.Body.PersistentVolumeClaims = claims
+
+	return &template
+}
+
+func shouldComponentBeAttached(meta api.ObjectMeta, planName string) bool {
+	if planName == "" {
+		return true
+	}
+
+	if value, exist := meta.Annotations[model.PLAN_NAMES_ANNOTATION]; exist {
+		if value == "" {
+			return true
+		}
+
+		for _, plan := range strings.Split(value, ",") {
+			if planName == plan {
+				return true
+			}
+		}
+	} else {
+		return true
+	}
+	return false
 }
