@@ -87,16 +87,14 @@ func (c *Context) GenerateParsedTemplate(rw web.ResponseWriter, req *web.Request
 }
 
 func prepareReplacements(query url.Values, instanceId string) map[string]string {
-	additionalReplacements := make(map[string]string)
-	additionalReplacements[model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_INSTANCE_ID)] = instanceId
-	additionalReplacements[model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_DOMAIN_NAME)] = os.Getenv("DOMAIN")
-	additionalReplacements[model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_ORG)] = "defaultOrg"
-	additionalReplacements[model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_SPACE)] = "defaultSpace"
-
+	replacements := make(map[string]string)
+	replacements[model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_INSTANCE_ID)] = instanceId
+	replacements[model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_DOMAIN_NAME)] = os.Getenv("DOMAIN")
 	for key, _ := range query {
-		additionalReplacements["$"+key] = query.Get(key)
+		replacements["$"+key] = query.Get(key)
 	}
-	return additionalReplacements
+
+	return model.GetMapWithDefaultReplacementsIfKeyNotExists(replacements)
 }
 
 func (c *Context) CreateCustomTemplate(rw web.ResponseWriter, req *web.Request) {
