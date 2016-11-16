@@ -23,7 +23,6 @@ There is no requirements for binary app.
 * binaries are available in ./application/
 
 ### USAGE
-
 To build and run project:
 
 ```
@@ -36,13 +35,28 @@ To build and run project:
 Template repository provides few endpoints
 
 #### Creating new template 
-
+It is expected that your template will be added to catalogData/custom folder.
 ```
   curl -v -XPOST -H 'Content-type: application/json' admin:password@localhost:8082/api/v1/templates -d "@examples/add_template_with_body.json"
 ```
 
-It is expected that your template will be added to catalogData/custom folder
-You can also validate through endpoint that template has been added.
+##### Rules
+Every KubernetesComponent element must have following labels:
+* "instance_id": "$instance_id",
+* "managed_by": "TAP",
+
+##### Plans
+For multiple plans, every KubernetesComponent element should have info about supported plans in its annotations:
+* "plan_names": "free,paid"
+
+If there is no "plan_names" annotation or if its value is empty, then specific component will be used for every plan.
+
+##### Placeholders
+In KubernetesComponent definition user can use placeholders e.g.: $instance_name
+
+Full list of available placeholders: [model/placeholders.go](model/placeholders.go)
+
+#### Displaying all created templates
 To display all templates:
 
 ```
@@ -50,7 +64,6 @@ To display all templates:
 ```
 
 #### Displaying created template
-
 To display just one provide id:
 
 ```
@@ -58,10 +71,13 @@ To display just one provide id:
 ```
 
 #### Parsing created template
-
 You can also validate that parsing template will work if you provide query parameters.
 Each `$foo` will be replaced with `bar` if query param will have format `/parsed_template/:templateId?foo=bar`
-Template to be parsed requires instanceId in query param to be valid UUID
+
+Available query parameters:
+* [required] instanceId - has to to be valid UUID
+* planName
+* placeholders: [model/placeholders.go](model/placeholders.go)
 
 ```
   curl -v  admin:password@localhost:8082/api/v1/parsed_template/test1?idx_and_short_instance_id=NewValue&instanceId=27523a96-63a1-11e6-bc3a-00155d3d8807
@@ -76,7 +92,6 @@ As an output you should see something similar to:
 Please bear in mind that in order to have name compliant with kubernetes UUID will be truncated to proper DNS label
 
 #### Removing template
-
 Finally you can remove template with
 
 ```
