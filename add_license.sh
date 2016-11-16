@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#
 # Copyright (c) 2016 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 
+#!/bin/bash -x
 files=$(find  ./ -name *mock* |  grep -v vendor |  grep -v \.git)
 for f in $files; do
   echo $f
