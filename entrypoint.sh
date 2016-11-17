@@ -1,3 +1,4 @@
+#!/bin/bash
 #
 # Copyright (c) 2016 Intel Corporation
 #
@@ -14,6 +15,5 @@
 # limitations under the License.
 #
 
-#!/bin/bash
 cp -Rv /opt/app/basicCatalogData/* /opt/app/catalogData/
 exec /opt/app/tap-template-repository
