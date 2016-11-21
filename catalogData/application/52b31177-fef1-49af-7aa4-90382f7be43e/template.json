@@ -36,11 +36,56 @@
               }
             },
             "spec": {
-              "volumes": null,
+              "volumes": [
+                {
+                  "name": "$idx_and_short_instance_id-ca-pem-volume",
+                  "secret": {
+                    "secretName": "platform-ca-root-cert"
+                  }
+                },
+                {
+                  "name": "$idx_and_short_instance_id-ca-certificates-crt-volume",
+                  "secret": {
+                    "secretName": "platform-ca-roots-bundle"
+                  }
+                },
+                {
+                  "name": "$idx_and_short_instance_id-hashed-ca-volume",
+                  "secret": {
+                    "secretName": "platform-ca-root-cert-hashed"
+                  }
+                },
+                {
+                  "name": "$idx_and_short_instance_id-certkey-volume",
+                  "secret": {
+                    "secretName": "$idx_and_short_instance_id-certkey"
+                  }
+                }
+              ],
               "containers": [
                 {
                   "name": "app",
                   "image": "$image",
+                  "volumeMounts": [
+                    {
+                      "name": "$idx_and_short_instance_id-ca-pem-volume",
+                      "mountPath": "/etc/ssl/certs/ca.pem",
+                      "subPath": "ca.pem",
+                      "readOnly": true
+                    },
+                    {
+                      "name": "$idx_and_short_instance_id-ca-certificates-crt-volume",
+                      "mountPath": "/etc/ssl/certs/ca-certificates.crt",
+                      "subPath": "ca-certificates.crt",
+                      "readOnly": true
+                    },
+                    {
+                      "name": "$idx_and_short_instance_id-hashed-ca-volume",
+                      "mountPath": "/etc/ssl/certs/$cert_hash.0",
+                      "subPath": "$cert_hash.0",
+                      "readOnly": true
+                    }
+                  ],
                   "ports": [
                     {
                       "containerPort": 80,
@@ -67,6 +112,23 @@
                     }
                   },
                   "imagePullPolicy": "IfNotPresent"
+                },
+                {
+                  "name": "nginx-ssl",
+                  "image": "127.0.0.1:30000/nginx-ssl",
+                  "volumeMounts": [
+                    {
+                      "name": "$idx_and_short_instance_id-certkey-volume",
+                      "mountPath": "/etc/nginx/ssl"
+                    }
+                  ],
+                  "ports": [
+                    {
+                      "containerPort": 443,
+                      "protocol": "TCP"
+                    }
+                  ],
+                  "imagePullPolicy": "Always"
                 }
               ],
               "restartPolicy": "Always",
@@ -89,6 +151,9 @@
             "idx_and_short_instance_id": "$idx_and_short_instance_id",
             "instance_id": "$instance_id",
             "managed_by": "TAP"
+          },
+          "annotations": {
+            "useSsl": "true"
           }
         },
         "spec": {
@@ -101,7 +166,7 @@
                     "path": "/",
                     "backend": {
                       "serviceName": "$idx_and_short_instance_id",
-                      "servicePort": 80
+                      "servicePort": 443
                     }
                   }
                 ]
@@ -136,6 +201,13 @@
               "name": "rest",
               "protocol": "TCP",
               "port": 80,
+              "targetPort": 0,
+              "nodePort": 0
+            },
+            {
+              "name": "rest-ssl",
+              "protocol": "TCP",
+              "port": 443,
               "targetPort": 0,
               "nodePort": 0
             }

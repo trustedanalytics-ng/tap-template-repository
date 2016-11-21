@@ -44,16 +44,18 @@ const (
 	PLACEHOLDER_SOURCE_OFFERING_ID    = "source_offering_id"
 	PLACEHOLDER_SOURCE_PLAN_ID_PREFIX = "source_plan_id-"
 
-	PLACEHOLDER_CEPH_USER        = "ceph_user"
-	PLACEHOLDER_CEPH_SECRET_NAME = "ceph_secret_name"
-	PLACEHOLDER_CEPH_MONITORS_LIST    = "ceph_monitors"
-	PLACEHOLDER_CEPH_POOL        = "ceph_pool"
-	PLACEHOLDER_CEPH_FS_TYPE     = "ceph_fs_type"
+	PLACEHOLDER_CEPH_USER          = "ceph_user"
+	PLACEHOLDER_CEPH_SECRET_NAME   = "ceph_secret_name"
+	PLACEHOLDER_CEPH_MONITORS_LIST = "ceph_monitors"
+	PLACEHOLDER_CEPH_POOL          = "ceph_pool"
+	PLACEHOLDER_CEPH_FS_TYPE       = "ceph_fs_type"
+
+	PLACEHOLDER_CERTIFICATE_HASH = "cert_hash"
 
 	PLACEHOLDER_CREATED_BY = "created_by"
-	defaultOrg = "00000000-0000-0000-0000-000000000000"
-	defaultMemoryLimit = "1Gi"
-	defaultSpace = "defaultSpace"
+	defaultOrg             = "00000000-0000-0000-0000-000000000000"
+	defaultMemoryLimit     = "1Gi"
+	defaultSpace           = "defaultSpace"
 )
 
 func GetPlaceholderWithDollarPrefix(placeholder string) string {
@@ -64,12 +66,12 @@ func GetPrefixedSourcePlanName(planName string) string {
 	return PLACEHOLDER_SOURCE_PLAN_ID_PREFIX + planName
 }
 
-func getDefaultReplacements() map[string]string{
+func getDefaultReplacements() map[string]string {
 	return map[string]string{
-		GetPlaceholderWithDollarPrefix(PLACEHOLDER_ORG): defaultOrg,
-		GetPlaceholderWithDollarPrefix(PLACEHOLDER_SPACE): defaultSpace,
+		GetPlaceholderWithDollarPrefix(PLACEHOLDER_ORG):                defaultOrg,
+		GetPlaceholderWithDollarPrefix(PLACEHOLDER_SPACE):              defaultSpace,
 		GetPlaceholderWithDollarPrefix(PLACEHOLDER_CEPH_MONITORS_LIST): "",
-		GetPlaceholderWithDollarPrefix(PLACEHOLDER_MEMORY_LIMIT): defaultMemoryLimit,
+		GetPlaceholderWithDollarPrefix(PLACEHOLDER_MEMORY_LIMIT):       defaultMemoryLimit,
 	}
 }
 
