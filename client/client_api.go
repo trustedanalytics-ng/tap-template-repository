@@ -25,8 +25,14 @@ import (
 	"strconv"
 
 	brokerHttp "github.com/trustedanalytics/tap-go-common/http"
+	commonLogger "github.com/trustedanalytics/tap-go-common/logger"
 	"github.com/trustedanalytics/tap-template-repository/model"
 )
+
+var logger, _ = commonLogger.InitLogger("catalog")
+
+// 130 000 is almost 128k of characters
+const MaxQueryParamsLength = 130000
 
 type TemplateRepository interface {
 	GenerateParsedTemplate(templateId, uuid, planName string, replacements map[string]string) (model.Template, int, error)
@@ -60,6 +66,10 @@ func (t *TemplateRepositoryConnector) GenerateParsedTemplate(templateId, uuid, p
 	if len(replacements) > 0 {
 		params := url.Values{}
 		for key, value := range replacements {
+			if len(params.Encode()+url.QueryEscape(key)+url.QueryEscape(value)) > MaxQueryParamsLength {
+				logger.Warning("Replacements are too big - some of them will be omitted!")
+				break
+			}
 			params.Add(key, value)
 		}
 		address = fmt.Sprintf("%s&%s", address, params.Encode())
