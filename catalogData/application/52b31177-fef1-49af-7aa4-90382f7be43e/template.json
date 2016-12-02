@@ -115,7 +115,7 @@
                 },
                 {
                   "name": "nginx-ssl",
-                  "image": "127.0.0.1:30000/nginx-ssl:1.0.0",
+                  "image": "127.0.0.1:30000/$nginx_ssl_name",
                   "volumeMounts": [
                     {
                       "name": "$idx_and_short_instance_id-certkey-volume",
