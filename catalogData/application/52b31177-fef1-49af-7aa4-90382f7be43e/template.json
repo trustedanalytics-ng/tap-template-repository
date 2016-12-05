@@ -104,6 +104,10 @@
                     {
                       "value": "80",
                       "name": "PORT"
+                    },
+                    {
+                      "name": "ORG",
+                      "value": "$org"
                     }
                   ],
                   "resources": {
