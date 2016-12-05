@@ -60,6 +60,42 @@
                   "secret": {
                     "secretName": "$idx_and_short_instance_id-certkey"
                   }
+                },
+                {
+                  "name": "$idx_and_short_instance_id-hdfs-config-volume",
+                  "configMap": {
+                    "name": "hadoop-conf"
+                  }
+                },
+                {
+                  "name": "$idx_and_short_instance_id-hbase-config-volume",
+                  "configMap": {
+                    "name": "hbase-conf"
+                  }
+                },
+                {
+                  "name": "$idx_and_short_instance_id-hive-config-volume",
+                  "configMap": {
+                    "name": "hive-conf"
+                  }
+                },
+                {
+                  "name": "$idx_and_short_instance_id-yarn-config-volume",
+                  "configMap": {
+                    "name": "yarn-conf"
+                  }
+                },
+                {
+                  "name": "$idx_and_short_instance_id-kerberos-config-volume",
+                  "configMap": {
+                    "name": "kerberos-config"
+                  }
+                },
+                {
+                  "name": "$idx_and_short_instance_id-kerberos-cacert-volume",
+                  "secret": {
+                    "secretName": "kerberos-cacert"
+                  }
                 }
               ],
               "containers": [
@@ -83,6 +119,38 @@
                       "name": "$idx_and_short_instance_id-hashed-ca-volume",
                       "mountPath": "/etc/ssl/certs/$cert_hash.0",
                       "subPath": "$cert_hash.0",
+                      "readOnly": true
+                    },
+                    {
+                      "name": "$idx_and_short_instance_id-hdfs-config-volume",
+                      "mountPath": "/etc/hadoop",
+                      "readOnly": true
+                    },
+                    {
+                      "name": "$idx_and_short_instance_id-hbase-config-volume",
+                      "mountPath": "/etc/hbase",
+                      "readOnly": true
+                    },
+                    {
+                      "name": "$idx_and_short_instance_id-hive-config-volume",
+                      "mountPath": "/etc/hive",
+                      "readOnly": true
+                    },
+                    {
+                      "name": "$idx_and_short_instance_id-yarn-config-volume",
+                      "mountPath": "/etc/yarn",
+                      "readOnly": true
+                    },
+                    {
+                      "name": "$idx_and_short_instance_id-kerberos-config-volume",
+                      "mountPath": "/etc/krb5.conf",
+                      "subPath": "krb5.conf",
+                      "readOnly": true
+                    },
+                    {
+                      "name": "$idx_and_short_instance_id-kerberos-cacert-volume",
+                      "mountPath": "/etc/krb5.cacert.pem",
+                      "subPath": "krb5.cacert.pem",
                       "readOnly": true
                     }
                   ],
