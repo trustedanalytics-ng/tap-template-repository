@@ -54,7 +54,7 @@ func NewTemplateRepositoryBasicAuth(address, username, password string) (*Templa
 	if err != nil {
 		return nil, err
 	}
-	return &TemplateRepositoryConnector{address, username, password, client}, nil
+	return &TemplateRepositoryConnector{Address: address, Username: username, Password: password, Client: client}, nil
 }
 
 func (t *TemplateRepositoryConnector) GenerateParsedTemplate(templateId, uuid, planName string,
@@ -98,7 +98,7 @@ func (t *TemplateRepositoryConnector) CreateTemplate(template model.RawTemplate)
 		return 400, err
 	}
 
-	auth := brokerHttp.BasicAuth{t.Username, t.Password}
+	auth := brokerHttp.BasicAuth{User: t.Username, Password: t.Password}
 	status, _, err := brokerHttp.RestPOST(url, string(b), brokerHttp.GetBasicAuthHeader(&auth), t.Client)
 	if err != nil {
 		return status, err
@@ -113,7 +113,7 @@ func (t *TemplateRepositoryConnector) GetRawTemplate(templateId string) (model.R
 	rawTemplate := model.RawTemplate{}
 
 	url := fmt.Sprintf("%s/api/v1/templates/%s", t.Address, templateId)
-	auth := brokerHttp.BasicAuth{t.Username, t.Password}
+	auth := brokerHttp.BasicAuth{User: t.Username, Password: t.Password}
 	status, body, err := brokerHttp.RestGET(url, brokerHttp.GetBasicAuthHeader(&auth), t.Client)
 	if err != nil {
 		return rawTemplate, status, err
@@ -131,7 +131,7 @@ func (t *TemplateRepositoryConnector) GetRawTemplate(templateId string) (model.R
 func (t *TemplateRepositoryConnector) DeleteTemplate(templateId string) (int, error) {
 	url := fmt.Sprintf("%s/api/v1/templates/%s", t.Address, templateId)
 
-	auth := brokerHttp.BasicAuth{t.Username, t.Password}
+	auth := brokerHttp.BasicAuth{User: t.Username, Password: t.Password}
 	status, _, err := brokerHttp.RestDELETE(url, "", brokerHttp.GetBasicAuthHeader(&auth), t.Client)
 	if err != nil {
 		return status, err
@@ -145,7 +145,7 @@ func (t *TemplateRepositoryConnector) DeleteTemplate(templateId string) (int, er
 func (t *TemplateRepositoryConnector) GetTemplateRepositoryHealth() error {
 	url := fmt.Sprintf("%s/healthz", t.Address)
 
-	auth := brokerHttp.BasicAuth{t.Username, t.Password}
+	auth := brokerHttp.BasicAuth{User: t.Username, Password: t.Password}
 	status, _, err := brokerHttp.RestGET(url, brokerHttp.GetBasicAuthHeader(&auth), t.Client)
 	if status != http.StatusOK {
 		err = errors.New("Invalid health status: " + strconv.Itoa(status))

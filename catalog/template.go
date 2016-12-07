@@ -196,7 +196,7 @@ func (t *TemplateApiConnector) GetRawTemplate(templatePath string) (model.RawTem
 
 	rawFile, err := ioutil.ReadFile(templatePath)
 	if err != nil {
-		logger.Errorf("Error reading file: %s", templatePath, err)
+		logger.Errorf("Error reading file: %s, %v", templatePath, err)
 		return result, err
 	}
 

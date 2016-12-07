@@ -27,8 +27,6 @@ import (
 	"github.com/trustedanalytics/tap-template-repository/catalog"
 )
 
-type appHandler func(web.ResponseWriter, *web.Request) error
-
 func main() {
 	rand.Seed(time.Now().UnixNano())
 	context := api.Context{

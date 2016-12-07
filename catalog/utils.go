@@ -93,55 +93,73 @@ func saveTemplateInFile(path, fileName string, file []byte) error {
 }
 
 func filterByPlanName(template model.Template, planName string) *model.Template {
+	template.Body.Deployments = getDeploymentsForPlan(template.Body, planName)
+	template.Body.Ingresses = getIngressesForPlan(template.Body, planName)
+	template.Body.Services = getServicesForPlan(template.Body, planName)
+	template.Body.ServiceAccounts = getServiceAccountsForPlan(template.Body, planName)
+	template.Body.Secrets = getSecretsAccountsForPlan(template.Body, planName)
+	template.Body.PersistentVolumeClaims = getPersistentVolumeClaimsForPlan(template.Body, planName)
+
+	return &template
+}
+
+func getDeploymentsForPlan(k8sComponent model.KubernetesComponent, planName string) []*extensions.Deployment {
 	deployments := []*extensions.Deployment{}
-	for _, deployment := range template.Body.Deployments {
+	for _, deployment := range k8sComponent.Deployments {
 		if shouldComponentBeAttached(deployment.ObjectMeta, planName) {
 			deployments = append(deployments, deployment)
 		}
 	}
-	template.Body.Deployments = deployments
-
+	return deployments
+}
+func getIngressesForPlan(k8sComponent model.KubernetesComponent, planName string) []*extensions.Ingress {
 	ingresses := []*extensions.Ingress{}
-	for _, ingress := range template.Body.Ingresses {
+	for _, ingress := range k8sComponent.Ingresses {
 		if shouldComponentBeAttached(ingress.ObjectMeta, planName) {
 			ingresses = append(ingresses, ingress)
 		}
 	}
-	template.Body.Ingresses = ingresses
+	return ingresses
+}
 
+func getServicesForPlan(k8sComponent model.KubernetesComponent, planName string) []*api.Service {
 	services := []*api.Service{}
-	for _, service := range template.Body.Services {
+	for _, service := range k8sComponent.Services {
 		if shouldComponentBeAttached(service.ObjectMeta, planName) {
 			services = append(services, service)
 		}
 	}
-	template.Body.Services = services
+	return services
+}
 
+func getServiceAccountsForPlan(k8sComponent model.KubernetesComponent, planName string) []*api.ServiceAccount {
 	serviceAccounts := []*api.ServiceAccount{}
-	for _, serviceAccount := range template.Body.ServiceAccounts {
+	for _, serviceAccount := range k8sComponent.ServiceAccounts {
 		if shouldComponentBeAttached(serviceAccount.ObjectMeta, planName) {
 			serviceAccounts = append(serviceAccounts, serviceAccount)
 		}
 	}
-	template.Body.ServiceAccounts = serviceAccounts
+	return serviceAccounts
+}
 
+func getSecretsAccountsForPlan(k8sComponent model.KubernetesComponent, planName string) []*api.Secret {
 	secrets := []*api.Secret{}
-	for _, secret := range template.Body.Secrets {
+	for _, secret := range k8sComponent.Secrets {
 		if shouldComponentBeAttached(secret.ObjectMeta, planName) {
 			secrets = append(secrets, secret)
 		}
 	}
-	template.Body.Secrets = secrets
+	return secrets
+}
 
+func getPersistentVolumeClaimsForPlan(k8sComponent model.KubernetesComponent, planName string) []*api.PersistentVolumeClaim {
 	claims := []*api.PersistentVolumeClaim{}
-	for _, pvc := range template.Body.PersistentVolumeClaims {
+	for _, pvc := range k8sComponent.PersistentVolumeClaims {
 		if shouldComponentBeAttached(pvc.ObjectMeta, planName) {
 			claims = append(claims, pvc)
 		}
 	}
-	template.Body.PersistentVolumeClaims = claims
-
-	return &template
+	return claims
 }
 
 func shouldComponentBeAttached(meta api.ObjectMeta, planName string) bool {
