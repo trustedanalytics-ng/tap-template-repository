@@ -16,8 +16,8 @@
 package api
 
 import (
-	"testing"
 	. "github.com/smartystreets/goconvey/convey"
+	"testing"
 )
 
 func TestNewTemplateRepositoryBasicAuth(t *testing.T) {

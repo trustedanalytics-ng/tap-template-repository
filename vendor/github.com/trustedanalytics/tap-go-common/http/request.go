@@ -89,9 +89,9 @@ func makeRequest(reqType, url, body, contentType, authHeader string, client *htt
 	}
 
 	if resp.Header.Get("Content-Type") == "application/octet-stream" {
-		logger.Info("CODE:", ret_code, "BODY: [ Binary Data ]", resp.ContentLength)
+		logger.Debug("CODE:", ret_code, "BODY: [ Binary Data ]", resp.ContentLength)
 	} else {
-		logger.Info("CODE:", ret_code, "BODY:", string(data))
+		logger.Debug("CODE:", ret_code, "BODY:", string(data))
 	}
 
 	return ret_code, data, nil
@@ -146,6 +146,6 @@ func binaryStreamRequest(url, authHeader string, client *http.Client, dest io.Wr
 		return -1, err
 	}
 
-	logger.Info("CODE:", resp.StatusCode, "BODY: [ Binary Data ] Size:", resp.ContentLength)
+	logger.Debug("CODE:", resp.StatusCode, "BODY: [ Binary Data ] Size:", resp.ContentLength)
 	return resp.ContentLength, nil
 }

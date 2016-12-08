@@ -28,7 +28,7 @@ import (
 	commonLogger "github.com/trustedanalytics/tap-go-common/logger"
 )
 
-const MaxIdleconnetionPerHost int = 20
+const MaxIdleConnectionPerHost int = 20
 
 var logger, _ = commonLogger.InitLogger("http")
 
@@ -51,7 +51,7 @@ func GetHttpClientWithCertAndCa(certPem, keyPem, caPem string) (*http.Client, *h
 
 	transport := &http.Transport{
 		TLSClientConfig:     tlsConfig,
-		MaxIdleConnsPerHost: MaxIdleconnetionPerHost,
+		MaxIdleConnsPerHost: MaxIdleConnectionPerHost,
 	}
 
 	client := &http.Client{Transport: transport}
@@ -82,7 +82,7 @@ func GetHttpClientWithCertAndCaFromFile(certPemFile, keyPemFile, caPemFile strin
 
 	transport := &http.Transport{
 		TLSClientConfig:     tlsConfig,
-		MaxIdleConnsPerHost: MaxIdleconnetionPerHost,
+		MaxIdleConnsPerHost: MaxIdleConnectionPerHost,
 	}
 
 	client := &http.Client{Transport: transport}
@@ -103,7 +103,7 @@ func GetHttpClientWithCa(caPem string) (*http.Client, *http.Transport, error) {
 
 	transport := &http.Transport{
 		TLSClientConfig:     tlsConfig,
-		MaxIdleConnsPerHost: MaxIdleconnetionPerHost,
+		MaxIdleConnsPerHost: MaxIdleConnectionPerHost,
 	}
 
 	client := &http.Client{Transport: transport, Timeout: time.Duration(30 * time.Minute)}
@@ -111,6 +111,10 @@ func GetHttpClientWithCa(caPem string) (*http.Client, *http.Transport, error) {
 }
 
 func GetHttpClient() (*http.Client, *http.Transport, error) {
+	return GetHttpClientWithCustomConnectionLimit(MaxIdleConnectionPerHost)
+}
+
+func GetHttpClientWithCustomConnectionLimit(maxIdleConnectionPerHost int) (*http.Client, *http.Transport, error) {
 	tlsConfig := &tls.Config{
 		InsecureSkipVerify: IsInsecureSkipVerifyEnabled(),
 	}
@@ -118,7 +122,7 @@ func GetHttpClient() (*http.Client, *http.Transport, error) {
 
 	transport := &http.Transport{
 		TLSClientConfig:     tlsConfig,
-		MaxIdleConnsPerHost: MaxIdleconnetionPerHost,
+		MaxIdleConnsPerHost: maxIdleConnectionPerHost,
 	}
 
 	client := &http.Client{Transport: transport, Timeout: time.Duration(30 * time.Minute)}
