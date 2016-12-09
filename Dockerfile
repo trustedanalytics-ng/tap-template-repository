@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-FROM tapimages.us.enableiot.com:8080/tap-base-binary:binary-jessie
+FROM tapimages:8080/tap-base-binary:binary-jessie
 MAINTAINER Jakub Wierzbowski <jakub.a.wierzbowski@intel.com>
 
 RUN mkdir -p /opt/app /opt/app/catalogData/
