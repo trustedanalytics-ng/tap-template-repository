@@ -75,7 +75,7 @@ func (t *TemplateRepositoryConnector) GenerateParsedTemplate(templateId, uuid, p
 		address = fmt.Sprintf("%s&%s", address, params.Encode())
 	}
 
-	auth := brokerHttp.BasicAuth{t.Username, t.Password}
+	auth := brokerHttp.BasicAuth{User: t.Username, Password: t.Password}
 	status, body, err := brokerHttp.RestGET(address, brokerHttp.GetBasicAuthHeader(&auth), t.Client)
 	if err != nil {
 		return template, status, err
