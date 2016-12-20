@@ -15,6 +15,8 @@
  */
 package model
 
+import "os"
+
 const (
 	PLACEHOLDER_ORG   = "org"
 	PLACEHOLDER_SPACE = "space"
@@ -63,13 +65,21 @@ func GetPlaceholderWithDollarPrefix(placeholder string) string {
 	return "$" + placeholder
 }
 
+func getEnvPlaceholderOrDefault(placeholder, defaultValue string) (value string) {
+	value = os.Getenv(placeholder)
+	if value == "" {
+		return defaultValue
+	}
+	return
+}
+
 func GetPrefixedSourcePlanName(planName string) string {
 	return PLACEHOLDER_SOURCE_PLAN_ID_PREFIX + planName
 }
 
 func getDefaultReplacements() map[string]string {
 	return map[string]string{
-		GetPlaceholderWithDollarPrefix(PLACEHOLDER_ORG):                defaultOrg,
+		GetPlaceholderWithDollarPrefix(PLACEHOLDER_ORG):                getEnvPlaceholderOrDefault("CORE_ORGANIZATION_UUID", defaultOrg),
 		GetPlaceholderWithDollarPrefix(PLACEHOLDER_SPACE):              defaultSpace,
 		GetPlaceholderWithDollarPrefix(PLACEHOLDER_CEPH_MONITORS_LIST): "",
 		GetPlaceholderWithDollarPrefix(PLACEHOLDER_MEMORY_LIMIT):       defaultMemoryLimit,

@@ -92,6 +92,7 @@ func prepareReplacements(query url.Values, instanceId string) map[string]string 
 	replacements[model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_INSTANCE_ID)] = instanceId
 	replacements[model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_DOMAIN_NAME)] = os.Getenv("DOMAIN")
 	replacements[model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_NGINX_SSL_IMAGE_NAME)] = os.Getenv("NGINX_SSL_IMAGE_NAME")
+
 	for key, _ := range query {
 		replacements["$"+key] = query.Get(key)
 	}
