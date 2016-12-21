@@ -98,6 +98,7 @@ func filterByPlanName(template model.Template, planName string) *model.Template 
 	template.Body.Services = getServicesForPlan(template.Body, planName)
 	template.Body.ServiceAccounts = getServiceAccountsForPlan(template.Body, planName)
 	template.Body.Secrets = getSecretsAccountsForPlan(template.Body, planName)
+	template.Body.ConfigMaps = getConfigMapsAccountsForPlan(template.Body, planName)
 	template.Body.PersistentVolumeClaims = getPersistentVolumeClaimsForPlan(template.Body, planName)
 
 	return &template
@@ -150,6 +151,16 @@ func getSecretsAccountsForPlan(k8sComponent model.KubernetesComponent, planName 
 		}
 	}
 	return secrets
+}
+
+func getConfigMapsAccountsForPlan(k8sComponent model.KubernetesComponent, planName string) []*api.ConfigMap {
+	configMaps := []*api.ConfigMap{}
+	for _, configMap := range k8sComponent.ConfigMaps {
+		if shouldComponentBeAttached(configMap.ObjectMeta, planName) {
+			configMaps = append(configMaps, configMap)
+		}
+	}
+	return configMaps
 }
 
 func getPersistentVolumeClaimsForPlan(k8sComponent model.KubernetesComponent, planName string) []*api.PersistentVolumeClaim {
