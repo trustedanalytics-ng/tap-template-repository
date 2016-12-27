@@ -109,7 +109,9 @@ definitions:
       id:
         type: string
       body:
-        $ref: '#/definitions/KubernetesComponent'
+        type: array
+        items:
+          $ref: '#/definitions/KubernetesComponent'
       hooks:
         type: object
         additionalProperties:

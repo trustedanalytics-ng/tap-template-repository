@@ -1,6 +1,6 @@
 {
   "id": "0e7d1029-216c-454d-8caa-33a91c5b02df",
-  "body": {
+  "body": [{
     "componentType": "instance",
     "persistentVolumeClaims": null,
     "deployments": [
@@ -148,6 +148,6 @@
     ],
     "serviceAccounts": null,
     "secrets": null
-  },
+  }],
   "hooks": null
 }

@@ -184,8 +184,10 @@ func (t *TemplateApiConnector) GetParsedTemplate(rawTemplate model.RawTemplate, 
 		return result, err
 	}
 
-	if result.Body.Type == "" {
-		result.Body.Type = model.ComponentTypeInstance
+	for i, component := range result.Body {
+		if component.Type == "" {
+			result.Body[i].Type = model.ComponentTypeInstance
+		}
 	}
 
 	return filterByPlanName(*result, planName), nil

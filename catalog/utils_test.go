@@ -31,11 +31,11 @@ func TestAdjustParams(t *testing.T) {
 	instanceId := "test-instance-id"
 	properShortDnsName := util.UuidToShortDnsName(instanceId)
 
-	replacements := map[string]string{
-		model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_INSTANCE_ID): instanceId,
-	}
-
 	convey.Convey("Test adjustParams", t, func() {
+		replacements := map[string]string{
+			model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_INSTANCE_ID): instanceId,
+		}
+
 		convey.Convey("Test PLACEHOLDER_SHORT_INSTANCE_ID", func() {
 			content := model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_SHORT_INSTANCE_ID)
 			response := adjustParams(content, replacements)
@@ -82,30 +82,52 @@ func TestFilterByPlanName(t *testing.T) {
 	const planB = "plan-b"
 	const notExistingPlan = "not-exist"
 
-	template := model.Template{
-		Body: model.KubernetesComponent{
-			Deployments: []*extensions.Deployment{
-				{ObjectMeta: getObjectMetaWithPlanNamesInAnnotation([]string{planA, planB})},
-				{ObjectMeta: getObjectMetaWithPlanNamesInAnnotation([]string{planA})},
-				{ObjectMeta: getObjectMetaWithPlanNamesInAnnotation([]string{model.EMPTY_PLAN_NAME})},
-				{},
-			},
-		},
-	}
-
 	convey.Convey("Test filterByPlanName method", t, func() {
-		convey.Convey("Should returns all plans with specific name", func() {
+		template := model.Template{
+			Body: []model.KubernetesComponent{
+				{
+					Deployments: []*extensions.Deployment{
+						{ObjectMeta: getObjectMetaWithPlanNamesInAnnotation([]string{planA, planB})},
+						{ObjectMeta: getObjectMetaWithPlanNamesInAnnotation([]string{planA})},
+						{ObjectMeta: getObjectMetaWithPlanNamesInAnnotation([]string{model.EMPTY_PLAN_NAME})},
+						{},
+					},
+				},
+				{
+					Deployments: []*extensions.Deployment{
+						{ObjectMeta: getObjectMetaWithPlanNamesInAnnotation([]string{planA})},
+						{ObjectMeta: getObjectMetaWithPlanNamesInAnnotation([]string{model.EMPTY_PLAN_NAME})},
+					},
+				},
+			},
+		}
+
+		convey.Convey("Should return defaults deployments and deployments contaians specfic plan name", func() {
 			response := filterByPlanName(template, planA)
-			convey.So(len(response.Body.Deployments), convey.ShouldEqual, 4)
+			convey.So(len(response.Body), convey.ShouldEqual, 2)
+			convey.So(len(response.Body[0].Deployments), convey.ShouldEqual, 4)
+			convey.So(len(response.Body[1].Deployments), convey.ShouldEqual, 2)
+		})
 
-			response = filterByPlanName(template, planB)
-			convey.So(len(response.Body.Deployments), convey.ShouldEqual, 3)
+		convey.Convey("Should return defaults deployments and deployments contaians specfic plan name 2", func() {
+			response := filterByPlanName(template, planB)
+			convey.So(len(response.Body), convey.ShouldEqual, 2)
+			convey.So(len(response.Body[0].Deployments), convey.ShouldEqual, 3)
+			convey.So(len(response.Body[1].Deployments), convey.ShouldEqual, 1)
+		})
 
-			response = filterByPlanName(template, model.EMPTY_PLAN_NAME)
-			convey.So(len(response.Body.Deployments), convey.ShouldEqual, 4)
+		convey.Convey("Should return all deployments if plan name is empty", func() {
+			response := filterByPlanName(template, model.EMPTY_PLAN_NAME)
+			convey.So(len(response.Body), convey.ShouldEqual, 2)
+			convey.So(len(response.Body[0].Deployments), convey.ShouldEqual, 4)
+			convey.So(len(response.Body[1].Deployments), convey.ShouldEqual, 2)
+		})
 
-			response = filterByPlanName(template, notExistingPlan)
-			convey.So(len(response.Body.Deployments), convey.ShouldEqual, 2)
+		convey.Convey("Should return default deployments (with empty PLAN_NAMES_ANNOTATION) if incorrect plan name", func() {
+			response := filterByPlanName(template, notExistingPlan)
+			convey.So(len(response.Body), convey.ShouldEqual, 2)
+			convey.So(len(response.Body[0].Deployments), convey.ShouldEqual, 2)
+			convey.So(len(response.Body[1].Deployments), convey.ShouldEqual, 1)
 		})
 	})
 }

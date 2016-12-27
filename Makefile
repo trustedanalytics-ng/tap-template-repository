@@ -15,10 +15,12 @@
 
 GOBIN=$(GOPATH)/bin
 APP_DIR_LIST=$(shell go list ./... | grep -v /vendor/)
+APP_NAME=tap-template-repository
 
 build: verify_gopath
-	CGO_ENABLED=0 go install -tags netgo $(APP_DIR_LIST)
 	go fmt $(APP_DIR_LIST)
+	CGO_ENABLED=0 go install -tags netgo $(APP_DIR_LIST)
+	mkdir -p application && cp -f $(GOBIN)/$(APP_NAME) ./application/$(APP_NAME)
 
 verify_gopath:
 	@if [ -z "$(GOPATH)" ] || [ "$(GOPATH)" = "" ]; then\
@@ -59,7 +61,7 @@ deps_fetch_specific: bin/govendor
 
 deps_update_tap: verify_gopath
 	$(GOBIN)/govendor update github.com/trustedanalytics/...
-	rm -Rf vendor/github.com/trustedanalytics/tap-template-repository
+	$(GOBIN)/govendor remove github.com/trustedanalytics/$(APP_NAME)/...
 	@echo "Done"
 
 prepare_dirs:

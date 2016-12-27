@@ -93,14 +93,15 @@ func saveTemplateInFile(path, fileName string, file []byte) error {
 }
 
 func filterByPlanName(template model.Template, planName string) *model.Template {
-	template.Body.Deployments = getDeploymentsForPlan(template.Body, planName)
-	template.Body.Ingresses = getIngressesForPlan(template.Body, planName)
-	template.Body.Services = getServicesForPlan(template.Body, planName)
-	template.Body.ServiceAccounts = getServiceAccountsForPlan(template.Body, planName)
-	template.Body.Secrets = getSecretsAccountsForPlan(template.Body, planName)
-	template.Body.ConfigMaps = getConfigMapsAccountsForPlan(template.Body, planName)
-	template.Body.PersistentVolumeClaims = getPersistentVolumeClaimsForPlan(template.Body, planName)
-
+	for i, component := range template.Body {
+		template.Body[i].Deployments = getDeploymentsForPlan(component, planName)
+		template.Body[i].Ingresses = getIngressesForPlan(component, planName)
+		template.Body[i].Services = getServicesForPlan(component, planName)
+		template.Body[i].ServiceAccounts = getServiceAccountsForPlan(component, planName)
+		template.Body[i].Secrets = getSecretsAccountsForPlan(component, planName)
+		template.Body[i].ConfigMaps = getConfigMapsAccountsForPlan(component, planName)
+		template.Body[i].PersistentVolumeClaims = getPersistentVolumeClaimsForPlan(component, planName)
+	}
 	return &template
 }
 

@@ -19,6 +19,7 @@ package util
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -26,6 +27,7 @@ import (
 
 	"github.com/gocraft/web"
 
+	commonHttp "github.com/trustedanalytics/tap-go-common/http"
 	commonLogger "github.com/trustedanalytics/tap-go-common/logger"
 )
 
@@ -33,6 +35,15 @@ var logger, _ = commonLogger.InitLogger("api")
 
 type MessageResponse struct {
 	Message string `json:"message"`
+}
+
+func StringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
 }
 
 func UuidToShortDnsName(uuid string) string {
@@ -90,23 +101,28 @@ func WriteJson(rw web.ResponseWriter, response interface{}, status_code int) err
 }
 
 func WriteJsonOrError(rw web.ResponseWriter, response interface{}, status int, err error) error {
-	if status >= 400 {
-		GenericRespond(status, rw, err)
+	responseStatus := commonHttp.GetHttpStatusOrStatusError(status, err)
+	if responseStatus >= 400 {
+		GenericRespond(responseStatus, rw, err)
 		return err
 	}
-	return WriteJson(rw, response, status)
+	return WriteJson(rw, response, responseStatus)
 }
 
 func Respond500(rw web.ResponseWriter, err error) {
 	GenericRespond(http.StatusInternalServerError, rw, err)
 }
 
-func Respond404(rw web.ResponseWriter, err error) {
-	GenericRespond(http.StatusNotFound, rw, err)
-}
-
 func Respond400(rw web.ResponseWriter, err error) {
 	GenericRespond(http.StatusBadRequest, rw, err)
+}
+
+func Respond403(rw web.ResponseWriter) {
+	GenericRespond(http.StatusForbidden, rw, errors.New("Access Forbidden"))
+}
+
+func Respond404(rw web.ResponseWriter, err error) {
+	GenericRespond(http.StatusNotFound, rw, err)
 }
 
 func Respond409(rw web.ResponseWriter, err error) {
@@ -122,4 +138,18 @@ func RespondUnauthorized(rw web.ResponseWriter) {
 	rw.Header().Set("WWW-Authenticate", `Basic realm=""`)
 	rw.WriteHeader(401)
 	rw.Write([]byte("401 Unauthorized\n"))
+}
+
+//In order to get rid of reapeting 'return' statement all cases has to be handled in if{}else{}
+func HandleError(rw web.ResponseWriter, err error) {
+	logger.Debug("handling error", err)
+	if commonHttp.IsNotFoundError(err) {
+		Respond404(rw, err)
+	} else if commonHttp.IsAlreadyExistsError(err) || commonHttp.IsConflictError(err) {
+		Respond409(rw, err)
+	} else if commonHttp.IsBadRequestError(err) {
+		Respond400(rw, err)
+	} else {
+		Respond500(rw, err)
+	}
 }
