@@ -109,6 +109,7 @@ func (c *Context) CreateCustomTemplate(rw web.ResponseWriter, req *web.Request) 
 		return
 	}
 
+	//Validate if template can be properely parsed, use fake-test-instance-id as this is required during regular creation
 	template, err := c.TemplateApi.GetParsedTemplate(rawTemplate, prepareReplacements(req.URL.Query(), "fake-test-instance-id"), model.EMPTY_PLAN_NAME)
 	if err != nil {
 		util.Respond400(rw, err)
@@ -122,8 +123,7 @@ func (c *Context) CreateCustomTemplate(rw web.ResponseWriter, req *web.Request) 
 	}
 
 	if _, templateExist := c.TemplateApi.GetAvailableTemplates()[templateId]; templateExist {
-		logger.Errorf(fmt.Sprintf("Template with Id: %s already exists!", templateId))
-		util.WriteJson(rw, "", http.StatusConflict)
+		util.Respond409(rw, errors.New(fmt.Sprintf("Template with Id: %s already exists!", templateId)))
 		return
 	}
 
