@@ -37,22 +37,22 @@ var possibleRandDnsChars = []rune("abcdefghijklmnopqrstuvwxyz1234567890")
 
 func adjustParams(content string, replacements map[string]string) string {
 	for key, value := range replacements {
-		if key == model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_EXTRA_ENVS) {
+		if key == model.GetPlaceholderWithDollarPrefix(model.PlaceholderExtraEnvs) {
 			rawEscapedValue, _ := json.Marshal(value)
 			value = strings.Trim(string(rawEscapedValue), `"`)
 		}
 		content = strings.Replace(content, key, value, -1)
 	}
 
-	instanceId := replacements[model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_INSTANCE_ID)]
+	instanceId := replacements[model.GetPlaceholderWithDollarPrefix(model.PlaceholderInstanceID)]
 
 	properShortDnsName := util.UuidToShortDnsName(instanceId)
-	content = strings.Replace(content, model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_SHORT_INSTANCE_ID), properShortDnsName, -1)
-	content = strings.Replace(content, model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_IDX_AND_SHORT_INSTANCE_ID), properShortDnsName, -1)
+	content = strings.Replace(content, model.GetPlaceholderWithDollarPrefix(model.PlaceholderShortInstanceID), properShortDnsName, -1)
+	content = strings.Replace(content, model.GetPlaceholderWithDollarPrefix(model.PlaceholderIdxAndShortInstanceID), properShortDnsName, -1)
 
 	for i := 0; i < 9; i++ {
-		content = strings.Replace(content, model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_RANDOM)+strconv.Itoa(i), getRandomString(10, possibleRandChars), -1)
-		content = strings.Replace(content, model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_RANDOM_DNS)+strconv.Itoa(i), getRandomString(6, possibleRandDnsChars), -1)
+		content = strings.Replace(content, model.GetPlaceholderWithDollarPrefix(model.PlaceholderRandom)+strconv.Itoa(i), getRandomString(10, possibleRandChars), -1)
+		content = strings.Replace(content, model.GetPlaceholderWithDollarPrefix(model.PlaceholderRandomDNS)+strconv.Itoa(i), getRandomString(6, possibleRandDnsChars), -1)
 	}
 	return encodeByte64ToString(content)
 }

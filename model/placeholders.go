@@ -18,47 +18,46 @@ package model
 import "os"
 
 const (
-	PLACEHOLDER_ORG   = "org"
-	PLACEHOLDER_SPACE = "space"
+	PlaceholderOrg = "org"
+	PlaceholderSpace = "space"
 
-	PLACEHOLDER_DOMAIN_NAME          = "domain_name"
-	PLACEHOLDER_IMAGE                = "image"
-	PLACEHOLDER_HOSTNAME             = "hostname"
-	PLACEHOLDER_EXTRA_ENVS           = "extra_envs"
-	PLACEHOLDER_MEMORY_LIMIT         = "memory_limit"
-	PLACEHOLDER_NGINX_SSL_IMAGE_NAME = "nginx_ssl_name"
+	PlaceholderDomainName = "domain_name"
+	PlaceholderImage = "image"
+	PlaceholderHostname = "hostname"
+	PlaceholderExtraEnvs = "extra_envs"
+	PlaceholderMemoryLimit = "memory_limit"
+	PlaceholderNginxSSLImageName = "nginx_ssl_name"
 
-	PLACEHOLDER_INSTANCE_NAME = "instance_name"
-	PLACEHOLDER_INSTANCE_ID   = "instance_id"
+	PlaceholderInstanceName = "instance_name"
+	PlaceholderInstanceID = "instance_id"
 
 	//TODO this is obsolete and will be removed soon -> DPNG-12250
-	PLACEHOLDER_IDX_AND_SHORT_INSTANCE_ID = "idx_and_short_instance_id"
-	PLACEHOLDER_SHORT_INSTANCE_ID         = "short_instance_id"
-	PLACEHOLDER_BOUND_INSTANCE_ID         = "bound_instance_id"
+	PlaceholderIdxAndShortInstanceID = "idx_and_short_instance_id"
+	PlaceholderShortInstanceID = "short_instance_id"
+	PlaceholderBoundInstanceID = "bound_instance_id"
 
-	PLACEHOLDER_BROKER_SHORT_INSTANCE_ID = "broker_short_instance_id"
-	PLACEHOLDER_BROKER_INSTANCE_ID       = "broker_instance_id"
+	PlaceholderBrokerShortInstanceID = "broker_short_instance_id"
+	PlaceholderBrokerInstanceID = "broker_instance_id"
 
-	PLACEHOLDER_RANDOM     = "random"
-	PLACEHOLDER_RANDOM_DNS = "random_dns"
+	PlaceholderRandom = "random"
+	PlaceholderRandomDNS = "random_dns"
 
-	PLACEHOLDER_OFFERING_ID           = "offering_id"
-	PLACEHOLDER_PLAN_ID               = "plan_id"
-	PLACEHOLDER_SOURCE_OFFERING_ID    = "source_offering_id"
-	PLACEHOLDER_SOURCE_PLAN_ID_PREFIX = "source_plan_id-"
+	PlaceholderOfferingID = "offering_id"
+	PlaceholderPlanID = "plan_id"
+	PlaceholderSourceOfferingID = "source_offering_id"
+	PlaceholderSourcePlanIDPrefix = "source_plan_id-"
 
-	PLACEHOLDER_CEPH_USER          = "ceph_user"
-	PLACEHOLDER_CEPH_SECRET_NAME   = "ceph_secret_name"
-	PLACEHOLDER_CEPH_MONITORS_LIST = "ceph_monitors"
-	PLACEHOLDER_CEPH_POOL          = "ceph_pool"
-	PLACEHOLDER_CEPH_FS_TYPE       = "ceph_fs_type"
+	PlaceholderCertificateHash = "cert_hash"
 
-	PLACEHOLDER_CERTIFICATE_HASH = "cert_hash"
+	PlaceholderRepositoryUri = "repository_uri"
+	PlaceholderTapVersion    = "tap_version"
 
-	PLACEHOLDER_CREATED_BY = "created_by"
+	PlaceholderCreatedBy = "created_by"
 	defaultOrg             = "00000000-0000-0000-0000-000000000000"
 	defaultMemoryLimit     = "1Gi"
 	defaultSpace           = "defaultSpace"
+	defaultRepositoryUri   = "127.0.0.1:30000"
+	defaultTapVersion      = "latest"
 )
 
 func GetPlaceholderWithDollarPrefix(placeholder string) string {
@@ -74,15 +73,18 @@ func getEnvPlaceholderOrDefault(placeholder, defaultValue string) (value string)
 }
 
 func GetPrefixedSourcePlanName(planName string) string {
-	return PLACEHOLDER_SOURCE_PLAN_ID_PREFIX + planName
+	return PlaceholderSourcePlanIDPrefix + planName
 }
 
 func getDefaultReplacements() map[string]string {
 	return map[string]string{
-		GetPlaceholderWithDollarPrefix(PLACEHOLDER_ORG):                getEnvPlaceholderOrDefault("CORE_ORGANIZATION_UUID", defaultOrg),
-		GetPlaceholderWithDollarPrefix(PLACEHOLDER_SPACE):              defaultSpace,
-		GetPlaceholderWithDollarPrefix(PLACEHOLDER_CEPH_MONITORS_LIST): "",
-		GetPlaceholderWithDollarPrefix(PLACEHOLDER_MEMORY_LIMIT):       defaultMemoryLimit,
+		GetPlaceholderWithDollarPrefix(PlaceholderDomainName):        os.Getenv("DOMAIN"),
+		GetPlaceholderWithDollarPrefix(PlaceholderNginxSSLImageName): os.Getenv("NGINX_SSL_IMAGE_NAME"),
+		GetPlaceholderWithDollarPrefix(PlaceholderOrg):               getEnvPlaceholderOrDefault("CORE_ORGANIZATION_UUID", defaultOrg),
+		GetPlaceholderWithDollarPrefix(PlaceholderRepositoryUri):     getEnvPlaceholderOrDefault("REPOSITORY_URI",defaultRepositoryUri),
+		GetPlaceholderWithDollarPrefix(PlaceholderTapVersion):        getEnvPlaceholderOrDefault("TAP_VERSION", defaultTapVersion),
+		GetPlaceholderWithDollarPrefix(PlaceholderSpace):             defaultSpace,
+		GetPlaceholderWithDollarPrefix(PlaceholderMemoryLimit):       defaultMemoryLimit,
 	}
 }
 

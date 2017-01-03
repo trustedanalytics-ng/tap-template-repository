@@ -33,38 +33,38 @@ func TestAdjustParams(t *testing.T) {
 
 	convey.Convey("Test adjustParams", t, func() {
 		replacements := map[string]string{
-			model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_INSTANCE_ID): instanceId,
+			model.GetPlaceholderWithDollarPrefix(model.PlaceholderInstanceID): instanceId,
 		}
 
 		convey.Convey("Test PLACEHOLDER_SHORT_INSTANCE_ID", func() {
-			content := model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_SHORT_INSTANCE_ID)
+			content := model.GetPlaceholderWithDollarPrefix(model.PlaceholderShortInstanceID)
 			response := adjustParams(content, replacements)
 			convey.So(response, convey.ShouldEqual, properShortDnsName)
 		})
 
 		convey.Convey("Test PLACEHOLDER_IDX_AND_SHORT_INSTANCE_ID", func() {
-			content := model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_IDX_AND_SHORT_INSTANCE_ID)
+			content := model.GetPlaceholderWithDollarPrefix(model.PlaceholderIdxAndShortInstanceID)
 			response := adjustParams(content, replacements)
 			convey.So(response, convey.ShouldEqual, properShortDnsName)
 		})
 
 		convey.Convey("Test PLACEHOLDER_RANDOM missing index", func() {
-			content := model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_RANDOM)
+			content := model.GetPlaceholderWithDollarPrefix(model.PlaceholderRandom)
 			response := adjustParams(content, replacements)
 			convey.So(response, convey.ShouldEqual, content)
 		})
 
 		convey.Convey("Test PLACEHOLDER_RANDOM with index", func() {
-			content := model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_RANDOM) + "1"
+			content := model.GetPlaceholderWithDollarPrefix(model.PlaceholderRandom) + "1"
 			response := adjustParams(content, replacements)
 			convey.So(response, convey.ShouldNotEqual, content)
 		})
 
 		convey.Convey("Test PLACEHOLDER_EXTRA_ENVS", func() {
 			sampleValue := "sample value"
-			replacements[model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_EXTRA_ENVS)] = sampleValue
+			replacements[model.GetPlaceholderWithDollarPrefix(model.PlaceholderExtraEnvs)] = sampleValue
 
-			content := model.GetPlaceholderWithDollarPrefix(model.PLACEHOLDER_EXTRA_ENVS)
+			content := model.GetPlaceholderWithDollarPrefix(model.PlaceholderExtraEnvs)
 			response := adjustParams(content, replacements)
 			convey.So(response, convey.ShouldEqual, sampleValue)
 		})

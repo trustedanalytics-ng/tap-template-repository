@@ -38,27 +38,30 @@ func TestDefaultReplacements(t *testing.T) {
 			result = GetMapWithDefaultReplacementsIfKeyNotExists(result)
 
 			convey.Convey("Test PLACEHOLDER_ORG exists", func() {
-				convey.So(result[GetPlaceholderWithDollarPrefix(PLACEHOLDER_ORG)], convey.ShouldEqual, defaultOrg)
+				convey.So(result[GetPlaceholderWithDollarPrefix(PlaceholderOrg)], convey.ShouldEqual, defaultOrg)
 			})
 			convey.Convey("Test PLACEHOLDER_SPACE exists", func() {
-				convey.So(result[GetPlaceholderWithDollarPrefix(PLACEHOLDER_SPACE)], convey.ShouldEqual, defaultSpace)
-			})
-			convey.Convey("Test PLACEHOLDER_CEPH_MONITORS_LIST exists", func() {
-				convey.So(result[GetPlaceholderWithDollarPrefix(PLACEHOLDER_CEPH_MONITORS_LIST)], convey.ShouldEqual, "")
+				convey.So(result[GetPlaceholderWithDollarPrefix(PlaceholderSpace)], convey.ShouldEqual, defaultSpace)
 			})
 			convey.Convey("Test PLACEHOLDER_MEMORY_LIMIT exists", func() {
-				convey.So(result[GetPlaceholderWithDollarPrefix(PLACEHOLDER_MEMORY_LIMIT)], convey.ShouldEqual, defaultMemoryLimit)
+				convey.So(result[GetPlaceholderWithDollarPrefix(PlaceholderMemoryLimit)], convey.ShouldEqual, defaultMemoryLimit)
+			})
+			convey.Convey("Test PLACEHOLDER_TAP_VERSION exists", func() {
+				convey.So(result[GetPlaceholderWithDollarPrefix(PlaceholderTapVersion)], convey.ShouldEqual, defaultTapVersion)
+			})
+			convey.Convey("Test PLACEHOLDER_REPOSITORY_URI exists", func() {
+				convey.So(result[GetPlaceholderWithDollarPrefix(PlaceholderRepositoryUri)], convey.ShouldEqual, defaultRepositoryUri)
 			})
 		})
 		convey.Convey("Map with org defined will return map with defaults and defined org", func() {
 			result := make(map[string]string)
-			result[GetPlaceholderWithDollarPrefix(PLACEHOLDER_ORG)] = "myOrg"
+			result[GetPlaceholderWithDollarPrefix(PlaceholderOrg)] = "myOrg"
 			result = GetMapWithDefaultReplacementsIfKeyNotExists(result)
 			convey.Convey("Test PLACEHOLDER_ORG is myOrg", func() {
-				convey.So(result[GetPlaceholderWithDollarPrefix(PLACEHOLDER_ORG)], convey.ShouldEqual, "myOrg")
+				convey.So(result[GetPlaceholderWithDollarPrefix(PlaceholderOrg)], convey.ShouldEqual, "myOrg")
 			})
 			convey.Convey("Test PLACEHOLDER_SPACE exists", func() {
-				convey.So(result[GetPlaceholderWithDollarPrefix(PLACEHOLDER_SPACE)], convey.ShouldEqual, defaultSpace)
+				convey.So(result[GetPlaceholderWithDollarPrefix(PlaceholderSpace)], convey.ShouldEqual, defaultSpace)
 			})
 		})
 	})

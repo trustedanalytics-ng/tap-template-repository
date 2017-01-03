@@ -35,10 +35,9 @@ run-local: build
 	BROKER_LOG_LEVEL=DEBUG PORT=8083 TEMPLATE_REPOSITORY_USER=admin TEMPLATE_REPOSITORY_PASS=password ${GOPATH}/bin/tap-template-repository
 
 docker_build: build_anywhere
-	docker build -t tap-template-repository .
+	docker build -t $(REPOSITORY_URL)/tap-template-repository:latest .
 
 push_docker: docker_build
-	docker tag -f tap-template-repository $(REPOSITORY_URL)/tap-template-repository:latest
 	docker push $(REPOSITORY_URL)/tap-template-repository:latest
 
 kubernetes_deploy: docker_build
