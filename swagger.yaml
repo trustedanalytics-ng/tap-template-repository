@@ -65,8 +65,6 @@ paths:
       responses:
         204:
           description: Delete succeeded
-        400:
-          description: TemplateId is missing
         404:
           description: Template with templateId provided not found
         500:
