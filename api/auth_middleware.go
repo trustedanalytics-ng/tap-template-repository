@@ -21,7 +21,7 @@ import (
 
 	"github.com/gocraft/web"
 
-	"github.com/trustedanalytics/tap-go-common/util"
+	util "github.com/trustedanalytics/tap-go-common/http"
 )
 
 func (c *Context) BasicAuthorizeMiddleware(rw web.ResponseWriter, req *web.Request, next web.NextMiddlewareFunc) {

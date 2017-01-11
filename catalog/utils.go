@@ -28,7 +28,7 @@ import (
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 
-	"github.com/trustedanalytics/tap-go-common/util"
+	util "github.com/trustedanalytics/tap-go-common/http"
 	"github.com/trustedanalytics/tap-template-repository/model"
 )
 

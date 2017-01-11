@@ -27,7 +27,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/smartystreets/goconvey/convey"
 
-	"github.com/trustedanalytics/tap-go-common/util"
+	util  "github.com/trustedanalytics/tap-go-common/http"
 	"github.com/trustedanalytics/tap-template-repository/catalog"
 	"github.com/trustedanalytics/tap-template-repository/model"
 )

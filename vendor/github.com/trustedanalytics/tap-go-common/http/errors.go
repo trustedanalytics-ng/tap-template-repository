@@ -23,13 +23,15 @@ import (
 )
 
 const (
-	NotFound string = "not found"
-	AlreadyExists string = "already exists"
-	NotFoundEtcd string = "cannnot get key"
+	NotFound            string = "not found"
+	AlreadyExists       string = "already exists"
+	NotFoundEtcd        string = "cannnot get key"
 	ConflictCompareEtcd string = "Compare failed"
-	ConflictError string = "conflict"
-	EmptyField string = "is empty!"
-	CannotUnmarshal string = "cannot unmarshal"
+	ConflictError       string = "conflict"
+	EmptyField          string = "is empty!"
+	CannotUnmarshal     string = "cannot unmarshal"
+	CanNotBeChanged     string = "can not be changed!"
+	MustMatch           string = "must match"
 )
 
 func translateHttpErrorStatus(status int) int {
@@ -43,7 +45,9 @@ func translateHttpErrorStatus(status int) int {
 func IsBadRequestError(err error) bool {
 	return isErrorTypeStringInErrorMessage(EmptyField, err) ||
 		isErrorTypeStringInErrorMessage(ConflictCompareEtcd, err) ||
-		isErrorTypeStringInErrorMessage(CannotUnmarshal, err)
+		isErrorTypeStringInErrorMessage(CannotUnmarshal, err) ||
+		isErrorTypeStringInErrorMessage(CanNotBeChanged, err) ||
+		isErrorTypeStringInErrorMessage(MustMatch, err)
 
 }
 
@@ -74,7 +78,7 @@ func isErrorTypeStringInErrorMessage(errorType string, err error) bool {
 
 		// assure errorTypeString string is not part of another word
 		runeBefore, _ := utf8.DecodeLastRuneInString(errorMessage[:index])
-		runeAfter, _ := utf8.DecodeRuneInString(errorMessage[index + errorTypeStringLen:])
+		runeAfter, _ := utf8.DecodeRuneInString(errorMessage[index+errorTypeStringLen:])
 		if (runeBefore == utf8.RuneError || unicode.IsSpace(runeBefore)) && (runeAfter == utf8.RuneError || unicode.IsSpace(runeAfter)) {
 			return true
 		}

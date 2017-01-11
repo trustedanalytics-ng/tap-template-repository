@@ -15,36 +15,40 @@
  */
 package model
 
-import "os"
+import (
+	"os"
+
+	"github.com/trustedanalytics/tap-go-common/util"
+)
 
 const (
-	PlaceholderOrg = "org"
+	PlaceholderOrg   = "org"
 	PlaceholderSpace = "space"
 
-	PlaceholderDomainName = "domain_name"
-	PlaceholderImage = "image"
-	PlaceholderHostname = "hostname"
-	PlaceholderExtraEnvs = "extra_envs"
-	PlaceholderMemoryLimit = "memory_limit"
+	PlaceholderDomainName        = "domain_name"
+	PlaceholderImage             = "image"
+	PlaceholderHostname          = "hostname"
+	PlaceholderExtraEnvs         = "extra_envs"
+	PlaceholderMemoryLimit       = "memory_limit"
 	PlaceholderNginxSSLImageName = "nginx_ssl_name"
 
 	PlaceholderInstanceName = "instance_name"
-	PlaceholderInstanceID = "instance_id"
+	PlaceholderInstanceID   = "instance_id"
 
 	//TODO this is obsolete and will be removed soon -> DPNG-12250
 	PlaceholderIdxAndShortInstanceID = "idx_and_short_instance_id"
-	PlaceholderShortInstanceID = "short_instance_id"
-	PlaceholderBoundInstanceID = "bound_instance_id"
+	PlaceholderShortInstanceID       = "short_instance_id"
+	PlaceholderBoundInstanceID       = "bound_instance_id"
 
 	PlaceholderBrokerShortInstanceID = "broker_short_instance_id"
-	PlaceholderBrokerInstanceID = "broker_instance_id"
+	PlaceholderBrokerInstanceID      = "broker_instance_id"
 
-	PlaceholderRandom = "random"
+	PlaceholderRandom    = "random"
 	PlaceholderRandomDNS = "random_dns"
 
-	PlaceholderOfferingID = "offering_id"
-	PlaceholderPlanID = "plan_id"
-	PlaceholderSourceOfferingID = "source_offering_id"
+	PlaceholderOfferingID         = "offering_id"
+	PlaceholderPlanID             = "plan_id"
+	PlaceholderSourceOfferingID   = "source_offering_id"
 	PlaceholderSourcePlanIDPrefix = "source_plan_id-"
 
 	PlaceholderCertificateHash = "cert_hash"
@@ -53,23 +57,15 @@ const (
 	PlaceholderTapVersion    = "tap_version"
 
 	PlaceholderCreatedBy = "created_by"
-	defaultOrg             = "00000000-0000-0000-0000-000000000000"
-	defaultMemoryLimit     = "1Gi"
-	defaultSpace           = "defaultSpace"
-	defaultRepositoryUri   = "127.0.0.1:30000"
-	defaultTapVersion      = "latest"
+	defaultOrg           = "00000000-0000-0000-0000-000000000000"
+	defaultMemoryLimit   = "1Gi"
+	defaultSpace         = "defaultSpace"
+	defaultRepositoryUri = "127.0.0.1:30000"
+	defaultTapVersion    = "latest"
 )
 
 func GetPlaceholderWithDollarPrefix(placeholder string) string {
 	return "$" + placeholder
-}
-
-func getEnvPlaceholderOrDefault(placeholder, defaultValue string) (value string) {
-	value = os.Getenv(placeholder)
-	if value == "" {
-		return defaultValue
-	}
-	return
 }
 
 func GetPrefixedSourcePlanName(planName string) string {
@@ -80,9 +76,9 @@ func getDefaultReplacements() map[string]string {
 	return map[string]string{
 		GetPlaceholderWithDollarPrefix(PlaceholderDomainName):        os.Getenv("DOMAIN"),
 		GetPlaceholderWithDollarPrefix(PlaceholderNginxSSLImageName): os.Getenv("NGINX_SSL_IMAGE_NAME"),
-		GetPlaceholderWithDollarPrefix(PlaceholderOrg):               getEnvPlaceholderOrDefault("CORE_ORGANIZATION_UUID", defaultOrg),
-		GetPlaceholderWithDollarPrefix(PlaceholderRepositoryUri):     getEnvPlaceholderOrDefault("REPOSITORY_URI",defaultRepositoryUri),
-		GetPlaceholderWithDollarPrefix(PlaceholderTapVersion):        getEnvPlaceholderOrDefault("TAP_VERSION", defaultTapVersion),
+		GetPlaceholderWithDollarPrefix(PlaceholderOrg):               util.GetEnvValueOrDefault("CORE_ORGANIZATION_UUID", defaultOrg),
+		GetPlaceholderWithDollarPrefix(PlaceholderRepositoryUri):     util.GetEnvValueOrDefault("REPOSITORY_URI", defaultRepositoryUri),
+		GetPlaceholderWithDollarPrefix(PlaceholderTapVersion):        util.GetEnvValueOrDefault("TAP_VERSION", defaultTapVersion),
 		GetPlaceholderWithDollarPrefix(PlaceholderSpace):             defaultSpace,
 		GetPlaceholderWithDollarPrefix(PlaceholderMemoryLimit):       defaultMemoryLimit,
 	}
