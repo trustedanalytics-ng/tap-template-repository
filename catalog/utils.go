@@ -28,7 +28,7 @@ import (
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 
-	util "github.com/trustedanalytics/tap-go-common/http"
+	commonHttp "github.com/trustedanalytics/tap-go-common/http"
 	"github.com/trustedanalytics/tap-template-repository/model"
 )
 
@@ -46,7 +46,7 @@ func adjustParams(content string, replacements map[string]string) string {
 
 	instanceId := replacements[model.GetPlaceholderWithDollarPrefix(model.PlaceholderInstanceID)]
 
-	properShortDnsName := util.UuidToShortDnsName(instanceId)
+	properShortDnsName := commonHttp.UuidToShortDnsName(instanceId)
 	content = strings.Replace(content, model.GetPlaceholderWithDollarPrefix(model.PlaceholderShortInstanceID), properShortDnsName, -1)
 	content = strings.Replace(content, model.GetPlaceholderWithDollarPrefix(model.PlaceholderIdxAndShortInstanceID), properShortDnsName, -1)
 

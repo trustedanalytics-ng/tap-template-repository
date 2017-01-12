@@ -21,7 +21,7 @@ import (
 
 	"github.com/gocraft/web"
 
-	util "github.com/trustedanalytics/tap-go-common/http"
+	commonHttp "github.com/trustedanalytics/tap-go-common/http"
 )
 
 func (c *Context) BasicAuthorizeMiddleware(rw web.ResponseWriter, req *web.Request, next web.NextMiddlewareFunc) {
@@ -29,7 +29,7 @@ func (c *Context) BasicAuthorizeMiddleware(rw web.ResponseWriter, req *web.Reque
 	username, password, is_ok := req.BasicAuth()
 	if !is_ok || username != os.Getenv("TEMPLATE_REPOSITORY_USER") || password != os.Getenv("TEMPLATE_REPOSITORY_PASS") {
 		logger.Info("EnforceAuthMiddleware - BasicAuth: Invalid Basic Auth credentials")
-		util.RespondUnauthorized(rw)
+		commonHttp.RespondUnauthorized(rw)
 		return
 	}
 	logger.Info("EnforceAuthMiddleware - BasicAuth: User authenticated as ", username)

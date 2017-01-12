@@ -25,7 +25,7 @@ import (
 	"github.com/gocraft/web"
 
 	commonLogger "github.com/trustedanalytics/tap-go-common/logger"
-	util "github.com/trustedanalytics/tap-go-common/http"
+	commonHttp "github.com/trustedanalytics/tap-go-common/http"
 	"github.com/trustedanalytics/tap-template-repository/catalog"
 	"github.com/trustedanalytics/tap-template-repository/model"
 )
@@ -41,12 +41,12 @@ func (c *Context) Templates(rw web.ResponseWriter, req *web.Request) {
 	for _, templatePath := range c.TemplateApi.GetAvailableTemplates() {
 		template, err := c.TemplateApi.GetRawTemplate(templatePath)
 		if err != nil {
-			util.Respond500(rw, err)
+			commonHttp.Respond500(rw, err)
 			return
 		}
 		result = append(result, template)
 	}
-	util.WriteJson(rw, result, http.StatusOK)
+	commonHttp.WriteJson(rw, result, http.StatusOK)
 }
 
 func (c *Context) GenerateParsedTemplate(rw web.ResponseWriter, req *web.Request) {
@@ -56,34 +56,34 @@ func (c *Context) GenerateParsedTemplate(rw web.ResponseWriter, req *web.Request
 
 	err := validateTemplateId(templateId)
 	if err != nil {
-		util.Respond400(rw, err)
+		commonHttp.Respond400(rw, err)
 		return
 	}
 
 	err = validateUuid(instanceId)
 	if err != nil {
-		util.Respond400(rw, err)
+		commonHttp.Respond400(rw, err)
 		return
 	}
 
 	templatePath := c.TemplateApi.GetTemplatePath(templateId)
 	if templatePath == "" {
-		util.Respond404(rw, errors.New(fmt.Sprintf("can't find template by id: %s", templateId)))
+		commonHttp.Respond404(rw, errors.New(fmt.Sprintf("can't find template by id: %s", templateId)))
 		return
 	}
 
 	rawTemplate, err := c.TemplateApi.GetRawTemplate(templatePath)
 	if err != nil {
-		util.Respond500(rw, err)
+		commonHttp.Respond500(rw, err)
 		return
 	}
 
 	template, err := c.TemplateApi.GetParsedTemplate(rawTemplate, prepareReplacements(req.URL.Query(), instanceId), planName)
 	if err != nil {
-		util.Respond500(rw, err)
+		commonHttp.Respond500(rw, err)
 		return
 	}
-	util.WriteJson(rw, *template, http.StatusOK)
+	commonHttp.WriteJson(rw, *template, http.StatusOK)
 }
 
 func prepareReplacements(query url.Values, instanceId string) map[string]string {
@@ -100,71 +100,71 @@ func prepareReplacements(query url.Values, instanceId string) map[string]string 
 func (c *Context) CreateCustomTemplate(rw web.ResponseWriter, req *web.Request) {
 	rawTemplate := model.RawTemplate{}
 
-	err := util.ReadJson(req, &rawTemplate)
+	err := commonHttp.ReadJson(req, &rawTemplate)
 	if err != nil {
-		util.Respond500(rw, err)
+		commonHttp.Respond500(rw, err)
 		return
 	}
 
 	//Validate if template can be properely parsed, use fake-test-instance-id as this is required during regular creation
 	template, err := c.TemplateApi.GetParsedTemplate(rawTemplate, prepareReplacements(req.URL.Query(), "fake-test-instance-id"), model.EMPTY_PLAN_NAME)
 	if err != nil {
-		util.Respond400(rw, err)
+		commonHttp.Respond400(rw, err)
 		return
 	}
 
 	templateId := template.Id
 	if err = validateTemplateId(templateId); err != nil {
-		util.Respond400(rw, err)
+		commonHttp.Respond400(rw, err)
 		return
 	}
 
 	if _, templateExist := c.TemplateApi.GetAvailableTemplates()[templateId]; templateExist {
-		util.Respond409(rw, errors.New(fmt.Sprintf("Template with Id: %s already exists!", templateId)))
+		commonHttp.Respond409(rw, errors.New(fmt.Sprintf("Template with Id: %s already exists!", templateId)))
 		return
 	}
 
 	if err := c.TemplateApi.AddCustomTemplate(rawTemplate, templateId); err != nil {
-		util.Respond500(rw, err)
+		commonHttp.Respond500(rw, err)
 		return
 	}
-	util.WriteJson(rw, "", http.StatusCreated)
+	commonHttp.WriteJson(rw, "", http.StatusCreated)
 }
 
 func (c *Context) GetRawTemplate(rw web.ResponseWriter, req *web.Request) {
 	templateID := req.PathParams["templateId"]
 	err := validateTemplateId(templateID)
 	if err != nil {
-		util.Respond400(rw, err)
+		commonHttp.Respond400(rw, err)
 		return
 	}
 
 	templatePath := c.TemplateApi.GetTemplatePath(templateID)
 	if templatePath == "" {
-		util.Respond404(rw, errors.New("template doesn't exist!"))
+		commonHttp.Respond404(rw, errors.New("template doesn't exist!"))
 		return
 	}
 
 	rawTemplate, err := c.TemplateApi.GetRawTemplate(templatePath)
 	if err != nil {
-		util.Respond500(rw, err)
+		commonHttp.Respond500(rw, err)
 		return
 	}
-	util.WriteJson(rw, rawTemplate, http.StatusOK)
+	commonHttp.WriteJson(rw, rawTemplate, http.StatusOK)
 }
 
 func (c *Context) DeleteCustomTemplate(rw web.ResponseWriter, req *web.Request) {
 	templateID := req.PathParams["templateId"]
 	err := validateTemplateId(templateID)
 	if err != nil {
-		util.Respond400(rw, err)
+		commonHttp.Respond400(rw, err)
 		return
 	}
 
 	status, err := c.TemplateApi.RemoveAndUnregisterCustomTemplate(templateID)
 	if err != nil {
-		util.GenericRespond(status, rw, err)
+		commonHttp.GenericRespond(status, rw, err)
 		return
 	}
-	util.WriteJson(rw, "", http.StatusNoContent)
+	commonHttp.WriteJson(rw, "", http.StatusNoContent)
 }

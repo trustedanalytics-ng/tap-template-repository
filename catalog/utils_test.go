@@ -23,13 +23,13 @@ import (
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 
-	util "github.com/trustedanalytics/tap-go-common/http"
+	commonHttp "github.com/trustedanalytics/tap-go-common/http"
 	"github.com/trustedanalytics/tap-template-repository/model"
 )
 
 func TestAdjustParams(t *testing.T) {
 	instanceId := "test-instance-id"
-	properShortDnsName := util.UuidToShortDnsName(instanceId)
+	properShortDnsName := commonHttp.UuidToShortDnsName(instanceId)
 
 	convey.Convey("Test adjustParams", t, func() {
 		replacements := map[string]string{
