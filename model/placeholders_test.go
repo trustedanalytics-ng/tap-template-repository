@@ -52,6 +52,9 @@ func TestDefaultReplacements(t *testing.T) {
 			convey.Convey("Test PLACEHOLDER_REPOSITORY_URI exists", func() {
 				convey.So(result[GetPlaceholderWithDollarPrefix(PlaceholderRepositoryUri)], convey.ShouldEqual, defaultRepositoryUri)
 			})
+			convey.Convey("Test PLACEHOLDER_PROTOCOL exists", func() {
+				convey.So(result[GetPlaceholderWithDollarPrefix(PlaceholderProtocol)], convey.ShouldEqual, defaultProtocol)
+			})
 		})
 		convey.Convey("Map with org defined will return map with defaults and defined org", func() {
 			result := make(map[string]string)

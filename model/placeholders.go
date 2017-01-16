@@ -57,6 +57,7 @@ const (
 
 	PlaceholderRepositoryUri = "repository_uri"
 	PlaceholderTapVersion    = "tap_version"
+	PlaceholderProtocol = "tap_protocol"
 
 	PlaceholderCreatedBy = "created_by"
 
@@ -66,6 +67,7 @@ const (
 	defaultRepositoryUri   = "127.0.0.1:30000"
 	defaultTapVersion      = "latest"
 	defaultExternalSsl     = "false"
+	defaultProtocol        = "http"
 )
 
 func GetPlaceholderWithDollarPrefix(placeholder string) string {
@@ -76,6 +78,14 @@ func GetPrefixedSourcePlanName(planName string) string {
 	return PlaceholderSourcePlanIDPrefix + planName
 }
 
+func GetProtocol(sslFlag string) string {
+	protocol := defaultProtocol
+	if sslFlag == "true" {
+		protocol = "https"
+	}
+	return protocol
+}
+
 func getDefaultReplacements() map[string]string {
 	return map[string]string{
 		GetPlaceholderWithDollarPrefix(PlaceholderDomainName):            os.Getenv("DOMAIN"),
@@ -84,6 +94,7 @@ func getDefaultReplacements() map[string]string {
 		GetPlaceholderWithDollarPrefix(PlaceholderRepositoryUri):         util.GetEnvValueOrDefault("REPOSITORY_URI",defaultRepositoryUri),
 		GetPlaceholderWithDollarPrefix(PlaceholderTapVersion):            util.GetEnvValueOrDefault("TAP_VERSION", defaultTapVersion),
 		GetPlaceholderWithDollarPrefix(PlaceholderUseExternalSslFlag):    util.GetEnvValueOrDefault("USE_EXTERNAL_SSL", defaultExternalSsl),
+		GetPlaceholderWithDollarPrefix(PlaceholderProtocol):           	  GetProtocol(util.GetEnvValueOrDefault("USE_EXTERNAL_SSL", defaultExternalSsl)),
 		GetPlaceholderWithDollarPrefix(PlaceholderSpace):                 defaultSpace,
 		GetPlaceholderWithDollarPrefix(PlaceholderMemoryLimit):           defaultMemoryLimit,
 	}
