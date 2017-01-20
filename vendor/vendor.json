@@ -75,10 +75,10 @@
 			"revisionTime": "2016-08-23T18:01:44Z"
 		},
 		{
-			"checksumSHA1": "cYx5jTa7w/CJ8VZJm2aDgoj5XQI=",
+			"checksumSHA1": "KVaicddPJrZDXxHoOuS0lXswaaI=",
 			"path": "github.com/trustedanalytics/tap-go-common/http",
-			"revision": "c318a644438733c115c0a784fb774ec92e381875",
-			"revisionTime": "2017-01-10T15:18:59Z"
+			"revision": "afce857ddf1647fd6819bfc78cf634f5e7aed991",
+			"revisionTime": "2017-01-20T10:41:24Z"
 		},
 		{
 			"checksumSHA1": "O4sIfCHeupMT91S+wt73AAfH4bQ=",

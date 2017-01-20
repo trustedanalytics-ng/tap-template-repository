@@ -28,8 +28,20 @@ import (
 	"github.com/smartystreets/goconvey/convey"
 )
 
-func SendRequest(rType, path string, body []byte, r *web.Router) *httptest.ResponseRecorder {
-	req, _ := http.NewRequest(rType, path, bytes.NewReader(body))
+func SendRequest(rType, path string, body []byte, r *web.Router, t *testing.T) *httptest.ResponseRecorder {
+	return SendRequestWithHeaders(rType, path, body, r, nil, t)
+}
+
+func SendRequestWithHeaders(rType, path string, body []byte, r *web.Router, header http.Header, t *testing.T) *httptest.ResponseRecorder {
+	req, err := http.NewRequest(rType, path, bytes.NewReader(body))
+	if err != nil {
+		t.Fatalf("Creating new request error: %v", err)
+		return nil
+	}
+
+	if header != nil {
+		req.Header = header
+	}
 	rr := httptest.NewRecorder()
 	r.ServeHTTP(rr, req)
 	return rr
