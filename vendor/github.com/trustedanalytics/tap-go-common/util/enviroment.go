@@ -17,6 +17,7 @@
 package util
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"os"
@@ -112,12 +113,11 @@ func GetEnvOrError(envName string) (string, error) {
 }
 
 func sumErrors(errorsArray []error) error {
-	finalByteMessage := []byte{}
-	byteCounter := 0
+	var buffer bytes.Buffer
 
 	for _, err := range errorsArray {
-		byteCounter += copy(finalByteMessage[byteCounter:], fmt.Sprintf("%s, ", err.Error()))
+		buffer.WriteString(fmt.Sprintf("%s, ", err.Error()))
 	}
 
-	return errors.New(string(finalByteMessage))
+	return errors.New(buffer.String())
 }

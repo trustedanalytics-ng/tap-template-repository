@@ -24,8 +24,8 @@ import (
 
 	"github.com/gocraft/web"
 
-	commonLogger "github.com/trustedanalytics/tap-go-common/logger"
 	commonHttp "github.com/trustedanalytics/tap-go-common/http"
+	commonLogger "github.com/trustedanalytics/tap-go-common/logger"
 	"github.com/trustedanalytics/tap-template-repository/catalog"
 	"github.com/trustedanalytics/tap-template-repository/model"
 )

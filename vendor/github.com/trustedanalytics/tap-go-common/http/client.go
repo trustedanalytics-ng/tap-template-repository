@@ -20,6 +20,7 @@ import (
 	"crypto/x509"
 	"io/ioutil"
 	"net/http"
+	"net"
 	"os"
 	"strconv"
 	"strings"
@@ -29,6 +30,7 @@ import (
 )
 
 const MaxIdleConnectionPerHost int = 20
+const ConnectionTimeout = time.Duration(time.Second * 30)
 
 var logger, _ = commonLogger.InitLogger("http")
 
@@ -51,7 +53,7 @@ func GetHttpClientWithCertAndCa(certPem, keyPem, caPem string) (*http.Client, *h
 
 	transport := prepareTransportWithProxy(tlsConfig, MaxIdleConnectionPerHost)
 
-	client := &http.Client{Transport: transport}
+	client := &http.Client{Transport: transport, Timeout: ConnectionTimeout}
 
 	return client, transport, nil
 }
@@ -79,7 +81,7 @@ func GetHttpClientWithCertAndCaFromFile(certPemFile, keyPemFile, caPemFile strin
 
 	transport := prepareTransportWithProxy(tlsConfig, MaxIdleConnectionPerHost)
 
-	client := &http.Client{Transport: transport}
+	client := &http.Client{Transport: transport, Timeout: ConnectionTimeout}
 
 	return client, transport, nil
 }
@@ -97,7 +99,7 @@ func GetHttpClientWithCa(caPem string) (*http.Client, *http.Transport, error) {
 
 	transport := prepareTransportWithProxy(tlsConfig, MaxIdleConnectionPerHost)
 
-	client := &http.Client{Transport: transport, Timeout: time.Duration(30 * time.Minute)}
+	client := &http.Client{Transport: transport, Timeout: ConnectionTimeout}
 	return client, transport, nil
 }
 
@@ -121,7 +123,7 @@ func GetHttpClientWithCustomConnectionLimitAndSSLValidation(maxIdleConnectionPer
 
 	transport := prepareTransportWithProxy(tlsConfig, maxIdleConnectionPerHost)
 
-	client := &http.Client{Transport: transport, Timeout: time.Duration(30 * time.Minute)}
+	client := &http.Client{Transport: transport, Timeout: ConnectionTimeout}
 	return client, transport, nil
 }
 
@@ -142,6 +144,9 @@ func prepareTransportWithProxy(tlsConfig *tls.Config, maxIdleConnectionPerHost i
 		Proxy:               http.ProxyFromEnvironment,
 		TLSClientConfig:     tlsConfig,
 		MaxIdleConnsPerHost: maxIdleConnectionPerHost,
+		Dial: (&net.Dialer{ 
+			Timeout: ConnectionTimeout,
+		}).Dial,
 	}
 }
 

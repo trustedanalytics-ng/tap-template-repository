@@ -57,17 +57,17 @@ const (
 
 	PlaceholderRepositoryUri = "repository_uri"
 	PlaceholderTapVersion    = "tap_version"
-	PlaceholderProtocol = "tap_protocol"
+	PlaceholderProtocol      = "tap_protocol"
 
 	PlaceholderCreatedBy = "created_by"
 
-	defaultOrg             = "00000000-0000-0000-0000-000000000000"
-	defaultMemoryLimit     = "1Gi"
-	defaultSpace           = "defaultSpace"
-	defaultRepositoryUri   = "127.0.0.1:30000"
-	defaultTapVersion      = "latest"
-	defaultExternalSsl     = "false"
-	defaultProtocol        = "http"
+	defaultOrg           = "00000000-0000-0000-0000-000000000000"
+	defaultMemoryLimit   = "1Gi"
+	defaultSpace         = "defaultSpace"
+	defaultRepositoryUri = "127.0.0.1:30000"
+	defaultTapVersion    = "latest"
+	defaultExternalSsl   = "false"
+	defaultProtocol      = "http"
 )
 
 func GetPlaceholderWithDollarPrefix(placeholder string) string {
@@ -88,15 +88,15 @@ func GetProtocol(sslFlag string) string {
 
 func getDefaultReplacements() map[string]string {
 	return map[string]string{
-		GetPlaceholderWithDollarPrefix(PlaceholderDomainName):            os.Getenv("DOMAIN"),
-		GetPlaceholderWithDollarPrefix(PlaceholderNginxSSLImageName):     os.Getenv("NGINX_SSL_IMAGE_NAME"),
-		GetPlaceholderWithDollarPrefix(PlaceholderOrg):                   util.GetEnvValueOrDefault("CORE_ORGANIZATION_UUID", defaultOrg),
-		GetPlaceholderWithDollarPrefix(PlaceholderRepositoryUri):         util.GetEnvValueOrDefault("REPOSITORY_URI",defaultRepositoryUri),
-		GetPlaceholderWithDollarPrefix(PlaceholderTapVersion):            util.GetEnvValueOrDefault("TAP_VERSION", defaultTapVersion),
-		GetPlaceholderWithDollarPrefix(PlaceholderUseExternalSslFlag):    util.GetEnvValueOrDefault("USE_EXTERNAL_SSL", defaultExternalSsl),
-		GetPlaceholderWithDollarPrefix(PlaceholderProtocol):           	  GetProtocol(util.GetEnvValueOrDefault("USE_EXTERNAL_SSL", defaultExternalSsl)),
-		GetPlaceholderWithDollarPrefix(PlaceholderSpace):                 defaultSpace,
-		GetPlaceholderWithDollarPrefix(PlaceholderMemoryLimit):           defaultMemoryLimit,
+		GetPlaceholderWithDollarPrefix(PlaceholderDomainName):         os.Getenv("DOMAIN"),
+		GetPlaceholderWithDollarPrefix(PlaceholderNginxSSLImageName):  os.Getenv("NGINX_SSL_IMAGE_NAME"),
+		GetPlaceholderWithDollarPrefix(PlaceholderOrg):                util.GetEnvValueOrDefault("CORE_ORGANIZATION_UUID", defaultOrg),
+		GetPlaceholderWithDollarPrefix(PlaceholderRepositoryUri):      util.GetEnvValueOrDefault("REPOSITORY_URI", defaultRepositoryUri),
+		GetPlaceholderWithDollarPrefix(PlaceholderTapVersion):         util.GetEnvValueOrDefault("TAP_VERSION", defaultTapVersion),
+		GetPlaceholderWithDollarPrefix(PlaceholderUseExternalSslFlag): util.GetEnvValueOrDefault("USE_EXTERNAL_SSL", defaultExternalSsl),
+		GetPlaceholderWithDollarPrefix(PlaceholderProtocol):           GetProtocol(util.GetEnvValueOrDefault("USE_EXTERNAL_SSL", defaultExternalSsl)),
+		GetPlaceholderWithDollarPrefix(PlaceholderSpace):              defaultSpace,
+		GetPlaceholderWithDollarPrefix(PlaceholderMemoryLimit):        defaultMemoryLimit,
 	}
 }
 

@@ -91,8 +91,8 @@ func WriteJson(rw web.ResponseWriter, response interface{}, status_code int) err
 	rw.Header().Set("Content-Type", "application/json")
 	logger.Debug("Responding with status", status_code, " and JSON:", string(b))
 	rw.WriteHeader(status_code)
-	fmt.Fprintf(rw, "%s", string(b))
-	return nil
+	_, err = fmt.Fprintf(rw, "%s", string(b))
+	return err
 }
 
 func WriteJsonOrError(rw web.ResponseWriter, response interface{}, status int, err error) error {
@@ -146,5 +146,13 @@ func HandleError(rw web.ResponseWriter, err error) {
 		Respond400(rw, err)
 	} else {
 		Respond500(rw, err)
+	}
+}
+
+func RespondErrorByStatus(rw web.ResponseWriter, statusCode int, operationName string) {
+	if statusCode == http.StatusForbidden {
+		Respond403(rw)
+	} else {
+		GenericRespond(statusCode, rw, fmt.Errorf("error doing: %s", operationName))
 	}
 }
