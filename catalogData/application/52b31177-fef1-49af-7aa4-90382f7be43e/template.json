@@ -178,6 +178,13 @@
                       "value": "$org"
                     }
                   ],
+                  "readinessProbe": {
+                      "tcpSocket": {
+                          "port": 80
+                      },
+                      "failureThreshold": 1,
+                      "timeoutSeconds": 3
+                  },
                   "resources": {
                     "limits": {
                       "memory": "$memory_limit"
