@@ -18,7 +18,7 @@ package model
 import (
 	"os"
 
-	"github.com/trustedanalytics/tap-go-common/util"
+	"github.com/trustedanalytics-ng/tap-go-common/util"
 )
 
 const (

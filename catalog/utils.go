@@ -28,8 +28,8 @@ import (
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/apis/extensions"
 
-	commonHttp "github.com/trustedanalytics/tap-go-common/http"
-	"github.com/trustedanalytics/tap-template-repository/model"
+	commonHttp "github.com/trustedanalytics-ng/tap-go-common/http"
+	"github.com/trustedanalytics-ng/tap-template-repository/model"
 )
 
 var possibleRandChars = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")

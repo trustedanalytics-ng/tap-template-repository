@@ -24,9 +24,9 @@ import (
 	"net/url"
 	"strconv"
 
-	brokerHttp "github.com/trustedanalytics/tap-go-common/http"
-	commonLogger "github.com/trustedanalytics/tap-go-common/logger"
-	"github.com/trustedanalytics/tap-template-repository/model"
+	brokerHttp "github.com/trustedanalytics-ng/tap-go-common/http"
+	commonLogger "github.com/trustedanalytics-ng/tap-go-common/logger"
+	"github.com/trustedanalytics-ng/tap-template-repository/model"
 )
 
 var logger, _ = commonLogger.InitLogger("catalog")

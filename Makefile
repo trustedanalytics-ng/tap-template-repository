@@ -59,18 +59,18 @@ deps_fetch_specific: bin/govendor
 	$(GOBIN)/govendor fetch -v $(DEP_URL)
 
 deps_update_tap: verify_gopath
-	$(GOBIN)/govendor update github.com/trustedanalytics/...
-	$(GOBIN)/govendor remove github.com/trustedanalytics/$(APP_NAME)/...
+	$(GOBIN)/govendor update github.com/trustedanalytics-ng/...
+	$(GOBIN)/govendor remove github.com/trustedanalytics-ng/$(APP_NAME)/...
 	@echo "Done"
 
 prepare_dirs:
-	mkdir -p ./temp/src/github.com/trustedanalytics/tap-template-repository
+	mkdir -p ./temp/src/github.com/trustedanalytics-ng/tap-template-repository
 	$(eval REPOFILES=$(shell pwd)/*)
-	ln -sf $(REPOFILES) temp/src/github.com/trustedanalytics/tap-template-repository
+	ln -sf $(REPOFILES) temp/src/github.com/trustedanalytics-ng/tap-template-repository
 
 build_anywhere: prepare_dirs
 	$(eval GOPATH=$(shell cd ./temp; pwd))
-	$(eval APP_DIR_LIST=$(shell GOPATH=$(GOPATH) go list ./temp/src/github.com/trustedanalytics/tap-template-repository/... | grep -v /vendor/))
+	$(eval APP_DIR_LIST=$(shell GOPATH=$(GOPATH) go list ./temp/src/github.com/trustedanalytics-ng/tap-template-repository/... | grep -v /vendor/))
 	GOPATH=$(GOPATH) CGO_ENABLED=0 go build -tags netgo $(APP_DIR_LIST)
 	rm -Rf application && mkdir application
 	cp -RL ./tap-template-repository ./application/tap-template-repository

@@ -24,10 +24,10 @@ import (
 
 	"github.com/gocraft/web"
 
-	commonHttp "github.com/trustedanalytics/tap-go-common/http"
-	commonLogger "github.com/trustedanalytics/tap-go-common/logger"
-	"github.com/trustedanalytics/tap-template-repository/catalog"
-	"github.com/trustedanalytics/tap-template-repository/model"
+	commonHttp "github.com/trustedanalytics-ng/tap-go-common/http"
+	commonLogger "github.com/trustedanalytics-ng/tap-go-common/logger"
+	"github.com/trustedanalytics-ng/tap-template-repository/catalog"
+	"github.com/trustedanalytics-ng/tap-template-repository/model"
 )
 
 type Context struct {

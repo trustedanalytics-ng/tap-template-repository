@@ -76,19 +76,19 @@
 		},
 		{
 			"checksumSHA1": "MDHKisxjUtt5DGc4XW5nkgdYOno=",
-			"path": "github.com/trustedanalytics/tap-go-common/http",
+			"path": "github.com/trustedanalytics-ng/tap-go-common/http",
 			"revision": "7140a3ee0edebbc5549916ac6e8ae5b6d6f10fa0",
 			"revisionTime": "2017-01-31T10:26:58Z"
 		},
 		{
 			"checksumSHA1": "O4sIfCHeupMT91S+wt73AAfH4bQ=",
-			"path": "github.com/trustedanalytics/tap-go-common/logger",
+			"path": "github.com/trustedanalytics-ng/tap-go-common/logger",
 			"revision": "7140a3ee0edebbc5549916ac6e8ae5b6d6f10fa0",
 			"revisionTime": "2017-01-31T10:26:58Z"
 		},
 		{
 			"checksumSHA1": "eoMUCBYFcInJYZv1GWo1Ths6TY8=",
-			"path": "github.com/trustedanalytics/tap-go-common/util",
+			"path": "github.com/trustedanalytics-ng/tap-go-common/util",
 			"revision": "7140a3ee0edebbc5549916ac6e8ae5b6d6f10fa0",
 			"revisionTime": "2017-01-31T10:26:58Z"
 		},
@@ -308,5 +308,5 @@
 			"revisionTime": "2016-10-03T21:40:34Z"
 		}
 	],
-	"rootPath": "github.com/trustedanalytics/tap-template-repository"
+	"rootPath": "github.com/trustedanalytics-ng/tap-template-repository"
 }

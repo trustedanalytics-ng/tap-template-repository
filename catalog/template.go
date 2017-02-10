@@ -25,8 +25,8 @@ import (
 	"strings"
 	"sync"
 
-	commonLogger "github.com/trustedanalytics/tap-go-common/logger"
-	"github.com/trustedanalytics/tap-template-repository/model"
+	commonLogger "github.com/trustedanalytics-ng/tap-go-common/logger"
+	"github.com/trustedanalytics-ng/tap-template-repository/model"
 )
 
 var templatesPaths map[string]string

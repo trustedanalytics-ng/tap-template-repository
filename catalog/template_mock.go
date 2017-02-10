@@ -20,7 +20,7 @@ package catalog
 
 import (
 	gomock "github.com/golang/mock/gomock"
-	model "github.com/trustedanalytics/tap-template-repository/model"
+	model "github.com/trustedanalytics-ng/tap-template-repository/model"
 )
 
 // Mock of TemplateApi interface

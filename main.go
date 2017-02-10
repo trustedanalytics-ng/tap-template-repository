@@ -22,9 +22,9 @@ import (
 
 	"github.com/gocraft/web"
 
-	httpGoCommon "github.com/trustedanalytics/tap-go-common/http"
-	"github.com/trustedanalytics/tap-template-repository/api"
-	"github.com/trustedanalytics/tap-template-repository/catalog"
+	httpGoCommon "github.com/trustedanalytics-ng/tap-go-common/http"
+	"github.com/trustedanalytics-ng/tap-template-repository/api"
+	"github.com/trustedanalytics-ng/tap-template-repository/catalog"
 )
 
 func main() {
